@@ -1,6 +1,8 @@
 FROM node
 
 COPY IO.js .
+COPY KEYS.js .
+COPY simplify.js .
 COPY GetCensusMaps.js .
 COPY GetOpenStates.js .
 COPY GetCongress.js .

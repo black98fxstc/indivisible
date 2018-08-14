@@ -3,7 +3,7 @@ const fs = require('fs');
 const Transform = require('stream').Transform;
 const StringDecoder = require('string_decoder').StringDecoder;
 
-const MAP_BASE = (process.argv.length > 2 ? process.argv[process.argv.length-1] : "/var/lib/indivisible/civic-key/maps/");
+const MAP_BASE = (process.argv.length > 2 ? process.argv[process.argv.length-1] : "maps/");
 
 if (!fs.existsSync(MAP_BASE))
 	fs.mkdirSync(MAP_BASE);
@@ -51,7 +51,7 @@ function lines() {
 
 exports.writeArray = (name, array, callback) => {
 	let stream = zlib.createGzip();
-	let ws = fs.createWriteStream('maps/' + name + '.json.gz');
+	let ws = fs.createWriteStream(MAP_BASE + name + '.json.gz');
 	stream.pipe(ws);
 	// stream.pipe(fs.createWriteStream('maps/' + name + '.json.gz'));
 
@@ -79,7 +79,7 @@ exports.writeArray = (name, array, callback) => {
 
 exports.readArray = (name, array, callback) => {
 	let unzip = zlib.createGunzip();
-	let reader = fs.createReadStream('maps/' + name + '.json.gz')
+	let reader = fs.createReadStream(MAP_BASE + name + '.json.gz')
 		.on('error', (err) => { setImmediate(callback, -1, err) })
 		.pipe(unzip)
 		.on('error', (err) => { throw err })

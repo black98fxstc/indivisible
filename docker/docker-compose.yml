@@ -128,7 +128,7 @@ services:
       - 127.0.0.1:3306:3306
     volumes:
       - ./database/cloudsql:/cloudsql
-      - ~/wolverine.json:/config
+      - /home/wmoore/wolverine.json:/config
 
 volumes:
   ca-state-strong:
