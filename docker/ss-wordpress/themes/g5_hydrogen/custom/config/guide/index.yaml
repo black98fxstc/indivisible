@@ -1,0 +1,51 @@
+name: guide
+timestamp: 1519607620
+version: 7
+preset:
+  image: 'gantry-admin://images/layouts/2-col-right.png'
+  name: 2_column_-_right
+  timestamp: 1508332860
+positions: {  }
+sections:
+  header: Header
+  navigation: Navigation
+  main: Main
+  sidebar: Sidebar
+  footer: Footer
+  offcanvas: Offcanvas
+particles:
+  messages:
+    system-messages-4375: 'System Messages'
+  logo:
+    logo-3347: 'Logo / Image'
+  menu:
+    menu-1263: Menu
+    menu-8652: Menu
+  content:
+    system-content-2605: 'Page Content'
+  widget:
+    position-widget-5649: Widget
+  copyright:
+    copyright-2982: Copyright
+  social:
+    social-4969: Social
+  branding:
+    branding-4619: Branding
+  mobile-menu:
+    mobile-menu-4429: Mobile-menu
+inherit:
+  default:
+    header: header
+    system-messages-4375: system-messages-4735
+    navigation: navigation
+    logo-3347: logo-7296
+    menu-1263: menu-6948
+    main: main
+    system-content-2605: system-content-3116
+    footer: footer
+    position-widget-5649: position-widget-1625
+    copyright-2982: copyright-6921
+    social-4969: social-8965
+    branding-4619: branding-3800
+    offcanvas: offcanvas
+    mobile-menu-4429: mobile-menu-1056

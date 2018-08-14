@@ -1,0 +1,12 @@
+context: {  }
+menu: {  }
+language: {  }
+post:
+  indv_legislation:
+    is_singular: true
+    is_archive: true
+taxonomy: {  }
+archive:
+  indv_issue:
+    6: true
+    5: true

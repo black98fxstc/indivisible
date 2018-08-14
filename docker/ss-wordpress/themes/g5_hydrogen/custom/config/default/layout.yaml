@@ -1,0 +1,71 @@
+version: 2
+preset:
+  image: 'gantry-admin://images/layouts/default.png'
+  name: default
+  timestamp: 1508332860
+layout:
+  /header/:
+    -
+      - system-messages-4735
+  /navigation/:
+    -
+      - 'logo-7296 28'
+      - 'menu-6948 72'
+  /main/:
+    -
+      - system-content-3116
+  /footer/:
+    -
+      - position-widget-1625
+    -
+      - 'copyright-6921 33.3'
+      - 'social-8965 33.3'
+      - 'branding-3800 33.3'
+  offcanvas:
+    -
+      - mobile-menu-1056
+structure:
+  header:
+    attributes:
+      boxed: ''
+  navigation:
+    type: section
+    attributes:
+      boxed: ''
+  main:
+    attributes:
+      boxed: ''
+  footer:
+    attributes:
+      boxed: ''
+  offcanvas:
+    attributes:
+      position: g-offcanvas-left
+      class: ''
+      extra: {  }
+      swipe: '0'
+      css3animation: '1'
+content:
+  logo-7296:
+    title: 'Logo / Image'
+    attributes:
+      image: 'gantry-media://Indiv-CA-StateStrong-FINAL-500px.png'
+  menu-6948:
+    attributes:
+      mobileTarget: '1'
+    block:
+      variations: align-right
+  position-widget-1625:
+    attributes:
+      enabled: 0
+      widget: '{"type":"widget","widget":"mc4wp_form_widget","title":"MailChimp Sign-Up Form","options":{"widget":{"title":""}}}'
+      key: widget
+  copyright-6921:
+    block:
+      variations: align-left
+  social-8965:
+    block:
+      variations: center
+  branding-3800:
+    block:
+      variations: align-right

@@ -1,0 +1,36 @@
+{% extends '@nucleus/partials/particle.html.twig' %}
+
+{% block particle %}
+
+    <div class="location-search widget widget_search">
+        <form role="search" method="get" id="indv_form" class="indv_form search-form form" action="{{ site.url }}{{ particle.path }}">
+			<input type="hidden" id="indv_latitude" name="lat" value=""/>
+			<input type="hidden" id="indv_longitude" name="lng" value=""/>
+			<input type="hidden" name="post_type" value="indv_politician"/>
+    		<h2 class="widgettitle">{{ particle.title }}</h2>
+    		<h3 class="widgettitle">By Keyword</h3>
+            <label>
+                <span class="screen-reader-text">{{ __( 'in article or title', 'indivisible-text-domain' ) }}</span>
+                <input id="indv_keyword" type="search" class="search-field" placeholder="{{ __( 'in article or title', 'indivisible-text-domain' ) }}" value="" name="s" title="{{ __('Search for:', 'g5_hydrogen') }}" />
+            </label>
+    		<h3 class="widgettitle">By Name</h3>
+            <label>
+                <span class="screen-reader-text">{{ __('of legislator', 'indivisible-text-domain' ) }}</span>
+                <input id="indv_legislator_name" type="search" class="search-field" placeholder="{{ __( 'of legislator', 'indivisible-text-domain' ) }}" value="" name="by_name" title="{{ __('Search for:', 'g5_hydrogen') }}" />
+            </label>
+    		<h3 class="widgettitle">By Address</h3>
+            <label>
+                <span class="screen-reader-text">{{ __('where registered to vote', 'indivisible-text-domain' ) }}</span>
+                <input id="indv_autocomplete" type="search" class="search-field" placeholder="{{ __( 'where registered to vote', 'indivisible-text-domain' ) }}" value="" title="{{ __('Search for:', 'g5_hydrogen') }}" />
+            </label>
+			<img src="gantry-media://powered_by_google_on_white.png">
+    		<h3 class="widgettitle">By Location</h3>
+            <label>
+                <span class="screen-reader-text">{{ __('Search for:', 'g5_hydrogen') }}</span>
+            </label>
+            <input type="submit" id="indv_search" class="indv_search search-submit button" value="Search" />
+        </form>
+        <div id="indv_output"></div>
+    </div>
+
+{% endblock %}

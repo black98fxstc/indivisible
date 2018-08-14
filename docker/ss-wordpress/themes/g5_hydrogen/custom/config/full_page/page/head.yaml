@@ -1,0 +1,10 @@
+atoms:
+  -
+    id: assets-5132
+    type: assets
+    title: 'Custom CSS / JS'
+    attributes:
+      enabled: '1'
+      css:
+        - { location: '', inline: "h2 {\n  font-weight: bold;\n  color: #6C9FC2;\n}\n.ss-full-width {\n\tmargin-left: 10rem;\n\tmargin-right: 10rem;\n}\n", extra: {  }, priority: '0', name: 'New item' }
+      javascript: {  }

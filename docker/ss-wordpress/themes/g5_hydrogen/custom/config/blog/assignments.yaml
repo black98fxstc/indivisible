@@ -1,0 +1,12 @@
+context: {  }
+menu:
+  main:
+    30: true
+language: {  }
+post: {  }
+taxonomy:
+  category:
+    10: true
+archive:
+  category:
+    10: true

@@ -1,0 +1,8 @@
+context: {  }
+menu: {  }
+language: {  }
+post:
+  indv_politician:
+    is_singular: true
+taxonomy: {  }
+archive: {  }

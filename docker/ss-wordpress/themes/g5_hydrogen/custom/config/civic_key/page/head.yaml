@@ -1,0 +1,28 @@
+atoms:
+  -
+    id: frameworks-5305
+    type: frameworks
+    title: 'JavaScript Frameworks'
+    attributes:
+      enabled: '1'
+      jquery:
+        enabled: '1'
+        ui_core: '0'
+        ui_sortable: '0'
+      bootstrap2:
+        enabled: '0'
+      bootstrap3:
+        enabled: '0'
+      mootools:
+        enabled: '0'
+        more: '0'
+  -
+    id: assets-8219
+    type: assets
+    title: 'Custom CSS / JS'
+    attributes:
+      enabled: '1'
+      css: {  }
+      javascript:
+        - { location: 'https://maps.googleapis.com/maps/api/js?key=AIzaSyD6-CGpCzt5hhveIVcYUNp3auafwiqmK-4&libraries=places', inline: '', in_footer: '0', extra: {  }, priority: '0', name: 'Google Maps' }
+        - { location: 'gantry-assets://js/demo-page.js', inline: '', in_footer: '0', extra: {  }, priority: '0', name: 'Front Page' }

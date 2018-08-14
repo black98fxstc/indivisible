@@ -1,0 +1,56 @@
+name: newsletter
+timestamp: 1519594887
+version: 7
+preset:
+  image: 'gantry-admin://images/layouts/2-col-right.png'
+  name: 2_column_-_right
+  timestamp: 1508332860
+positions: {  }
+sections:
+  header: Header
+  navigation: Navigation
+  main: Main
+  sidebar: Sidebar
+  footer: Footer
+  offcanvas: Offcanvas
+particles:
+  messages:
+    system-messages-5137: 'System Messages'
+  logo:
+    logo-7649: 'Logo / Image'
+  menu:
+    menu-6744: Menu
+  content:
+    system-content-1893: 'Page Content'
+  widget:
+    position-widget-3718: Widget
+    position-widget-6896: Widget
+    position-widget-5057: Widget
+  copyright:
+    copyright-1061: Copyright
+  social:
+    social-3414: Social
+  branding:
+    branding-5723: Branding
+  mobile-menu:
+    mobile-menu-7746: Mobile-menu
+inherit:
+  default:
+    header: header
+    navigation: navigation
+    main: main
+    footer: footer
+    offcanvas: offcanvas
+    system-messages-5137: system-messages-4735
+    logo-7649: logo-7296
+    menu-6744: menu-6948
+    system-content-1893: system-content-3116
+    position-widget-3718: position-widget-1625
+    copyright-1061: copyright-6921
+    social-3414: social-8965
+    branding-5723: branding-3800
+    mobile-menu-7746: mobile-menu-1056
+  blog:
+    sidebar: sidebar
+    position-widget-6896: position-widget-4707
+    position-widget-5057: position-widget-3855

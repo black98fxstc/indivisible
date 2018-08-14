@@ -1,0 +1,21 @@
+name: Location Search
+description: Searches for political districts on the front end.
+type: particle
+
+form:
+  fields:
+    enabled:
+      type: input.checkbox
+      label: Enabled
+      description: Globally enable to the particles.
+      default: true
+
+    title:
+      type: input.text
+      label: Title
+      description: Customize the section title text.   
+
+    path:
+      type: input.text
+      label: Path
+      description: Search base path.

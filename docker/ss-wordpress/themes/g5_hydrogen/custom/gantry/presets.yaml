@@ -1,0 +1,83 @@
+preset1:
+  image: 'gantry-admin://images/Indiv-CA-StateStrong-FINAL-500px.png'
+  description: 'Indivisible CA'
+  colors:
+    - '#2c4c6b'
+    - '#142d53'
+    - '#6c9fc2'
+
+  styles:
+    base:
+      background: '#ffffff'
+      text-color: '#666666'
+    accent:
+      color-1: '#6c9fc2'
+      color-2: '#0071b9'
+    header:
+      background: '#2c4c6b'
+      text-color: '#ffffff'
+    navigation:
+      background: '#ffffff'
+      text-color: '#2c4c6b'
+      overlay: 'rgba(0, 0, 0, 0.4)'
+    showcase:
+      background: '#002253'
+      text-color: '#ffffff'
+    feature:
+      background: '#ffffff'
+      text-color: '#666666'
+    subfeature:
+      background: '#f0f0f0'
+      text-color: '#666666'
+    main:
+      background: '#ffffff'
+      text-color: '#666666'
+    footer:
+      background: '#2c4c6b'
+      text-color: '#ffffff'
+    offcanvas:
+      background: '#2c4c6b'
+      text-color: '#ffffff'
+
+preset2:
+  image: 'gantry-admin://images/StateStrong-CA.png'
+  description: 'StateStrong'
+  colors:
+    - '#1867a9'
+    - '#142d53'
+    - '#0071b9'
+
+  styles:
+    base:
+      background: '#ffffff'
+      text-color: '#666666'
+    accent:
+      color-1: '#00aeef'
+      color-2: '#0071b9'
+    header:
+      background: '#1867a9'
+      text-color: '#ffffff'
+    navigation:
+      background: '#ffffff'
+      text-color: '#0071b9'
+      overlay: 'rgba(0, 0, 0, 0.4)'
+    showcase:
+      background: '#142d53'
+      text-color: '#ffffff'
+    feature:
+      background: '#ffffff'
+      text-color: '#666666'
+    subfeature:
+      background: '#f0f0f0'
+      text-color: '#666666'
+    main:
+      background: '#ffffff'
+      text-color: '#666666'
+    footer:
+      background: '#0071b9'
+      text-color: '#ffffff'
+    offcanvas:
+      background: '#142d53'
+      text-color: '#ffffff'
+
+

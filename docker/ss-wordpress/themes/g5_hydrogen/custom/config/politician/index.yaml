@@ -1,0 +1,51 @@
+name: politician
+timestamp: 1519594887
+version: 7
+preset:
+  image: 'gantry-admin://images/layouts/2-col-right.png'
+  name: 2_column_-_right
+  timestamp: 1508332860
+positions: {  }
+sections:
+  header: Header
+  navigation: Navigation
+  main: Main
+  sidebar: Sidebar
+  footer: Footer
+  offcanvas: Offcanvas
+particles:
+  widget:
+    position-widget-4707: Widget
+    position-widget-9037: Widget
+  messages:
+    system-messages-9193: 'System Messages'
+  logo:
+    logo-6009: 'Logo / Image'
+  menu:
+    menu-7445: Menu
+  content:
+    system-content-3834: 'Page Content'
+  copyright:
+    copyright-2575: Copyright
+  social:
+    social-5263: Social
+  branding:
+    branding-6812: Branding
+  mobile-menu:
+    mobile-menu-9993: Mobile-menu
+inherit:
+  default:
+    header: header
+    navigation: navigation
+    main: main
+    footer: footer
+    offcanvas: offcanvas
+    system-messages-9193: system-messages-4735
+    logo-6009: logo-7296
+    menu-7445: menu-6948
+    system-content-3834: system-content-3116
+    position-widget-9037: position-widget-1625
+    copyright-2575: copyright-6921
+    social-5263: social-8965
+    branding-6812: branding-3800
+    mobile-menu-9993: mobile-menu-1056

@@ -1,0 +1,51 @@
+name: legislation
+timestamp: 1519598217
+version: 7
+preset:
+  image: 'gantry-admin://images/layouts/2-col-right.png'
+  name: 2_column_-_right
+  timestamp: 1508332860
+positions: {  }
+sections:
+  header: Header
+  navigation: Navigation
+  main: Main
+  sidebar: Sidebar
+  footer: Footer
+  offcanvas: Offcanvas
+particles:
+  messages:
+    system-messages-5498: 'System Messages'
+  logo:
+    logo-1422: 'Logo / Image'
+  menu:
+    menu-8755: Menu
+  content:
+    system-content-7788: 'Page Content'
+  widget:
+    position-widget-4707: Widget
+    position-widget-2282: Widget
+  copyright:
+    copyright-4703: Copyright
+  social:
+    social-7558: Social
+  branding:
+    branding-9301: Branding
+  mobile-menu:
+    mobile-menu-7845: Mobile-menu
+inherit:
+  default:
+    header: header
+    system-messages-5498: system-messages-4735
+    navigation: navigation
+    logo-1422: logo-7296
+    menu-8755: menu-6948
+    main: main
+    system-content-7788: system-content-3116
+    footer: footer
+    position-widget-2282: position-widget-1625
+    copyright-4703: copyright-6921
+    social-7558: social-8965
+    branding-9301: branding-3800
+    offcanvas: offcanvas
+    mobile-menu-7845: mobile-menu-1056

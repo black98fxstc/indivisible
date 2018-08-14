@@ -1,0 +1,26 @@
+meta:
+  -
+    'og:site_name': 'Indivisible CA: StateStrong'
+  -
+    'og:description': 'A coalition of grassroots Indivisible groups using civic engagement to advance progressive values in the California state government.'
+  -
+    'og:url': 'https://www.castatestrong.org'
+  -
+    'twitter:title': 'Indivisible CA: StateStrong'
+  -
+    'twitter:description': 'A coalition of grassroots Indivisible groups using civic engagement to advance progressive values in the California state government.'
+  -
+    'twitter:site': '@CAStateStrong'
+  -
+    'og:image': 'https://dev.state-strong.org/wp-content/uploads/2018/03/Indiv-CA-StateStrong-FINAL-512x512.png'
+  -
+    'og:image-height': '512'
+    'og:image:width': '512'
+  -
+    'og:image:height': '512'
+  -
+    'twitter:card': 'https://dev.state-strong.org/wp-content/uploads/2018/03/Indiv-CA-StateStrong-FINAL-512x512.png'
+  -
+    'og:image:alt': 'Indivisible CA: StateStrong Logo'
+head_bottom: ''
+atoms: {  }

@@ -1,0 +1,32 @@
+enabled: '1'
+css:
+  class: social
+title: ''
+target: _blank
+display: icons_only
+items:
+  -
+    icon: 'fa fa-twitter-square'
+    text: Twitter
+    link: 'https://twitter.com/castatestrong'
+    name: Twitter
+  -
+    icon: 'fa fa-facebook-square'
+    text: Facebook
+    link: 'https://facebook.com/castatestrong'
+    name: Facebook
+  -
+    icon: 'fa fa-instagram'
+    text: Instagram
+    link: 'https://instagram.com/castatestrong'
+    name: Instagram
+  -
+    icon: 'fa fa-envelope'
+    text: Email
+    link: 'mailto:contact@state-strong.org'
+    name: Email
+  -
+    icon: 'fa fa-rss-square'
+    text: Feed
+    link: /feed
+    name: Feed

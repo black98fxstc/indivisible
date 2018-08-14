@@ -1,0 +1,49 @@
+name: civic_key
+timestamp: 1519594887
+version: 7
+preset:
+  image: 'gantry-admin://images/layouts/default.png'
+  name: default
+  timestamp: 1508332860
+positions: {  }
+sections:
+  header: Header
+  navigation: Navigation
+  main: Main
+  footer: Footer
+  offcanvas: Offcanvas
+particles:
+  messages:
+    system-messages-9585: 'System Messages'
+  logo:
+    logo-8325: 'Logo / Image'
+  menu:
+    menu-3662: Menu
+  content:
+    system-content-6750: 'Page Content'
+  widget:
+    position-widget-4827: Widget
+  copyright:
+    copyright-3044: Copyright
+  social:
+    social-8694: Social
+  branding:
+    branding-9534: Branding
+  mobile-menu:
+    mobile-menu-5043: Mobile-menu
+inherit:
+  default:
+    header: header
+    navigation: navigation
+    main: main
+    footer: footer
+    offcanvas: offcanvas
+    system-messages-9585: system-messages-4735
+    logo-8325: logo-7296
+    menu-3662: menu-6948
+    system-content-6750: system-content-3116
+    position-widget-4827: position-widget-1625
+    copyright-3044: copyright-6921
+    social-8694: social-8965
+    branding-9534: branding-3800
+    mobile-menu-5043: mobile-menu-1056

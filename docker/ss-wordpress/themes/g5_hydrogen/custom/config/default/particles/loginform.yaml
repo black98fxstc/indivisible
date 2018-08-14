@@ -1,0 +1,6 @@
+enabled: '1'
+class: ''
+title: Login
+greeting: 'Hi, %s'
+pretext: ''
+posttext: ''

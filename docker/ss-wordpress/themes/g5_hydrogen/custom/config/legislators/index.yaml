@@ -1,0 +1,52 @@
+name: legislators
+timestamp: 1519594887
+version: 7
+preset:
+  image: 'gantry-admin://images/layouts/2-col-right.png'
+  name: 2_column_-_right
+  timestamp: 1508332860
+positions: {  }
+sections:
+  header: Header
+  navigation: Navigation
+  main: Main
+  sidebar: Sidebar
+  footer: Footer
+  offcanvas: Offcanvas
+particles:
+  location-search:
+    location-search-8711: 'Location Search'
+  messages:
+    system-messages-6998: 'System Messages'
+  logo:
+    logo-2551: 'Logo / Image'
+  menu:
+    menu-6276: Menu
+  content:
+    system-content-9129: 'Page Content'
+  widget:
+    position-widget-7344: Widget
+  copyright:
+    copyright-2905: Copyright
+  social:
+    social-2388: Social
+  branding:
+    branding-2399: Branding
+  mobile-menu:
+    mobile-menu-6027: Mobile-menu
+inherit:
+  default:
+    header: header
+    navigation: navigation
+    main: main
+    footer: footer
+    offcanvas: offcanvas
+    system-messages-6998: system-messages-4735
+    logo-2551: logo-7296
+    menu-6276: menu-6948
+    system-content-9129: system-content-3116
+    position-widget-7344: position-widget-1625
+    copyright-2905: copyright-6921
+    social-2388: social-8965
+    branding-2399: branding-3800
+    mobile-menu-6027: mobile-menu-1056

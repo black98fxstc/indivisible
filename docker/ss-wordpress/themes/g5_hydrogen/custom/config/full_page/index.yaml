@@ -1,0 +1,47 @@
+name: full_page
+timestamp: 1519608403
+version: 7
+preset:
+  image: 'gantry-admin://images/layouts/default.png'
+  name: default
+  timestamp: 1508332860
+positions: {  }
+sections:
+  header: Header
+  navigation: Navigation
+  main: Main
+  footer: Footer
+  offcanvas: Offcanvas
+particles:
+  messages:
+    system-messages-3770: 'System Messages'
+  logo:
+    logo-4754: 'Logo / Image'
+  menu:
+    menu-4167: Menu
+  content:
+    system-content-3116: 'Page Content'
+  widget:
+    position-widget-8393: Widget
+  copyright:
+    copyright-1248: Copyright
+  social:
+    social-8142: Social
+  branding:
+    branding-7980: Branding
+  mobile-menu:
+    mobile-menu-7818: Mobile-menu
+inherit:
+  default:
+    header: header
+    system-messages-3770: system-messages-4735
+    navigation: navigation
+    logo-4754: logo-7296
+    menu-4167: menu-6948
+    footer: footer
+    position-widget-8393: position-widget-1625
+    copyright-1248: copyright-6921
+    social-8142: social-8965
+    branding-7980: branding-3800
+    offcanvas: offcanvas
+    mobile-menu-7818: mobile-menu-1056

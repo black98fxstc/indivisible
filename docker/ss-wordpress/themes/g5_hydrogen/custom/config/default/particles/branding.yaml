@@ -1,0 +1,4 @@
+enabled: '1'
+content: "<style> a.indivisible, a.indivisible:visited { color: inherit;}</style>\nA Partner of <a href=\"https://indivisibleguide.com/\" title=\"A Partner of Indivisible\" class=\"indivisible\" target=\"_blank\">I N D I V I S I B L E</a>"
+css:
+  class: branding

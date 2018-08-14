@@ -1,0 +1,31 @@
+atoms:
+  -
+    id: frameworks-8762
+    type: frameworks
+    title: 'JavaScript Frameworks'
+    attributes:
+      enabled: '1'
+      jquery:
+        enabled: '1'
+        ui_core: '1'
+        ui_sortable: '0'
+      bootstrap2:
+        enabled: '0'
+      bootstrap3:
+        enabled: '0'
+      mootools:
+        enabled: '0'
+        more: '0'
+  -
+    id: assets-8336
+    type: assets
+    title: 'Custom CSS / JS'
+    attributes:
+      enabled: '1'
+      css:
+        - { location: //code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css, inline: '', extra: {  }, priority: '0', name: 'jQuery UI' }
+      javascript:
+        - { location: 'https://maps.googleapis.com/maps/api/js?key=AIzaSyD6-CGpCzt5hhveIVcYUNp3auafwiqmK-4&libraries=places', inline: '', in_footer: '0', extra: {  }, priority: '0', name: 'Google Maps' }
+        - { location: jquery-ui-autocomplete, inline: '', in_footer: '0', extra: {  }, priority: '0', name: Autocomplete }
+        - { location: 'gantry-assets://js/location-search.js', inline: '', in_footer: '0', extra: {  }, priority: '0', name: 'Location Search' }
+        - { location: 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js', inline: '', in_footer: '0', extra: {  }, priority: '0', name: 'New item' }
