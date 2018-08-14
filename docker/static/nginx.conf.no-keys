@@ -1,0 +1,116 @@
+user  nginx;
+worker_processes  1;
+
+#error_log  /var/log/nginx/error.log warn;
+error_log  /var/log/nginx/error.log notice;
+pid        /var/run/nginx.pid;
+
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    keepalive_timeout  65;
+
+    #gzip  on;
+
+    proxy_ssl_server_name on;
+    proxy_cache_path  /data/nginx/cache  levels=1:2    keys_zone=STATIC:10m
+    inactive=30d  max_size=1g  use_temp_path=off;
+    
+    server {
+       listen       80;
+
+        server_name  static.state-strong.org;
+
+        location / {
+            root   /usr/share/nginx/html;
+            index  index.html index.htm;
+        }
+
+        location /open-states/ {
+#	    rewrite_log            on;
+            rewrite                ^/open-states/api/v1/(.*)/$ /api/v1/$1/ break;
+            rewrite                ^/open-states/api/v1/(.*)$  /api/v1/$1/ break;
+            rewrite                ^/open-states/(.*)/$ /api/v1/$1/ break;
+            rewrite                ^/open-states/(.*)$  /api/v1/$1/ break;
+            proxy_pass             https://openstates.org;
+            proxy_set_header       Host openstates.org;
+            proxy_set_header       X-API-KEY >>OPEN_STATES_API_KEY<<;
+            proxy_cache            STATIC;
+            proxy_cache_valid      200  1d;
+            proxy_cache_use_stale  error timeout invalid_header updating;
+			proxy_cache_background_update on;
+		    proxy_cache_lock       on;
+		}
+
+        location /congress/ {
+            rewrite                ^/congress/v1/(.*)$  /congress/v1/$1 break;
+            rewrite                ^/congress/(.*)$  /congress/v1/$1/ break;
+            proxy_pass             https://api.propublica.org;
+            proxy_set_header       Host api.propublica.org;
+            proxy_set_header       X-API-KEY >>PROPUBLICA_CONG_KEY<<;
+            proxy_cache            STATIC;
+            proxy_cache_valid      200  1d;
+            proxy_cache_use_stale  error timeout invalid_header updating;
+	proxy_cache_background_update on;
+	    proxy_cache_lock       on;
+		}
+
+        location /campaign-finance/ {
+            rewrite                ^/campaign-finance/v1/(.*)$  /campaign-finance/v1/$1 break;
+            rewrite                ^/campaign-finance/(.*)$  /campaign-finance/v1/$1 break;
+            proxy_pass             https://api.propublica.org;
+            proxy_set_header       Host api.propublica.org;
+            proxy_set_header       X-API-KEY >>PROPUBLICA_CFIN_KEY<<;
+            proxy_cache            STATIC;
+            proxy_cache_valid      200  1d;
+            proxy_cache_use_stale  error timeout invalid_header updating;
+			proxy_cache_background_update on;
+	    	proxy_cache_lock       on;
+		}
+
+        location /theunitedstates/ {
+            rewrite                ^/theunitedstates/(.*)$  /$1 break;
+            proxy_pass             https://theunitedstates.io;
+            proxy_set_header       Host theunitedstates.io;
+            proxy_cache            STATIC;
+            proxy_cache_valid      200  1d;
+            proxy_cache_use_stale  error timeout invalid_header updating;
+		    proxy_cache_lock       on;
+	}
+
+	location /amplify-portraits {
+            proxy_pass             https://s3-us-west-1.amazonaws.com;
+            proxy_set_header       Host s3-us-west-1.amazonaws.com;
+            proxy_cache            STATIC;
+            proxy_cache_valid      200  30d;
+            proxy_cache_use_stale  error timeout invalid_header updating;
+			proxy_cache_background_update on;
+		    proxy_cache_lock       on;
+	}
+
+    #error_page  404              /404.html;
+
+        # redirect server error pages to the static page /50x.html
+        #
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   /usr/share/nginx/html;
+         }
+    }
+}

@@ -1,0 +1,7 @@
+#!/bin/sh
+
+su www-data -s /bin/sh -c "indv-plugin-cron &"
+
+docker-entrypoint.sh "$@"
+
+#apache2-foreground

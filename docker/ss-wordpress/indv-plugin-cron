@@ -1,0 +1,6 @@
+#!/bin/sh
+
+while true; do
+    curl --silent http://127.0.0.1/wp-cron.php
+    sleep 10m
+done

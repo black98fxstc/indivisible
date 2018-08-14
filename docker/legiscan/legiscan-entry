@@ -1,0 +1,6 @@
+#!/bin/sh
+
+su www-data -s /bin/sh -c "legiscan-cron &"
+
+apache2-foreground
+

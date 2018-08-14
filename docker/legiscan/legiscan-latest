@@ -1,0 +1,5 @@
+#!/bin/sh
+
+curl -o legiscan-current.tar.gz -fSL "https://api.legiscan.com/dl/legiscan-current.tar.gz"
+tar zxvf legiscan-current.tar.gz
+rm legiscan-current.tar.gz

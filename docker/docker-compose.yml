@@ -1,0 +1,139 @@
+version: '3.1'
+
+services:
+
+  dev-state-strong:
+    build: ./ss-wordpress
+    image: ss-wordpress
+    container_name: dev-state-strong
+    environment:
+      WORDPRESS_DB_NAME: "dev_ss_wordpress"
+      WORDPRESS_DB_HOST: "database"
+      WORDPRESS_DB_USER: "wordpress"
+      WORDPRESS_DB_PASSWORD:
+    restart: always
+    depends_on:
+      - database
+      - static-state-strong
+      - api-legiscan
+      - api-civic-key
+    volumes:
+      - dev-state-strong:/var/www/html
+      - /var/lib/indivisible/dev-state-strong/themes/g5_hydrogen/custom:/var/www/html/wp-content/themes/g5_hydrogen/custom
+      - /var/lib/indivisible/dev-state-strong/uploads:/var/www/html/wp-content/uploads
+    networks:
+      - indivisible
+    ports:
+      - 8081:80
+
+  ca-state-strong:
+    build: ./ss-wordpress
+    image: ss-wordpress
+    container_name: ca-state-strong
+    environment:
+      WORDPRESS_DB_NAME: "ca_ss_wordpress"
+      WORDPRESS_DB_HOST: "database"
+      WORDPRESS_DB_USER: "wordpress"
+      WORDPRESS_DB_PASSWORD:
+    restart: always
+    depends_on:
+      - database
+      - static-state-strong
+      - api-legiscan
+      - api-civic-key
+    volumes:
+      - ca-state-strong:/var/www/html
+      - /var/lib/indivisible/ca-state-strong/themes/g5_hydrogen/custom:/var/www/html/wp-content/themes/g5_hydrogen/custom
+      - /var/lib/indivisible/ca-state-strong/uploads:/var/www/html/wp-content/uploads
+    networks:
+      - indivisible
+    ports:
+      - 8086:80
+
+  static-state-strong:
+    build: ./static
+    image: static
+    container_name: static-state-strong
+    restart: always
+    networks:
+      indivisible:
+        aliases:
+          - static
+    ports:
+      - 8082:80
+    volumes:
+      - /var/lib/indivisible/static/assets:/usr/share/nginx/html
+      - cache-state-strong:/data/nginx/cahe
+
+  isf-wiki:
+    image: mediawiki
+    container_name: isf-wiki
+    restart: always
+    depends_on:
+      - database
+    networks:
+      indivisible:
+        aliases:
+          - isf-wiki
+    ports:
+      - 8083:80
+    volumes:
+      - /var/lib/indivisible/isf-wiki/images:/var/www/html/images:rw
+      - /var/lib/indivisible/isf-wiki/assets:/var/www/html/resources/assets:rw
+      - ./isf-wiki/LocalSettings.php:/var/www/html/LocalSettings.php:ro
+
+  api-legiscan:
+    build: ./legiscan
+    image: legiscan
+    container_name: api-legiscan 
+    restart: always
+    depends_on:
+      - database
+    networks:
+      indivisible:
+        aliases:
+          - legiscan
+    ports: 
+      - 8084:80
+    volumes:
+      - ./legiscan/config.php:/var/www/html/legiscan/config.php:ro
+
+  api-civic-key:
+    build: ./civic-key
+    image: civic-key
+    container_name: api-civic-key
+    restart: always
+    depends_on:
+      - api-legiscan
+      - static-state-strong
+    networks:
+      indivisible:
+        aliases:
+          - civic-key
+    ports:
+      - 8085:8080
+    volumes:
+      - /var/lib/indivisible/civic-key/maps:/maps:ro
+
+  database:
+    image: gcr.io/cloudsql-docker/gce-proxy:1.11
+    command: /cloud_sql_proxy -instances=atomic-producer-160402:us-west1:indivisible-db=tcp:0.0.0.0:3306 -credential_file=/config
+    container_name: sql-proxy
+    restart: always
+    networks:
+      indivisible:
+        aliases:
+          - mysql
+    ports:
+      - 127.0.0.1:3306:3306
+    volumes:
+      - ./database/cloudsql:/cloudsql
+      - ~/wolverine.json:/config
+
+volumes:
+  ca-state-strong:
+  dev-state-strong:
+  cache-state-strong:
+
+networks:
+  indivisible:

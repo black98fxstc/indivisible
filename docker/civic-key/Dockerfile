@@ -1,0 +1,11 @@
+FROM node
+
+COPY IO.js .
+COPY GetCensusMaps.js .
+COPY GetOpenStates.js .
+COPY GetCongress.js .
+COPY GetCivicKey.js .
+
+CMD [ "node", "--max-old-space-size=4096", "GetCivicKey.js" ]
+
+USER www-data
