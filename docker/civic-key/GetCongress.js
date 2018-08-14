@@ -2,7 +2,7 @@
  * 
  */
 
-var http = require('https');
+var http = require('http');
 
 const CONGRESS_URL = "https://static.state-strong.org/congress/115/";
 const CONGRESS_DOCKER = "http://static/congress/115/";
@@ -11,7 +11,7 @@ var senate;
 var house;
 
 function getCongress () {
-    http.get(CONGRESS_URL + 'senate/members.json', (res) => {
+    http.get(CONGRESS_DOCKER + 'senate/members.json', (res) => {
         const statusCode = res.statusCode;
         if (statusCode !== 200) {
             res.resume();
