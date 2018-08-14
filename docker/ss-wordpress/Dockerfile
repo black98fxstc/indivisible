@@ -51,6 +51,7 @@ RUN echo ${GANTRY_VERSION}; \
 	mv mailchimp-for-wp /usr/src/wordpress/wp-content/plugins/;
 
 COPY plugins /usr/src/wordpress/wp-content/plugins/
+COPY themes  /usr/src/wordpress/wp-content/themes/
 
 COPY indv-plugin-entry /usr/local/bin/
 COPY indv-plugin-cron  /usr/local/bin/

@@ -6,10 +6,11 @@ services:
     build: ./ss-wordpress
     image: ss-wordpress
     container_name: dev-state-strong
+    env_file: KEYS.env
     environment:
       WORDPRESS_DB_NAME: "dev_ss_wordpress"
       WORDPRESS_DB_HOST: "database"
-      WORDPRESS_DB_USER: "wordpress"
+      WORDPRESS_DB_USER:
       WORDPRESS_DB_PASSWORD:
     restart: always
     depends_on:
@@ -33,7 +34,7 @@ services:
     environment:
       WORDPRESS_DB_NAME: "ca_ss_wordpress"
       WORDPRESS_DB_HOST: "database"
-      WORDPRESS_DB_USER: "wordpress"
+      WORDPRESS_DB_USER:
       WORDPRESS_DB_PASSWORD:
     restart: always
     depends_on:
@@ -128,7 +129,7 @@ services:
       - 127.0.0.1:3306:3306
     volumes:
       - ./database/cloudsql:/cloudsql
-      - /home/wmoore/wolverine.json:/config
+      - /home/rider/indivisible.json:/config:ro
 
 volumes:
   ca-state-strong:
