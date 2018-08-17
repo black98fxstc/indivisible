@@ -22,7 +22,6 @@ var upper;
 var upper4 = new Array();
 
 const keys = require('./KEYS.js');
-import API_KEYS from "./KEYS.js";
 
 fromLatLngToPoint = function (geo) {
 	if (Number.isNaN(geo.lng) || Number.isNaN(geo.lat))
