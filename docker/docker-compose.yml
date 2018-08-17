@@ -6,7 +6,7 @@ services:
     build: ./ss-wordpress
     image: ss-wordpress
     container_name: dev-state-strong
-    env_file: KEYS.env
+    env_file: ./KEYS.env
     environment:
       WORDPRESS_DB_NAME: "dev_ss_wordpress"
       WORDPRESS_DB_HOST: "database"
@@ -31,6 +31,7 @@ services:
     build: ./ss-wordpress
     image: ss-wordpress
     container_name: ca-state-strong
+    env_file: ./KEYS.env
     environment:
       WORDPRESS_DB_NAME: "ca_ss_wordpress"
       WORDPRESS_DB_HOST: "database"
