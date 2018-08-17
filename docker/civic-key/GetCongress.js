@@ -38,7 +38,7 @@ function getCongress () {
         setImmediate(bootstrap);
     });
     
-    http.get(CONGRESS_URL + 'house/members.json', (res) => {
+    http.get(CONGRESS_DOCKER + 'house/members.json', (res) => {
         const statusCode = res.statusCode;
         if (statusCode !== 200) {
             res.resume();

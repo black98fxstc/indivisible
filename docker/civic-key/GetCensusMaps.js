@@ -5,7 +5,6 @@
 const https = require('https');
 const io = require('./IO');
 const keys = require('./KEYS');
-
 const TICK = 500;
 
 const BASE_URL = "https://tigerweb.geo.census.gov/arcgis/rest/services/";
@@ -25,7 +24,7 @@ function getCensusURL(map, layer, feature) {
 		url += "/" + layer;
 	if (feature != null)
 		url += "/" + feature;
-	url += "/?f=json&key=" + keys.CENSUS_API_KEY();
+	url += "/?f=json&key=" + keys.API_KEYS.census;
 
 	console.log(url);
 	return url;

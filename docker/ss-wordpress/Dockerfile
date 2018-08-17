@@ -50,7 +50,9 @@ RUN echo ${GANTRY_VERSION}; \
 	unzip mailchimp-for-wp.zip; \
 	mv mailchimp-for-wp /usr/src/wordpress/wp-content/plugins/;
 
-COPY plugins /usr/src/wordpress/wp-content/plugins/
+COPY plugins/indivisible/indivisible.php /usr/src/wordpress/wp-content/plugins/indivisible/indivisible.php
+COPY plugins/indivisible/indv-react/build/static/js/main.a285be49.js /usr/src/wordpress/wp-content/plugins/indivisible/indv-react.js
+COPY plugins/indivisible/indv-react/build/static/css/main.c17080f1.css /usr/src/wordpress/wp-content/plugins/indivisible/indv-react.css
 COPY themes  /usr/src/wordpress/wp-content/themes/
 
 COPY indv-plugin-entry /usr/local/bin/
