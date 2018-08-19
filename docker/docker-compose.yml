@@ -79,6 +79,7 @@ services:
       - /var/lib/indivisible/isf-wiki/images:/var/www/html/images:rw
       - /var/lib/indivisible/isf-wiki/assets:/var/www/html/resources/assets:rw
       - ./isf-wiki/LocalSettings.php:/var/www/html/LocalSettings.php:ro
+      - ./isf-wiki/KEYS.php:/var/www/html/KEYS.php:ro
 
   api-legiscan:
     build: ./legiscan
