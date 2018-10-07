@@ -1,5 +1,5 @@
 name: legislation
-timestamp: 1519598217
+timestamp: 1534543043
 version: 7
 preset:
   image: 'gantry-admin://images/layouts/2-col-right.png'
@@ -14,6 +14,9 @@ sections:
   footer: Footer
   offcanvas: Offcanvas
 particles:
+  widget:
+    position-widget-4707: Widget
+    position-widget-2282: Widget
   messages:
     system-messages-5498: 'System Messages'
   logo:
@@ -22,9 +25,6 @@ particles:
     menu-8755: Menu
   content:
     system-content-7788: 'Page Content'
-  widget:
-    position-widget-4707: Widget
-    position-widget-2282: Widget
   copyright:
     copyright-4703: Copyright
   social:
@@ -36,16 +36,16 @@ particles:
 inherit:
   default:
     header: header
-    system-messages-5498: system-messages-4735
     navigation: navigation
+    main: main
+    footer: footer
+    offcanvas: offcanvas
+    system-messages-5498: system-messages-4735
     logo-1422: logo-7296
     menu-8755: menu-6948
-    main: main
     system-content-7788: system-content-3116
-    footer: footer
     position-widget-2282: position-widget-1625
     copyright-4703: copyright-6921
     social-7558: social-8965
     branding-9301: branding-3800
-    offcanvas: offcanvas
     mobile-menu-7845: mobile-menu-1056
