@@ -10,16 +10,17 @@ ENV WORDPRESS_CLI_SHA512 21b9c1d65993f88bf81cc73c0a832532cc424bea8c15563a77af190
 
 RUN set -ex; \
 	\
-	curl -o /usr/local/bin/wp.gpg -fSL "https://github.com/wp-cli/wp-cli/releases/download/v${WORDPRESS_CLI_VERSION}/wp-cli-${WORDPRESS_CLI_VERSION}.phar.gpg"; \
+	curl -o /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar; \
+#	curl -o /usr/local/bin/wp.gpg -fSL "https://github.com/wp-cli/wp-cli/releases/download/v${WORDPRESS_CLI_VERSION}/wp-cli-${WORDPRESS_CLI_VERSION}.phar.gpg"; \
 	\
-	export GNUPGHOME="$(mktemp -d)"; \
+#	export GNUPGHOME="$(mktemp -d)"; \
 #	gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$WORDPRESS_CLI_GPG_KEY"; \
-	gpg --keyserver 192.146.137.98 --recv-keys "$WORDPRESS_CLI_GPG_KEY"; \
-	gpg --batch --decrypt --output /usr/local/bin/wp /usr/local/bin/wp.gpg; \
-	command -v gpgconf && gpgconf --kill all || :; \
-	rm -rf "$GNUPGHOME" /usr/local/bin/wp.gpg; \
+#	gpg --keyserver 192.146.137.98 --recv-keys "$WORDPRESS_CLI_GPG_KEY"; \
+#	gpg --batch --decrypt --output /usr/local/bin/wp /usr/local/bin/wp.gpg; \
+#	command -v gpgconf && gpgconf --kill all || :; \
+#	rm -rf "$GNUPGHOME" /usr/local/bin/wp.gpg; \
 	\
-	echo "$WORDPRESS_CLI_SHA512 */usr/local/bin/wp" | sha512sum -c -; \
+#	echo "$WORDPRESS_CLI_SHA512 */usr/local/bin/wp" | sha512sum -c -; \
 	chmod +x /usr/local/bin/wp; \
 	\
 	wp --allow-root --version
