@@ -31,8 +31,8 @@ $wgScriptPath = "";
 
 ## The protocol and server name to use in fully-qualified URLs
 #$wgServer = "https://indivisible.wiki";
-#$wgServer = "https://sf.indivisible.wiki";
-$wgServer = "http://127.0.0.1:8083";
+$wgServer = "https://sf.indivisible.wiki";
+#$wgServer = "http://127.0.0.1:8083";
 
 ## The URL path to static resources (images, scripts, etc.)
 $wgResourceBasePath = $wgScriptPath;
