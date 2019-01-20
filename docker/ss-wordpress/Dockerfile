@@ -25,10 +25,11 @@ RUN set -ex; \
 	\
 	wp --allow-root --version
 
-ENV GANTRY_VERSION 5.4.26
-ENV JETPACK_VERSION  6.5
-ENV MAILCHIMP_VERSION 4.2.5
-ENV TWOFACTOR_VERSION 1.3.5
+ENV GANTRY_VERSION 5.4.27
+ENV JETPACK_VERSION  6.9
+ENV MAILCHIMP_VERSION 4.3.3
+ENV TWOFACTOR_VERSION 1.3.13
+ENV TWITTER_VERSION 2.0.3
 
 RUN echo ${GANTRY_VERSION}; \
         curl -o gantry5.zip -fSL "https://github.com/gantry/gantry5/releases/download/${GANTRY_VERSION}/wordpress-pkg_gantry5_v${GANTRY_VERSION}.zip"; \
@@ -43,7 +44,7 @@ RUN echo ${GANTRY_VERSION}; \
         curl -o two-factor-authentication.zip -fSL "https://downloads.wordpress.org/plugin/two-factor-authentication.${TWOFACTOR_VERSION}.zip"; \
         unzip two-factor-authentication.zip; \
         mv two-factor-authentication /usr/src/wordpress/wp-content/plugins/; \
-        curl -o twitter.zip -fSL "https://downloads.wordpress.org/plugin/twitter.2.0.2.zip"; \
+        curl -o twitter.zip -fSL "https://downloads.wordpress.org/plugin/twitter.${TWITTER_VERSION}.zip"; \
         unzip twitter.zip; \
         mv twitter /usr/src/wordpress/wp-content/plugins/; \
 	curl -o mailchimp-for-wp.zip -fSL  https://downloads.wordpress.org/plugin/mailchimp-for-wp.${MAILCHIMP_VERSION}.zip; \
