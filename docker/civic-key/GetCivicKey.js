@@ -576,6 +576,9 @@ function linkOpenStatesToCensus() {
 				cd.os_district = district;
 				cd.division = {
 					government: "State",
+					chamber: metadata.chambers[district.chamber] ? 
+						metadata.chambers[district.chamber].name :
+						district.chamber,
 					state: state.attributes["NAME"],
 					state_abbr: state.attributes["STUSAB"],
 					name: cd.attributes["NAME"],
@@ -584,10 +587,6 @@ function linkOpenStatesToCensus() {
 					ocd_id: district.division_id,
 					legislators: cd.legislators,
 				};
-				if (metadata.chambers[district.chamber])
-					cd.division.chamber = metadata.chambers[district.chamber].name;
-				else
-					cd.division.chamber = district.chamber;
 				district.legislators.forEach((legislator) => {
 					cd.legislators.push({
 						chamber: metadata.chambers[district.chamber].name,
