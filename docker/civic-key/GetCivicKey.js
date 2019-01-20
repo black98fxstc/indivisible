@@ -272,7 +272,6 @@ function doLocationSearch(req, res, q) {
 					let district = upper4[state.index][d];
 					if (isInside(p, district)) {
 						divisions.push(district.division);
-						break;
 					}
 				}
 
@@ -280,7 +279,6 @@ function doLocationSearch(req, res, q) {
 					let district = lower4[state.index][d];
 					if (isInside(p, district)) {
 						divisions.push(district.division);
-						break;
 					}
 				}
 
