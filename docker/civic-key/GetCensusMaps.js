@@ -17,6 +17,7 @@ const LAYER_UPPER = 1;
 const LAYER_LOWER = 2;
 
 var censusStates, censusCongress, censusStateUpper, censusStateLower;
+var stateForIndex;
 
 function getCensusURL(map, layer, feature) {
 	let url = BASE_URL + map + "/MapServer";
@@ -49,15 +50,15 @@ function readMaps(map, layer, name, array, callback) {
 				let parsedData = JSON.parse(data.join(""));
 				let feature = parsedData.feature;
 				if (feature) {
-					if (stateNameForIndex)
-						console.log("%s %s", stateNameForIndex[Number.parseInt(feature.attributes["STATE"])], feature.attributes["NAME"]);
+					if (stateForIndex)
+						console.log("%s %s", stateForIndex[Number.parseInt(feature.attributes["STATE"])].attributes["NAME"], feature.attributes["NAME"]);
 					else
 						console.log(feature.attributes["NAME"]);
 					array.push(feature);
 					++featureCount;
 					setTimeout(read, TICK);
 				} else {
-					setImmediate(writeArray, name, array, callback);
+					setImmediate(io.writeArray, name, array, callback);
 				}
 			})
 		}).on('error', (err) => {
@@ -67,16 +68,6 @@ function readMaps(map, layer, name, array, callback) {
 	read();
 }
 
-//function avoidDateLine(rings) {
-//	for (r = 0; r < rings.length; ++r) {
-//		ring = rings[r];
-//		for (v = 0; v < ring.length; ++v)
-//			if (ring[v][0] > 0)
-//				ring[v][0] -= 2 * Math.PI + semi
-//	}
-//
-//}
-
 var bootstrap_finished = () => {
 	console.log("bootstrap census");
 };
@@ -84,9 +75,9 @@ var bootstrap_finished = () => {
 function bootstrap() {
 	if (!censusStates) {
 		censusStates = new Array();
-		io.readArray( "states", censusStates, (result) => {
+		io.readArray("states", censusStates, (result, err) => {
 			if (result > 0) {
-				console.log( "census " + result + " states" );
+				console.log("census " + result + " states");
 				setImmediate(bootstrap);
 			}
 			else
@@ -95,11 +86,23 @@ function bootstrap() {
 		return;
 	};
 
+	if (!stateForIndex) {
+		stateForIndex = new Array();
+		censusStates.forEach((state, index, states) => {
+			let stateIndex = Number.parseInt(state.attributes['STATE']);
+			state.index = stateIndex;
+			stateForIndex[stateIndex] = state;
+			state.congressional = new Array();
+			state.upperHouse = new Array();
+			state.lowerHouse = new Array();
+		});
+	}
+
 	if (!censusCongress) {
 		censusCongress = new Array();
-		io.readArray( "congress", censusCongress, (result) => {
+		io.readArray("congress", censusCongress, (result) => {
 			if (result > 0) {
-				console.log( "census " + result + " congress" );
+				console.log("census " + result + " congress");
 				setImmediate(bootstrap);
 			}
 			else
@@ -110,9 +113,9 @@ function bootstrap() {
 
 	if (!censusStateUpper) {
 		censusStateUpper = new Array();
-		io.readArray( "upper-house", censusStateUpper, (result) => {
+		io.readArray("upper-house", censusStateUpper, (result) => {
 			if (result > 0) {
-				console.log( "census " + result + " upper house" );
+				console.log("census " + result + " upper house");
 				setImmediate(bootstrap);
 			}
 			else
@@ -123,9 +126,9 @@ function bootstrap() {
 
 	if (!censusStateLower) {
 		censusStateLower = new Array();
-		io.readArray( "lower-house", censusStateLower, (result) => {
+		io.readArray("lower-house", censusStateLower, (result) => {
 			if (result > 0) {
-				console.log( "census " + result + " lower house" );
+				console.log("census " + result + " lower house");
 				setImmediate(bootstrap);
 			}
 			else
@@ -133,23 +136,6 @@ function bootstrap() {
 		});
 		return;
 	};
-
-	stateForIndex = new Array();
-	stateNameForIndex = new Array();
-	stateForCode = new Array();
-	censusStates.forEach((state, index, states) => {
-		let stateIndex = Number.parseInt(state.attributes['STATE']);
-		state.index = stateIndex;
-		stateForIndex[stateIndex] = state;
-		stateNameForIndex[stateIndex] = state.attributes["NAME"];
-
-		let stateCode = state.attributes['STUSAB'];
-		stateForCode[stateCode] = state;
-
-		state.congressional = new Array();
-		state.upperHouse = new Array();
-		state.lowerHouse = new Array();
-	});
 
 	censusCongress.forEach((district) => {
 		let stateIndex = Number.parseInt(district.attributes['STATE']);

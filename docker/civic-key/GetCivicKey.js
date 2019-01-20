@@ -96,18 +96,29 @@ function simplifyBoundary(feature, tol) {
 	let rings = feature.geometry.rings;
 	let simple = new Array();
 
+	let minx = miny = Number.POSITIVE_INFINITY;
+	let maxx = maxy = Number.NEGATIVE_INFINITY;
 	for (r in rings) {
 		let ring = rings[r];
 		let shape = simplify(ring, tol, false);
 		for (v in shape) {
-			let x = { x: shape[v][0], y: shape[v][1]};
-			let y = fromPointToLatLng( x );
-			shape[v] = [ y.lng, y.lat ];
+			let x = { x: shape[v][0], y: shape[v][1] };
+			let y = fromPointToLatLng(x);
+			shape[v] = [y.lng, y.lat];
+			if (y.lng < minx)
+				minx = y.lng;
+			if (y.lng > maxx)
+				maxx = y.lng;
+			if (y.lat < miny)
+				miny = y.lat;
+			if (y.lat > maxy)
+				maxy = y.lat;
 		}
 		simple.push(shape);
 	}
-	
+
 	feature.simpleBoundary = simple;
+	feature.simpelBoundingBox = { "minx": minx, "miny": miny, "maxx": maxx, "maxy": maxy };
 	return simple;
 }
 
@@ -116,8 +127,10 @@ function simplifyBoundaries(features, tol) {
 		feature = features[f];
 		if (feature.division == null)
 			continue;
-		if (simplifyBoundary(feature, tol))
+		if (simplifyBoundary(feature, tol)) {
 			feature.division.boundary = feature.simpleBoundary;
+			feature.division.boundingBox = feature.simpelBoundingBox;
+		}
 	}
 }
 
@@ -245,12 +258,12 @@ function doLocationSearch(req, res, q) {
 		for (s in states) {
 			let state = states[s];
 			if (isInside(p, state)) {
-				divisions.push( state.division );
+				divisions.push(state.division);
 
 				for (d in congress4[state.index]) {
 					let district = congress4[state.index][d];
 					if (isInside(p, district)) {
-						divisions.push( district.division );
+						divisions.push(district.division);
 						break;
 					}
 				}
@@ -258,7 +271,7 @@ function doLocationSearch(req, res, q) {
 				for (d in upper4[state.index]) {
 					let district = upper4[state.index][d];
 					if (isInside(p, district)) {
-						divisions.push( district.division );
+						divisions.push(district.division);
 						break;
 					}
 				}
@@ -266,7 +279,7 @@ function doLocationSearch(req, res, q) {
 				for (d in lower4[state.index]) {
 					let district = lower4[state.index][d];
 					if (isInside(p, district)) {
-						divisions.push( district.division );
+						divisions.push(district.division);
 						break;
 					}
 				}
@@ -281,7 +294,7 @@ function doLocationSearch(req, res, q) {
 				value.legislators.forEach((legislator) => {
 					if (legislator.id)
 						politicians.push(legislator.id);
-			});
+				});
 		});
 
 		response['divisions'] = divisions;
@@ -296,7 +309,7 @@ function doLocationSearch(req, res, q) {
 	res.end(JSON.stringify(response));
 }
 
-function linkDistrictsToStates () {
+function linkDistrictsToStates() {
 	states.forEach((state) => {
 		congress4[state.index] = new Array();
 		upper4[state.index] = new Array();
@@ -304,33 +317,38 @@ function linkDistrictsToStates () {
 	})
 	congress.forEach((district) => {
 		congress4[Number.parseInt(district.attributes["STATE"])].push(district);
-	} );
+	});
 	upper.forEach((district) => {
 		upper4[Number.parseInt(district.attributes["STATE"])].push(district);
-	} );
+	});
 	lower.forEach((district) => {
 		lower4[Number.parseInt(district.attributes["STATE"])].push(district);
-	} );
+	});
 }
 
 function linkCongressToCensus() {
-	
 	states.forEach((state) => {
 		state4[state.attributes["STUSAB"]] = state;
 		state.legislators = new Array();
 		state.division = {
 			government: "Federal",
+			chamber: "Senate",
 			state: state.attributes["NAME"],
-			abbreviation: state.attributes["STUSAB"],
+			state_abbr: state.attributes["STUSAB"],
+			type: "senate",
+			id: state.attributes["STUSAB"],
 			legislators: state.legislators,
 		}
 		state.congressional.forEach((district) => {
 			district.legislators = new Array();
 			district.division = {
 				government: "Federal",
+				chamber: "House",
 				state: state.attributes["NAME"],
+				state_abbr: state.attributes["STUSAB"],
 				name: district.attributes["NAME"],
-				abbreviation: state.attributes["STUSAB"],
+				type: "house",
+				id: district.attributes["BASENAME"],
 				legislators: district.legislators,
 			}
 		})
@@ -343,10 +361,10 @@ function linkCongressToCensus() {
 		let state = state4[member.state];
 		state.ocd_id = member.ocd_id;
 		state.division.ocd_id = state.ocd_id;
-		state.legislators.push( {
+		state.legislators.push({
 			chamber: "Senate",
 			id: member.id,
-			full_name: member.first_name + (member.middle_name ? (' ' + member.middle_name) : '') + ' ' + member.last_name, 
+			full_name: member.first_name + (member.middle_name ? (' ' + member.middle_name) : '') + ' ' + member.last_name,
 		});
 	});
 
@@ -356,21 +374,22 @@ function linkCongressToCensus() {
 			return;
 		let state = state4[member.state];
 		if (member.at_large)
-			state.legislators.push( {
+			state.legislators.push({
 				chamber: "House",
 				id: member.id,
-				full_name: member.first_name + (member.middle_name ? (' ' + member.middle_name) : '') + ' ' + member.last_name, 
+				full_name: member.first_name + (member.middle_name ? (' ' + member.middle_name) : '') + ' ' + member.last_name,
 			});
 		else {
 			district = state.congressional[member.district];
-			district.ocd_id = member.ocd_id;
-			district.division.ocd_id = district.ocd_id;
-			if (district)
-				district.legislators.push( {
+			if (district) {
+				district.ocd_id = member.ocd_id;
+				district.division.ocd_id = district.ocd_id;
+				district.legislators.push({
 					chamber: "House",
 					id: member.id,
-					full_name: member.first_name + (member.middle_name ? (' ' + member.middle_name) : '') + ' ' + member.last_name, 
+					full_name: member.first_name + (member.middle_name ? (' ' + member.middle_name) : '') + ' ' + member.last_name,
 				});
+			}
 			else
 				console.log("Can't find " + member.district);
 		}
@@ -429,7 +448,7 @@ function linkOpenStatesToCensus() {
 		string = string.replace(" and ", " ");
 		return string;
 	}
-	
+
 	function isDigit(char) {
 		if (char < "0".charAt(0))
 			return false;
@@ -437,14 +456,14 @@ function linkOpenStatesToCensus() {
 			return false;
 		return true;
 	}
-	
+
 	function isNumeric(string) {
 		for (i = 0; i < string.length; ++i)
 			if (!isDigit(string.charAt(i)))
 				return false;
 		return true;
 	}
-	
+
 	let stateDistricts = os.districts();
 	for (st in stateDistricts) {
 		let districts = stateDistricts[st];
@@ -453,115 +472,135 @@ function linkOpenStatesToCensus() {
 			let state = state4[district.abbr.toUpperCase()];
 			let metadata = os.metadata(district.abbr.toUpperCase());
 			let districtID = district.name;
-			if (district.chamber == "upper") {
-				let cd = state.upperHouse[districtID];
-				if (!cd) {
-					let sk = skeleton(districtID);
-					for (d in state.upperHouse) {
-						if (skeleton(d) == sk) {
-							cd = state.upperHouse[d];
+			let cd = null;
+			switch (district.chamber) {
+				case "upper":
+					cd = state.upperHouse[districtID];
+					if (!cd && districtID == 'At-Large') {
+						cd = {
+							attributes: state.attributes,
+							geometry: state.geometry,
+						};
+						upper.push(cd);
+						state.upperHouse.push(cd);
+					}
+					if (!cd) {
+						let sk = skeleton(districtID);
+						for (d in state.upperHouse) {
+							if (skeleton(d) == sk) {
+								cd = state.upperHouse[d];
+							}
 						}
 					}
-				}
-				if (!cd && isNumeric(districtID)) {
-					if (districtID.length == 1) {
-						cd = state.upperHouse["0" + districtID];
+					if (!cd && isNumeric(districtID)) {
+						if (districtID.length == 1) {
+							cd = state.upperHouse["0" + districtID];
+						}
 					}
-				}
-				if (!cd && districtID.startsWith("Ward ")) {
-					cd = state.upperHouse[districtID.replace("Ward ", "")];
-				}
-				if (!cd && districtID == "Chittenden-Grand Isle") {
-					cd = state.upperHouse["Grand-Isle-Chittenden"];
-				}
-				if (cd) {
-					cd.legislators = new Array();
-					district.legislators.forEach((legislator) => {
-						cd.legislators.push( {
-							chamber: metadata.chambers['upper'].name,
-							id: legislator.leg_id,
-							full_name: legislator.full_name,		
-						})
-					})
-					cd.os_boundary_id = district.boundary_id;
-					cd.os_district = district;
-					cd.division = {
-						government: "State",
-						state: state.attributes["NAME"],
-						abbreviation: state.attributes["STUSAB"],
-						name: cd.attributes["NAME"],
-						ocd_id: district.boundary_id,
-						legislators: cd.legislators,
-					};
-				}
-				else
-					console.log("cant find " + district.id);;
-			} else {
-				let cd = state.lowerHouse[districtID];
-				if (!cd) {
-					var k;
-					switch (state.attributes['STUSAB']) {
-						case "SC":
-							k = districtID;
-							while (k.length < 3)
-								k = "0" + k;
-							cd = state.lowerHouse["HD-" + k];
-							break;
-						case "NH":
-							let p = districtID.lastIndexOf(" ");
-							k = districtID.substr(0, p) + " County No. " + districtID.substr(p + 1)
-							cd = state.lowerHouse[k];
-							break;
-						case "MN":
-							k = districtID;
-							while (k.length < 3)
-								k = "0" + k;
-							cd = state.lowerHouse[k];
-							break;
-						case "MA":
-							k = districtID;
-							for (s in MAdouble) {
-								k = k.replace(s, MAdouble[s])
-							}
-							cd = state.lowerHouse[k];
-							if (!cd) {
-								for (s in MAsingle) {
-									k = k.replace(s, MAsingle[s])
+					if (!cd && (districtID == "Chittenden-Grand Isle") || districtID == "Grand Isle") {
+						cd = state.upperHouse["Grand-Isle-Chittenden"];
+					}
+					break;
+
+				case "lower":
+					cd = state.lowerHouse[districtID];
+					if (!cd && districtID == 'At-Large') {
+						cd = {
+							attributes: state.attributes,
+							geometry: state.geometry,
+						};
+						lower.push(cd);
+						state.lowerHouse.push(cd);
+					}
+					if (!cd) {
+						var k;
+						switch (state.attributes['STUSAB']) {
+							case "SC":
+								k = districtID;
+								while (k.length < 3)
+									k = "0" + k;
+								cd = state.lowerHouse["HD-" + k];
+								break;
+							case "NH":
+								let p = districtID.lastIndexOf(" ");
+								k = districtID.substr(0, p) + " County No. " + districtID.substr(p + 1)
+								cd = state.lowerHouse[k];
+								break;
+							case "MN":
+								k = districtID;
+								while (k.length < 3)
+									k = "0" + k;
+								cd = state.lowerHouse[k];
+								break;
+							case "MA":
+								k = districtID;
+								for (s in MAdouble) {
+									k = k.replace(s, MAdouble[s])
 								}
 								cd = state.lowerHouse[k];
-							}
-							break;
-					}
-				}
-				if (!cd) {
-					let sk = skeleton(districtID);
-					for (d in state.lowerHouse) {
-						if (skeleton(d) == sk) {
-							cd = state.lowerHouse[d];
+								if (!cd) {
+									for (s in MAsingle) {
+										k = k.replace(s, MAsingle[s])
+									}
+									cd = state.lowerHouse[k];
+								}
+								break;
 						}
 					}
-				}
-				if (cd) {
-					cd.legislators = new Array();
-					district.legislators.forEach((legislator) => {
-						cd.legislators.push( {
-							chamber: metadata.chambers['lower'].name,
-							id: legislator.leg_id,
-							full_name: legislator.full_name,		
-						})
-					})
-					cd.os_boundary_id = district.boundary_id;
-					cd.os_district = district;
-					cd.division = {
-						government: "State",
-						name: cd.attributes["NAME"],
-						ocd_id: district.boundary_id,
-						legislators: cd.legislators,
-					};
-				}
-				else
-					console.log("cant find " + district.id);;
+					if (!cd) {
+						let sk = skeleton(districtID);
+						for (d in state.lowerHouse) {
+							if (skeleton(d) == sk) {
+								cd = state.lowerHouse[d];
+							}
+						}
+					}
+					break;
+
+				case "legislature":
+					cd = state.upperHouse[districtID];
+					if (!cd && districtID.startsWith("Ward ")) {
+						cd = state.upperHouse[districtID.replace("Ward ", "")];
+					}
+					if (!cd && (districtID == 'Chairman' || districtID == 'At-Large')) {
+						cd = {
+							attributes: state.attributes,
+							geometry: state.geometry,
+						};
+						upper.push(cd);
+						state.upperHouse.push(cd);
+					}
+					break;
 			}
+			if (cd) {
+				cd.legislators = new Array();
+				cd.os_boundary_id = district.boundary_id;
+				cd.os_district = district;
+				cd.division = {
+					government: "State",
+					state: state.attributes["NAME"],
+					state_abbr: state.attributes["STUSAB"],
+					name: cd.attributes["NAME"],
+					type: district.chamber,
+					id: district.name,
+					ocd_id: district.division_id,
+					legislators: cd.legislators,
+				};
+				if (metadata.chambers[district.chamber])
+					cd.division.chamber = metadata.chambers[district.chamber].name;
+				else
+					cd.division.chamber = district.chamber;
+				district.legislators.forEach((legislator) => {
+					cd.legislators.push({
+						chamber: metadata.chambers[district.chamber].name,
+						id: legislator.leg_id,
+						full_name: legislator.full_name,
+					})
+				})
+			}
+			else
+				if (!district.id.startsWith('nh-lower'))
+					console.log("cant find " + district.id);;
 		}
 	}
 }
@@ -572,19 +611,19 @@ startServer = function () {
 	upper = maps.stateUpper();
 	lower = maps.stateLower();
 
+	linkDistrictsToStates();
+	linkCongressToCensus();
+	linkOpenStatesToCensus();
+
 	boundingBoxes(states);
 	boundingBoxes(congress);
 	boundingBoxes(upper);
 	boundingBoxes(lower);
 
-	linkDistrictsToStates();
-	linkCongressToCensus();
-	linkOpenStatesToCensus();
-
-	simplifyBoundaries(states,   2000);
+	simplifyBoundaries(states, 2000);
 	simplifyBoundaries(congress, 1000);
-	simplifyBoundaries(upper,    1000);
-	simplifyBoundaries(lower,    1000);
+	simplifyBoundaries(upper, 1000);
+	simplifyBoundaries(lower, 1000);
 
 	http.createServer(function (req, res) {
 		let req_url = url.parse(req.url, true);
@@ -620,6 +659,8 @@ console.log("start");
 // cong.bootstrap(() => { maps.bootstrap(startServer) });
 // os.bootstrap(() => { maps.bootstrap(startServer) });
 //cong.bootstrap(() => { os.bootstrap(() => { maps.bootstrap(startServer) }) });
-setTimeout( () => { cong.bootstrap(() => { os.bootstrap(() => { maps.bootstrap(startServer) }) },
-		2000 ) });
+setTimeout(() => {
+	cong.bootstrap(() => { os.bootstrap(() => { maps.bootstrap(startServer) }) },
+		2000)
+});
 // startServer();

@@ -2,7 +2,7 @@
  * 
  */
 
-const http = require('http');
+const http = require('https');
 const io = require('./IO');
 
 const OPEN_STATES_DEBUG = "http://127.0.0.1:8082/open-states/";
@@ -15,7 +15,7 @@ var osStateDistricts;
 
 function getOpenStatesURL (arg)
 {
-	return OPEN_STATES_DOCKER + arg + "/";
+	return OPEN_STATES_URL + arg + "/";
 }
 
 function getMetadata(callback) {
@@ -111,6 +111,7 @@ function getStateDistricts(work) {
 			data.push(chunk);
 		});
 		res.on('end', () => {
+			console.log(data.join());
 			osStateDistricts[state] = JSON.parse(data.join(""));
 			setImmediate(getStateDistricts, work);
 		})

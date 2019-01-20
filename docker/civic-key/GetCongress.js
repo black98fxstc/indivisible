@@ -2,16 +2,21 @@
  * 
  */
 
-var http = require('http');
+var http = require('https');
+const CONGRESS_NUMBER = "116";
+const CONGRESS_DOCKER = "http://static/congress/";
+const CONGRESS_URL = "https://static.state-strong.org/congress/";
 
-const CONGRESS_URL = "https://static.state-strong.org/congress/115/";
-const CONGRESS_DOCKER = "http://static/congress/115/";
+function getCongressURL (chamber)
+{
+	return CONGRESS_URL + CONGRESS_NUMBER + "/" + chamber + "/members.json";
+}
 
 var senate;
 var house;
 
 function getCongress () {
-    http.get(CONGRESS_DOCKER + 'senate/members.json', (res) => {
+    http.get(getCongressURL('senate'), (res) => {
         const statusCode = res.statusCode;
         if (statusCode !== 200) {
             res.resume();
@@ -38,7 +43,7 @@ function getCongress () {
         setImmediate(bootstrap);
     });
     
-    http.get(CONGRESS_DOCKER + 'house/members.json', (res) => {
+    http.get(getCongressURL('house'), (res) => {
         const statusCode = res.statusCode;
         if (statusCode !== 200) {
             res.resume();
