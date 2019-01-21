@@ -141,7 +141,6 @@ function getStateDistricts() {
 
     let legislature = work.pop();
     if (legislature) {
-        console.log(legislature.name);
         graphQuery(posts_gql, { id: legislature.id }, response => {
             response.data.organization.members.forEach(member => {
                 osStateDistricts.push({
