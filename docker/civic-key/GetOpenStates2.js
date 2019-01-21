@@ -90,37 +90,47 @@ function getStateDistricts() {
                 let state_name = edge1.node.name;
                 let state_id = edge1.node.id;
                 let legislature = null, upper = null, lower = null;
-                console.log(state_name);
                 edge1.node.organizations.edges.forEach(edge2 => {
                     switch (edge2.node.classification) {
                         case 'legislature':
-                            legislature = edge2.node.id;
+                            legislature = {
+                                id: edge2.node.id,
+                                name: edge2.node.name,
+                            };
                             break;
                         case 'upper':
-                            upper = edge2.node.id;
+                            upper = {
+                                id: edge2.node.id,
+                                name: edge2.node.name,
+                            };
                             break;
                         case 'lower':
-                            lower = edge2.node.id;
+                            lower = {
+                                id: edge2.node.id,
+                                name: edge2.node.name,
+                            };
                             break;
                     }
-                    console.log(edge2.node.id);
                 })
                 if (upper && lower) {
                     work.push({
                         state: state_name,
                         classification: 'upper',
-                        legislature: upper,
+                        id: upper.id,
+                        name: upper.name,
                     });
                     work.push({
                         state: state_name,
                         classification: 'lower',
-                        legislature: lower,
+                        id: lower.id,
+                        name: lower.name,
                     });
                 } else
                     work.push({
                         state: state_name,
-                        classification: 'upper',
-                        legislature: legislature,
+                        classification: 'legislature',
+                        id: legislature.id,
+                        name: legislature.name,
                     })
             });
             setImmediate(getStateDistricts);
@@ -130,21 +140,19 @@ function getStateDistricts() {
 
     let legislature = work.pop();
     if (legislature) {
-        console.log(legislature.state);
-        console.log(legislature.classification);
-        graphQuery(posts_gql, { id: legislature.legislature }, response => {
+        console.log(legislature.name);
+        graphQuery(posts_gql, { id: legislature.id }, response => {
             response.data.organization.members.forEach(member => {
                 osStateDistricts.push({
+                    id: member.post.division.id,
+                    name: member.post.division.name,
                     state: legislature.state,
-                    chamber: legislature.classification,
-                    name: member.post.label,
-                    person_id: member.person ? member.person.id : null,
+                    chamber: legislature.name,
+                    classification: legislature.classification,
+                    label: member.post.label,
+                    role: member.post.role,
+                    person: member.person,
                 })
-                console.log(member.post.label);
-                if (member.person)
-                    console.log(member.person.id);
-                else
-                    console.log('unknown');
             })
             setImmediate(getStateDistricts);
         });
@@ -183,6 +191,4 @@ exports.bootstrap = (callback) => {
 
 exports.districts = () => {
     return osStateDistricts;
-}
-
-bootstrap();
+};

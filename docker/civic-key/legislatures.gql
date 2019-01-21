@@ -1,0 +1,22 @@
+query legislatures {
+  jurisdictions {
+    edges {
+      node {
+        name
+        id
+        organizations(first: 10 classification: ["legislature" "upper" "lower"]) {
+          edges {
+            node {
+              name
+              id
+              classification
+            }
+          }
+          pageInfo {
+            hasNextPage
+          }
+        }
+      }
+    }
+  }
+}

@@ -6,7 +6,7 @@ const http = require('http');
 const url = require('url');
 
 const maps = require("./GetCensusMaps.js");
-const os = require("./GetOpenStates.js");
+const os = require("./GetOpenStates2.js");
 const cong = require("./GetCongress.js");
 const simplify = require("./simplify.js");
 
@@ -328,6 +328,7 @@ function linkDistrictsToStates() {
 function linkCongressToCensus() {
 	states.forEach((state) => {
 		state4[state.attributes["STUSAB"]] = state;
+		state4[state.attributes["NAME"]] = state;
 		state.legislators = new Array();
 		state.division = {
 			government: "Federal",
@@ -577,7 +578,7 @@ function linkOpenStatesToCensus() {
 				cd.os_district = district;
 				cd.division = {
 					government: "State",
-					chamber: metadata.chambers[district.chamber] ? 
+					chamber: metadata.chambers[district.chamber] ?
 						metadata.chambers[district.chamber].name :
 						district.chamber,
 					state: state.attributes["NAME"],
@@ -672,143 +673,140 @@ function linkOpenStates2ToCensus() {
 	}
 
 	let stateDistricts = os.districts();
-	for (st in stateDistricts) {
-		let districts = stateDistricts[st];
-		for (d in districts) {
-			let district = districts[d];
-			let state = state4[district.abbr.toUpperCase()];
-			let metadata = os.metadata(district.abbr.toUpperCase());
-			let districtID = district.name;
-			let cd = null;
-			switch (district.chamber) {
-				case "upper":
-					cd = state.upperHouse[districtID];
-					if (!cd && districtID == 'At-Large') {
-						cd = {
-							attributes: state.attributes,
-							geometry: state.geometry,
-						};
-						upper.push(cd);
-						state.upperHouse.push(cd);
-					}
-					if (!cd) {
-						let sk = skeleton(districtID);
-						for (d in state.upperHouse) {
-							if (skeleton(d) == sk) {
-								cd = state.upperHouse[d];
-							}
+	stateDistricts.forEach(district => {
+		let state = state4[district.state];
+		// let metadata = os.metadata(district.abbr.toUpperCase());
+		let districtID = district.label;
+		let cd = null;
+		switch (district.classification) {
+			case "upper":
+				cd = state.upperHouse[districtID];
+				if (!cd && districtID == 'At-Large') {
+					cd = {
+						attributes: state.attributes,
+						geometry: state.geometry,
+					};
+					upper.push(cd);
+					state.upperHouse.push(cd);
+				}
+				if (!cd) {
+					let sk = skeleton(districtID);
+					for (d in state.upperHouse) {
+						if (skeleton(d) == sk) {
+							cd = state.upperHouse[d];
 						}
 					}
-					if (!cd && isNumeric(districtID)) {
-						if (districtID.length == 1) {
-							cd = state.upperHouse["0" + districtID];
-						}
+				}
+				if (!cd && isNumeric(districtID)) {
+					if (districtID.length == 1) {
+						cd = state.upperHouse["0" + districtID];
 					}
-					if (!cd && (districtID == "Chittenden-Grand Isle") || districtID == "Grand Isle") {
-						cd = state.upperHouse["Grand-Isle-Chittenden"];
-					}
-					break;
+				}
+				if (!cd && (districtID == "Chittenden-Grand Isle") || districtID == "Grand Isle") {
+					cd = state.upperHouse["Grand-Isle-Chittenden"];
+				}
+				break;
 
-				case "lower":
-					cd = state.lowerHouse[districtID];
-					if (!cd && districtID == 'At-Large') {
-						cd = {
-							attributes: state.attributes,
-							geometry: state.geometry,
-						};
-						lower.push(cd);
-						state.lowerHouse.push(cd);
-					}
-					if (!cd) {
-						var k;
-						switch (state.attributes['STUSAB']) {
-							case "SC":
-								k = districtID;
-								while (k.length < 3)
-									k = "0" + k;
-								cd = state.lowerHouse["HD-" + k];
-								break;
-							case "NH":
-								let p = districtID.lastIndexOf(" ");
-								k = districtID.substr(0, p) + " County No. " + districtID.substr(p + 1)
-								cd = state.lowerHouse[k];
-								break;
-							case "MN":
-								k = districtID;
-								while (k.length < 3)
-									k = "0" + k;
-								cd = state.lowerHouse[k];
-								break;
-							case "MA":
-								k = districtID;
-								for (s in MAdouble) {
-									k = k.replace(s, MAdouble[s])
+			case "lower":
+				cd = state.lowerHouse[districtID];
+				if (!cd && districtID == 'At-Large') {
+					cd = {
+						attributes: state.attributes,
+						geometry: state.geometry,
+					};
+					lower.push(cd);
+					state.lowerHouse.push(cd);
+				}
+				if (!cd) {
+					var k;
+					switch (state.attributes['STUSAB']) {
+						case "SC":
+							k = districtID;
+							while (k.length < 3)
+								k = "0" + k;
+							cd = state.lowerHouse["HD-" + k];
+							break;
+						case "NH":
+							let p = districtID.lastIndexOf(" ");
+							k = districtID.substr(0, p) + " County No. " + districtID.substr(p + 1)
+							cd = state.lowerHouse[k];
+							break;
+						case "MN":
+							k = districtID;
+							while (k.length < 3)
+								k = "0" + k;
+							cd = state.lowerHouse[k];
+							break;
+						case "MA":
+							k = districtID;
+							for (s in MAdouble) {
+								k = k.replace(s, MAdouble[s])
+							}
+							cd = state.lowerHouse[k];
+							if (!cd) {
+								for (s in MAsingle) {
+									k = k.replace(s, MAsingle[s])
 								}
 								cd = state.lowerHouse[k];
-								if (!cd) {
-									for (s in MAsingle) {
-										k = k.replace(s, MAsingle[s])
-									}
-									cd = state.lowerHouse[k];
-								}
-								break;
-						}
-					}
-					if (!cd) {
-						let sk = skeleton(districtID);
-						for (d in state.lowerHouse) {
-							if (skeleton(d) == sk) {
-								cd = state.lowerHouse[d];
 							}
+							break;
+					}
+				}
+				if (!cd) {
+					let sk = skeleton(districtID);
+					for (d in state.lowerHouse) {
+						if (skeleton(d) == sk) {
+							cd = state.lowerHouse[d];
 						}
 					}
-					break;
+				}
+				break;
 
-				case "legislature":
-					cd = state.upperHouse[districtID];
-					if (!cd && districtID.startsWith("Ward ")) {
-						cd = state.upperHouse[districtID.replace("Ward ", "")];
-					}
-					if (!cd && (districtID == 'Chairman' || districtID == 'At-Large')) {
-						cd = {
-							attributes: state.attributes,
-							geometry: state.geometry,
-						};
-						upper.push(cd);
-						state.upperHouse.push(cd);
-					}
-					break;
-			}
-			if (cd) {
+			case "legislature":
+				cd = state.upperHouse[districtID];
+				if (!cd && districtID.startsWith("Ward ")) {
+					cd = state.upperHouse[districtID.replace("Ward ", "")];
+				}
+				if (!cd && (districtID == 'Chairman' || districtID == 'At-Large')) {
+					cd = {
+						attributes: state.attributes,
+						geometry: state.geometry,
+					};
+					upper.push(cd);
+					state.upperHouse.push(cd);
+				}
+				break;
+		}
+		if (cd) {
+			if (!cd.legislators) {
 				cd.legislators = new Array();
-				cd.os_boundary_id = district.boundary_id;
 				cd.os_district = district;
 				cd.division = {
 					government: "State",
-					chamber: metadata.chambers[district.chamber] ? 
-						metadata.chambers[district.chamber].name :
-						district.chamber,
-					state: state.attributes["NAME"],
+					chamber: district.chamber,
+					state: district.state,
 					state_abbr: state.attributes["STUSAB"],
-					name: cd.attributes["NAME"],
-					type: district.chamber,
-					id: district.name,
-					ocd_id: district.division_id,
+					name: district.name,
+					label: district.label,
+					type: district.classification,
+					id: district.id,
 					legislators: cd.legislators,
 				};
-				district.legislators.forEach((legislator) => {
-					cd.legislators.push({
-						chamber: metadata.chambers[district.chamber].name,
-						id: legislator.leg_id,
-						full_name: legislator.full_name,
-					})
-				})
 			}
-			else
-				if (!district.id.startsWith('nh-lower'))
-					console.log("cant find " + district.id);;
+			cd.legislators.push({
+				state: district.state,
+				chamber: district.chamber,
+				type: district.classification,
+				role: district.role,
+				division_id: district.id,
+				id: district.person ?  district.person.id : null,
+				person: district.person,
+			})
 		}
-	}
+		else
+			if (!district.id.startsWith('nh-lower'))
+				console.log("cant find " + district.id);;
+	});
 }
 
 startServer = function () {
@@ -819,7 +817,7 @@ startServer = function () {
 
 	linkDistrictsToStates();
 	linkCongressToCensus();
-	linkOpenStatesToCensus();
+	linkOpenStates2ToCensus();
 
 	boundingBoxes(states);
 	boundingBoxes(congress);
