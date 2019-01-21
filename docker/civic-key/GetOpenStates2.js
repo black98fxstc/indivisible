@@ -2,6 +2,7 @@ const fs = require('fs');
 const http = require('https');
 const url = require('url');
 const io = require('./IO');
+const keys = require('./KEYS.js')
 
 var legislatures_gql, legislatures;
 var posts_gql, posts;
@@ -15,7 +16,7 @@ function graphQuery(query, variables, callback) {
     request.headers = {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'X-API-KEY': '8d20b2a8-01b5-46b1-be6b-108e0fd2b852',
+        'X-API-KEY': keys.API_KEYS.open_states,
     };
 
     http.request(request, (res) => {

@@ -90,7 +90,6 @@ function bootstrap() {
 		stateForIndex = new Array();
 		censusStates.forEach((state, index, states) => {
 			let stateIndex = Number.parseInt(state.attributes['STATE']);
-			// state.index = stateIndex;
 			stateForIndex[stateIndex] = state;
 			state.congressional = new Array();
 			state.upperHouse = new Array();

@@ -15,11 +15,8 @@ const semimajorAxis = 6378137.0; // WGS84 spheriod semimajor axis
 var states;
 var state4 = new Array();
 var congress;
-var congress4 = new Array();
 var lower;
-var lower4 = new Array();
 var upper;
-var upper4 = new Array();
 
 const keys = require('./KEYS.js');
 
@@ -260,23 +257,23 @@ function doLocationSearch(req, res, q) {
 			if (isInside(p, state)) {
 				divisions.push(state.division);
 
-				for (d in congress4[state.index]) {
-					let district = congress4[state.index][d];
+				for (d in state.congressional) {
+					let district = state.congressional[d];
 					if (isInside(p, district)) {
 						divisions.push(district.division);
 						break;
 					}
 				}
 
-				for (d in upper4[state.index]) {
-					let district = upper4[state.index][d];
+				for (d in state.upperHouse) {
+					let district = state.upperHouse[d];
 					if (isInside(p, district)) {
 						divisions.push(district.division);
 					}
 				}
 
-				for (d in lower4[state.index]) {
-					let district = lower4[state.index][d];
+				for (d in state.lowerHouse) {
+					let district = state.lowerHouse[d];
 					if (isInside(p, district)) {
 						divisions.push(district.division);
 					}
@@ -307,24 +304,6 @@ function doLocationSearch(req, res, q) {
 	res.end(JSON.stringify(response));
 }
 
-function linkDistrictsToStates() {
-	states.forEach((state) => {
-		let stateIndex = Number.parseInt(state.attributes['STATE']);
-		congress4[stateIndex] = new Array();
-		upper4[stateIndex] = new Array();
-		lower4[stateIndex] = new Array();
-	})
-	congress.forEach((district) => {
-		congress4[Number.parseInt(district.attributes["STATE"])].push(district);
-	});
-	upper.forEach((district) => {
-		upper4[Number.parseInt(district.attributes["STATE"])].push(district);
-	});
-	lower.forEach((district) => {
-		lower4[Number.parseInt(district.attributes["STATE"])].push(district);
-	});
-}
-
 function linkCongressToCensus() {
 	states.forEach((state) => {
 		state4[state.attributes["STUSAB"]] = state;
@@ -336,7 +315,7 @@ function linkCongressToCensus() {
 			state: state.attributes["NAME"],
 			state_abbr: state.attributes["STUSAB"],
 			type: "senate",
-			id: state.attributes["STUSAB"],
+			label: state.attributes["STUSAB"],
 			legislators: state.legislators,
 		}
 		state.congressional.forEach((district) => {
@@ -348,7 +327,7 @@ function linkCongressToCensus() {
 				state_abbr: state.attributes["STUSAB"],
 				name: district.attributes["NAME"],
 				type: "house",
-				id: district.attributes["BASENAME"],
+				label: district.attributes["BASENAME"],
 				legislators: district.legislators,
 			}
 		})
@@ -359,11 +338,11 @@ function linkCongressToCensus() {
 		if (!member.in_office)
 			return;
 		let state = state4[member.state];
-		state.ocd_id = member.ocd_id;
-		state.division.ocd_id = state.ocd_id;
+		state.division.id = member.ocd_id;
 		state.legislators.push({
 			chamber: "Senate",
 			id: member.id,
+			division_id: state.division.id,
 			full_name: member.first_name + (member.middle_name ? (' ' + member.middle_name) : '') + ' ' + member.last_name,
 		});
 	});
@@ -377,16 +356,17 @@ function linkCongressToCensus() {
 			state.legislators.push({
 				chamber: "House",
 				id: member.id,
+				division_id: state.division.id,
 				full_name: member.first_name + (member.middle_name ? (' ' + member.middle_name) : '') + ' ' + member.last_name,
 			});
 		else {
 			district = state.congressional[member.district];
 			if (district) {
-				district.ocd_id = member.ocd_id;
-				district.division.ocd_id = district.ocd_id;
+				district.division.id = member.ocd_id;
 				district.legislators.push({
 					chamber: "House",
 					id: member.id,
+					division_id: member.ocd_id,
 					full_name: member.first_name + (member.middle_name ? (' ' + member.middle_name) : '') + ' ' + member.last_name,
 				});
 			}
@@ -799,13 +779,13 @@ function linkOpenStates2ToCensus() {
 				type: district.classification,
 				role: district.role,
 				division_id: district.id,
-				id: district.person ?  district.person.id : null,
 				person: district.person,
+				id: district.person ?  district.person.id : null,
+				full_name: district.person ?  district.person.name : null,
 			})
 		}
 		else
-			if (!district.id.startsWith('nh-lower'))
-				console.log("cant find " + district.id);;
+			console.log("cant find " + district.name);
 	});
 }
 
@@ -815,7 +795,7 @@ startServer = function () {
 	upper = maps.stateUpper();
 	lower = maps.stateLower();
 
-	linkDistrictsToStates();
+	// linkDistrictsToStates();
 	linkCongressToCensus();
 	linkOpenStates2ToCensus();
 
