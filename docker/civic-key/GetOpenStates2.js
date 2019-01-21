@@ -123,8 +123,16 @@ function bootstrap() {
 
     let legislature = work.pop();
     if (legislature) {
+        console.log(legislature.state);
+        console.log(legislature.classification);
         graphQuery(posts_gql, { id: legislature.legislature }, response => {
-            console.log(response);
+            response.data.organization.members.forEach(member => {
+                console.log(member.post.label);
+                if (member.person)
+                    console.log(member.person.id);
+                else
+                    console.log('unknown');
+            })
             setImmediate(bootstrap);
         });
         return;
