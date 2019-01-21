@@ -1,10 +1,13 @@
 const fs = require('fs');
 const http = require('https');
 const url = require('url');
+const io = require('./IO');
 
 var legislatures_gql, legislatures;
 var posts_gql, posts;
 var work = new Array();
+
+var osStateDistricts;
 
 function graphQuery(query, variables, callback) {
     request = url.parse('https://openstates.org/graphql');
@@ -45,7 +48,11 @@ function getLegislature(legislature) {
 
 }
 
-function bootstrap() {
+var bootstrap_finished = () => {
+    console.log("bootstrap open states v2");
+};
+
+function getStateDistricts() {
     if (!legislatures_gql) {
         fs.readFile(
             'civic-key/legislatures.gql',
@@ -55,7 +62,7 @@ function bootstrap() {
             (err, data) => {
                 if (err) throw err;
                 legislatures_gql = data;
-                setImmediate(bootstrap);
+                setImmediate(getStateDistricts);
             }
         )
         return;
@@ -70,7 +77,7 @@ function bootstrap() {
             (err, data) => {
                 if (err) throw err;
                 posts_gql = data;
-                setImmediate(bootstrap);
+                setImmediate(getStateDistricts);
             }
         )
         return;
@@ -116,7 +123,7 @@ function bootstrap() {
                         legislature: legislature,
                     })
             });
-            setImmediate(bootstrap);
+            setImmediate(getStateDistricts);
         })
         return;
     }
@@ -127,16 +134,55 @@ function bootstrap() {
         console.log(legislature.classification);
         graphQuery(posts_gql, { id: legislature.legislature }, response => {
             response.data.organization.members.forEach(member => {
+                osStateDistricts.push({
+                    state: legislature.state,
+                    chamber: legislature.classification,
+                    name: member.post.label,
+                    person_id: member.person ? member.person.id : null,
+                })
                 console.log(member.post.label);
                 if (member.person)
                     console.log(member.person.id);
                 else
                     console.log('unknown');
             })
-            setImmediate(bootstrap);
+            setImmediate(getStateDistricts);
+        });
+        return;
+    } else {
+        let n = 0;
+        for (st in osStateDistricts)
+            ++n;
+        console.log("open states " + n + " districts fetched");
+        io.writeArray("os-districts", osStateDistricts, bootstrap);
+    }
+}
+
+function bootstrap() {
+    if (!osStateDistricts) {
+        osStateDistricts = new Array();
+        io.readArray("os-districts", osStateDistricts, (result) => {
+            if (result > 0) {
+                console.log("open states " + result + " districts read");
+                setImmediate(bootstrap);
+            }
+            else
+                setImmediate(getStateDistricts);
         });
         return;
     }
+
+    setImmediate(bootstrap_finished);
+}
+
+exports.bootstrap = (callback) => {
+    bootstrap_finished = callback;
+
+    bootstrap();
+}
+
+exports.districts = () => {
+    return osStateDistricts;
 }
 
 bootstrap();

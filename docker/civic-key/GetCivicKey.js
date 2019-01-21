@@ -309,9 +309,10 @@ function doLocationSearch(req, res, q) {
 
 function linkDistrictsToStates() {
 	states.forEach((state) => {
-		congress4[state.index] = new Array();
-		upper4[state.index] = new Array();
-		lower4[state.index] = new Array();
+		let stateIndex = Number.parseInt(state.attributes['STATE']);
+		congress4[stateIndex] = new Array();
+		upper4[stateIndex] = new Array();
+		lower4[stateIndex] = new Array();
 	})
 	congress.forEach((district) => {
 		congress4[Number.parseInt(district.attributes["STATE"])].push(district);
@@ -395,6 +396,214 @@ function linkCongressToCensus() {
 }
 
 function linkOpenStatesToCensus() {
+	var MAsingle = {
+		"First ": "1st ",
+		"Second ": "2nd ",
+		"Third ": "3rd ",
+		"Fourth ": "4th ",
+		"Fifth ": "5th ",
+		"Sixth ": "6th ",
+		"Seventh ": "7th ",
+		"Eighth ": "8th ",
+		"Ninth ": "9th ",
+		"Tenth ": "10th ",
+		"Eleventh ": "11th ",
+		"Twelfth ": "12th ",
+		"Thirteenth ": "13th ",
+		"Fourteenth ": "14th ",
+		"Fifteenth ": "15th ",
+		"Sixteenth ": "16th ",
+		"Seventeenth ": "17th ",
+		"Eighteenth ": "18th ",
+		"Nineteenth ": "19th ",
+		"Twentieth ": "20th "
+	};
+	var MAdouble = {
+		"Twenty-First ": "21st ",
+		"Twenty-Second ": "22nd ",
+		"Twenty-Third ": "23rd ",
+		"Twenty-Fourth ": "24th ",
+		"Twenty-Fifth ": "25th ",
+		"Twenty-Sixth ": "26th ",
+		"Twenty-Seventh ": "27th ",
+		"Twenty-Eighth ": "28th ",
+		"Twenty-Ninth ": "29th ",
+		"Thirtieth ": "30th ",
+		"Thirty-First ": "31st ",
+		"Thirty-Second ": "32nd ",
+		"Thirty-Third ": "33rd ",
+		"Thirty-Fourth ": "34th ",
+		"Thirty-Fifth ": "35th ",
+		"Thirty-Sixth ": "36th ",
+		"Thirty-Seventh ": "37th "
+	};
+
+	function skeleton(string) {
+		string = string.trim().toLowerCase();
+		string = string.replace(", ", " ");
+		string = string.replace("-", " ");
+		string = string.replace("-", " ");
+		string = string.replace(" & ", " ");
+		string = string.replace(" and ", " ");
+		return string;
+	}
+
+	function isDigit(char) {
+		if (char < "0".charAt(0))
+			return false;
+		if (char > "9".charAt(0))
+			return false;
+		return true;
+	}
+
+	function isNumeric(string) {
+		for (i = 0; i < string.length; ++i)
+			if (!isDigit(string.charAt(i)))
+				return false;
+		return true;
+	}
+
+	let stateDistricts = os.districts();
+	for (st in stateDistricts) {
+		let districts = stateDistricts[st];
+		for (d in districts) {
+			let district = districts[d];
+			let state = state4[district.abbr.toUpperCase()];
+			let metadata = os.metadata(district.abbr.toUpperCase());
+			let districtID = district.name;
+			let cd = null;
+			switch (district.chamber) {
+				case "upper":
+					cd = state.upperHouse[districtID];
+					if (!cd && districtID == 'At-Large') {
+						cd = {
+							attributes: state.attributes,
+							geometry: state.geometry,
+						};
+						upper.push(cd);
+						state.upperHouse.push(cd);
+					}
+					if (!cd) {
+						let sk = skeleton(districtID);
+						for (d in state.upperHouse) {
+							if (skeleton(d) == sk) {
+								cd = state.upperHouse[d];
+							}
+						}
+					}
+					if (!cd && isNumeric(districtID)) {
+						if (districtID.length == 1) {
+							cd = state.upperHouse["0" + districtID];
+						}
+					}
+					if (!cd && (districtID == "Chittenden-Grand Isle") || districtID == "Grand Isle") {
+						cd = state.upperHouse["Grand-Isle-Chittenden"];
+					}
+					break;
+
+				case "lower":
+					cd = state.lowerHouse[districtID];
+					if (!cd && districtID == 'At-Large') {
+						cd = {
+							attributes: state.attributes,
+							geometry: state.geometry,
+						};
+						lower.push(cd);
+						state.lowerHouse.push(cd);
+					}
+					if (!cd) {
+						var k;
+						switch (state.attributes['STUSAB']) {
+							case "SC":
+								k = districtID;
+								while (k.length < 3)
+									k = "0" + k;
+								cd = state.lowerHouse["HD-" + k];
+								break;
+							case "NH":
+								let p = districtID.lastIndexOf(" ");
+								k = districtID.substr(0, p) + " County No. " + districtID.substr(p + 1)
+								cd = state.lowerHouse[k];
+								break;
+							case "MN":
+								k = districtID;
+								while (k.length < 3)
+									k = "0" + k;
+								cd = state.lowerHouse[k];
+								break;
+							case "MA":
+								k = districtID;
+								for (s in MAdouble) {
+									k = k.replace(s, MAdouble[s])
+								}
+								cd = state.lowerHouse[k];
+								if (!cd) {
+									for (s in MAsingle) {
+										k = k.replace(s, MAsingle[s])
+									}
+									cd = state.lowerHouse[k];
+								}
+								break;
+						}
+					}
+					if (!cd) {
+						let sk = skeleton(districtID);
+						for (d in state.lowerHouse) {
+							if (skeleton(d) == sk) {
+								cd = state.lowerHouse[d];
+							}
+						}
+					}
+					break;
+
+				case "legislature":
+					cd = state.upperHouse[districtID];
+					if (!cd && districtID.startsWith("Ward ")) {
+						cd = state.upperHouse[districtID.replace("Ward ", "")];
+					}
+					if (!cd && (districtID == 'Chairman' || districtID == 'At-Large')) {
+						cd = {
+							attributes: state.attributes,
+							geometry: state.geometry,
+						};
+						upper.push(cd);
+						state.upperHouse.push(cd);
+					}
+					break;
+			}
+			if (cd) {
+				cd.legislators = new Array();
+				cd.os_boundary_id = district.boundary_id;
+				cd.os_district = district;
+				cd.division = {
+					government: "State",
+					chamber: metadata.chambers[district.chamber] ? 
+						metadata.chambers[district.chamber].name :
+						district.chamber,
+					state: state.attributes["NAME"],
+					state_abbr: state.attributes["STUSAB"],
+					name: cd.attributes["NAME"],
+					type: district.chamber,
+					id: district.name,
+					ocd_id: district.division_id,
+					legislators: cd.legislators,
+				};
+				district.legislators.forEach((legislator) => {
+					cd.legislators.push({
+						chamber: metadata.chambers[district.chamber].name,
+						id: legislator.leg_id,
+						full_name: legislator.full_name,
+					})
+				})
+			}
+			else
+				if (!district.id.startsWith('nh-lower'))
+					console.log("cant find " + district.id);;
+		}
+	}
+}
+
+function linkOpenStates2ToCensus() {
 	var MAsingle = {
 		"First ": "1st ",
 		"Second ": "2nd ",
