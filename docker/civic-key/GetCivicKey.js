@@ -9,8 +9,6 @@ const maps = require("./GetCensusMaps.js");
 const os = require("./GetOpenStates2.js");
 const cong = require("./GetCongress.js");
 
-// const semimajorAxis = maps.semimajorAxis();
-
 var states;
 var state4 = new Array();
 
