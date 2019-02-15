@@ -9,7 +9,7 @@ const CONGRESS_URL = "https://static.state-strong.org/congress/";
 
 function getCongressURL (chamber)
 {
-	return CONGRESS_URL + CONGRESS_NUMBER + "/" + chamber + "/members.json";
+	return CONGRESS_DOCKER + CONGRESS_NUMBER + "/" + chamber + "/members.json";
 }
 
 var senate;

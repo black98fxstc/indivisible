@@ -16,14 +16,14 @@ define( 'PUBLIC_STATIC_URL', 'https://static.state-strong.org/' );
 
 // define( 'OPEN_STATES_URL', "https://api.state-strong.org/open-states/" );
 // define( 'LEGISCAN_URL',    "https://api.state-strong.org/legiscan/" );
-//define( 'CIVIC_KEY_URL', 'http://api.state-strong.org/civic-key/');
+// define( 'CIVIC_KEY_URL', 'http://api.state-strong.org/civic-key/');
 // define( 'STATIC_URL', 'https://static.state-strong.org/' );
-define( 'STATIC_URL', 'http://127.0.0.1:8082/' );
-define( 'LEGISCAN_URL', "http://127.0.0.1:8084/legiscan/indv-plugin.php/" );
-define( 'CIVIC_KEY_URL', 'http://127.0.0.1:8085/civic-key/');
-// define( 'STATIC_URL', 'http://static/' );
-// define( 'LEGISCAN_URL', 'http://legiscan/legiscan/indv-plugin.php/' );
-// define( 'CIVIC_KEY_URL', 'http://civic-key:8080/civic-key/');
+// define( 'STATIC_URL', 'http://127.0.0.1:8082/' );
+// define( 'LEGISCAN_URL', "http://127.0.0.1:8084/legiscan/indv-plugin.php/" );
+// define( 'CIVIC_KEY_URL', 'http://127.0.0.1:8085/civic-key/');
+define( 'STATIC_URL', 'http://static/' );
+define( 'LEGISCAN_URL', 'http://legiscan/legiscan/indv-plugin.php/' );
+define( 'CIVIC_KEY_URL', 'http://civic-key:8080/civic-key/');
 
 define( 'OPEN_STATES_URL', STATIC_URL . 'open-states/' );
 define( 'CONGRESS_URL', STATIC_URL . 'congress/' );
