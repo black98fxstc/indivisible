@@ -87,8 +87,6 @@ add_filter ( 'manage_indv_politician_posts_columns',  'indv_plugin_columns_polit
 add_filter ( 'manage_edit-indv_politician_sortable_columns', 'indv_plugin_sortable_politician', 10, 1 );
 add_filter ( 'manage_indv_legislation_posts_columns', 'indv_plugin_columns_legislation', 10, 1 );
 
-add_filter( 'use_block_editor_for_post_type', 'indv_plugin_post_type_filter', 10, 2 );
-
 add_filter ( 'query_vars', function ( $vars ) {
 	$vars[] = 'lat';
 	$vars[] = 'lng';
@@ -99,6 +97,8 @@ add_filter ( 'query_vars', function ( $vars ) {
 if (is_admin ()) { // admin actions
 	add_action ( 'admin_init', 'indv_plugin_settings' );
 	add_action ( 'admin_menu', 'indv_plugin_menu' );
+	
+	add_filter( 'use_block_editor_for_post_type', 'indv_plugin_post_type_filter', 10, 2 );
 }
 
 register_activation_hook ( __FILE__, 'indv_plugin_install' );
