@@ -53,11 +53,10 @@ exports.writeArray = (name, array, callback) => {
 	let stream = zlib.createGzip();
 	let ws = fs.createWriteStream(MAP_BASE + name + '.json.gz');
 	stream.pipe(ws);
-	// stream.pipe(fs.createWriteStream('maps/' + name + '.json.gz'));
 
     let index = 0;
     let sanitized = new Array ();
-    for (var item in array)
+    for (let item in array)
         sanitized.push(array[item]);
 
     function write() {

@@ -26,9 +26,9 @@ RUN set -ex; \
 	wp --allow-root --version
 
 ENV GANTRY_VERSION 5.4.27
-ENV JETPACK_VERSION  6.9
+ENV JETPACK_VERSION  7.0.1
 ENV MAILCHIMP_VERSION 4.3.3
-ENV TWOFACTOR_VERSION 1.3.13
+ENV TWOFACTOR_VERSION 1.4.7
 ENV TWITTER_VERSION 2.0.3
 
 RUN echo ${GANTRY_VERSION}; \
@@ -38,15 +38,15 @@ RUN echo ${GANTRY_VERSION}; \
 	curl -o hydrogen.zip -fSL "https://github.com/gantry/gantry5/releases/download/${GANTRY_VERSION}/wordpress-tpl_g5_hydrogen_v${GANTRY_VERSION}.zip"; \
 	unzip hydrogen.zip; \
 	mv g5_hydrogen /usr/src/wordpress/wp-content/themes/; \
-        curl -o jetpack.zip -fSL "https://downloads.wordpress.org/plugin/jetpack.${JETPACK_VERSION}.zip"; \
-        unzip jetpack.zip; \
-        mv jetpack /usr/src/wordpress/wp-content/plugins/; \
-        curl -o two-factor-authentication.zip -fSL "https://downloads.wordpress.org/plugin/two-factor-authentication.${TWOFACTOR_VERSION}.zip"; \
-        unzip two-factor-authentication.zip; \
-        mv two-factor-authentication /usr/src/wordpress/wp-content/plugins/; \
-        curl -o twitter.zip -fSL "https://downloads.wordpress.org/plugin/twitter.${TWITTER_VERSION}.zip"; \
-        unzip twitter.zip; \
-        mv twitter /usr/src/wordpress/wp-content/plugins/; \
+    curl -o jetpack.zip -fSL "https://downloads.wordpress.org/plugin/jetpack.${JETPACK_VERSION}.zip"; \
+    unzip jetpack.zip; \
+    mv jetpack /usr/src/wordpress/wp-content/plugins/; \
+    curl -o two-factor-authentication.zip -fSL "https://downloads.wordpress.org/plugin/two-factor-authentication.${TWOFACTOR_VERSION}.zip"; \
+    unzip two-factor-authentication.zip; \
+    mv two-factor-authentication /usr/src/wordpress/wp-content/plugins/; \
+    curl -o twitter.zip -fSL "https://downloads.wordpress.org/plugin/twitter.${TWITTER_VERSION}.zip"; \
+    unzip twitter.zip; \
+    mv twitter /usr/src/wordpress/wp-content/plugins/; \
 	curl -o mailchimp-for-wp.zip -fSL  https://downloads.wordpress.org/plugin/mailchimp-for-wp.${MAILCHIMP_VERSION}.zip; \
 	unzip mailchimp-for-wp.zip; \
 	mv mailchimp-for-wp /usr/src/wordpress/wp-content/plugins/;
@@ -55,7 +55,8 @@ COPY plugins/indivisible/indivisible.php /usr/src/wordpress/wp-content/plugins/i
 COPY KEYS.js /usr/src/wordpress/wp-content/plugins/indivisible/indv-react/
 #COPY plugins/indivisible/indv-react/build/static/js/main.a285be49.js /usr/src/wordpress/wp-content/plugins/indivisible/indv-react.js
 #COPY plugins/indivisible/indv-react/build/static/css/main.c17080f1.css /usr/src/wordpress/wp-content/plugins/indivisible/indv-react.css
-COPY themes  /usr/src/wordpress/wp-content/themes/
+COPY themes /usr/src/wordpress/wp-content/themes/
+COPY cache /usr/src/wordpress/wp-content/cache/
 
 COPY indv-plugin-entry /usr/local/bin/
 COPY indv-plugin-cron  /usr/local/bin/

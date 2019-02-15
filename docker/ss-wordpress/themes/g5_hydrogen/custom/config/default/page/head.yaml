@@ -19,7 +19,7 @@ meta:
   -
     'og:image:height': '512'
   -
-    'twitter:card': 'https://dev.state-strong.org/wp-content/uploads/2018/03/Indiv-CA-StateStrong-FINAL-512x512.png'
+    'twitter:card': 'summary'
   -
     'og:image:alt': 'Indivisible CA: StateStrong Logo'
 head_bottom: ''
