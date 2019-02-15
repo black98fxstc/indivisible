@@ -115,7 +115,7 @@ services:
       - /var/lib/indivisible/civic-key/maps:/maps:ro
 
   database:
-    image: gcr.io/cloudsql-docker/gce-proxy:1.11
+    image: gcr.io/cloudsql-docker/gce-proxy
     command: /cloud_sql_proxy -instances=atomic-producer-160402:us-west1:indivisible-db=tcp:0.0.0.0:3306 -credential_file=/config
     container_name: sql-proxy
     restart: always
