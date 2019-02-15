@@ -11,6 +11,7 @@ const cong = require("./GetCongress.js");
 
 var states;
 var state4 = new Array();
+var boundary4 = new Array();
 
 function doFrontPage(req, res, q) {
 	let response = new Object();
@@ -75,7 +76,7 @@ function doFrontPage(req, res, q) {
 	res.end(JSON.stringify(response));
 }
 
-function doLocationSearch(req, res, q) {
+function doLocationSe0arch(req, res, q) {
 	let response = new Object();
 	try {
 		if (!(q && q.lat && q.lng))
@@ -122,6 +123,36 @@ function doLocationSearch(req, res, q) {
 				break;
 			}
 		}
+
+		let politicians = new Array();
+		divisions.forEach((value, index, array) => {
+			if (value.legislators)
+				value.legislators.forEach((legislator) => {
+					if (legislator.id)
+						politicians.push(legislator.id);
+				});
+		});
+
+		response['divisions'] = divisions;
+		response['politicians'] = politicians;
+		response['status'] = "success";
+	} catch (error) {
+		response['status'] = "failure";
+		response['reason'] = error.message;
+	}
+	res.setHeader('Access-Control-Allow-Origin', '*');
+	res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" });
+	res.end(JSON.stringify(response));
+}
+
+function doDistrictLookup(req, res, q) {
+	let response = new Object();
+	try {
+		if (!(q && q.district))
+			throw new Error("district missing");
+
+		let divisions = new Array();
+		divisions.push(boundary4[q.district].division);
 
 		let politicians = new Array();
 		divisions.forEach((value, index, array) => {
@@ -285,6 +316,22 @@ function linkCongressToCensus() {
 				console.log("Can't find " + member.district);
 		}
 	});
+}
+
+function linkDistrictsToBoundaries() {
+	for (s in states) {
+		let state = states[s];
+		for (d in state.upperHouse) {
+			let district = state.upperHouse[d];
+			let code =  (state.attributes['STUSAB'] + '-upper-' + district.attributes['BASENAME']).toLowerCase();
+			boundary4[code] = district;
+		}
+		for (d in state.lowerHouse) {
+			let district = state.lowerHouse[d];
+			let code =  (state.attributes['STUSAB'] + '-lower-' + district.attributes['BASENAME']).toLowerCase();
+			boundary4[code] = district;
+		}
+	}
 }
 
 function linkOpenStatesToCensus() {
@@ -572,6 +619,7 @@ function linkOpenStates2ToCensus() {
 startServer = function () {
 	states = maps.states();
 
+	linkDistrictsToBoundaries();
 	linkCongressToCensus();
 	linkOpenStates2ToCensus();
 
@@ -589,6 +637,9 @@ startServer = function () {
 				return;
 			case 'location-search':
 				doLocationSearch(req, res, req_url.query);
+				return;
+			case 'district-lookup':
+				doDistrictLookup(req, res, req_url.query);
 				return;
 			default:
 		}

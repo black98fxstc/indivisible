@@ -2,14 +2,14 @@
  * 
  */
 
-var http = require('http');
+var http = require('https');
 const CONGRESS_NUMBER = "116";
 const CONGRESS_DOCKER = "http://static/congress/";
 const CONGRESS_URL = "https://static.state-strong.org/congress/";
 
 function getCongressURL (chamber)
 {
-	return CONGRESS_DOCKER + CONGRESS_NUMBER + "/" + chamber + "/members.json";
+	return CONGRESS_URL + CONGRESS_NUMBER + "/" + chamber + "/members.json";
 }
 
 var senate;

@@ -42,17 +42,6 @@ function graphQuery(query, variables, callback) {
     }).end(JSON.stringify({ query, variables }));
 }
 
-function getLegislature(legislature) {
-    graphQuery(posts_gql, { id: edge2.node.id }, response2 => {
-        console.log(response2);
-    });
-
-}
-
-var bootstrap_finished = () => {
-    console.log("bootstrap open states v2");
-};
-
 function getStateDistricts() {
     if (!legislatures_gql) {
         fs.readFile(
@@ -94,22 +83,13 @@ function getStateDistricts() {
                 edge1.node.organizations.edges.forEach(edge2 => {
                     switch (edge2.node.classification) {
                         case 'legislature':
-                            legislature = {
-                                id: edge2.node.id,
-                                name: edge2.node.name,
-                            };
+                            legislature = edge2.node;
                             break;
                         case 'upper':
-                            upper = {
-                                id: edge2.node.id,
-                                name: edge2.node.name,
-                            };
+                            upper = edge2.node;
                             break;
                         case 'lower':
-                            lower = {
-                                id: edge2.node.id,
-                                name: edge2.node.name,
-                            };
+                            lower = edge2.node;
                             break;
                     }
                 })
@@ -166,6 +146,10 @@ function getStateDistricts() {
     }
 }
 
+var bootstrap_finished = () => {
+    console.log("bootstrap open states v2");
+};
+
 function bootstrap() {
     if (!osStateDistricts) {
         osStateDistricts = new Array();
@@ -191,4 +175,4 @@ exports.bootstrap = (callback) => {
 
 exports.districts = () => {
     return osStateDistricts;
-};
+}
