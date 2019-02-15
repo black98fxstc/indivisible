@@ -1,0 +1,8 @@
+context:
+  -
+    is_front_page: true
+menu: {  }
+language: {  }
+post: {  }
+taxonomy: {  }
+archive: {  }

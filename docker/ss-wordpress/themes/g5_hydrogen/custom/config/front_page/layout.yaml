@@ -1,0 +1,86 @@
+version: 2
+preset:
+  image: 'gantry-admin://images/layouts/2-col-right.png'
+  name: 2_column_-_right
+  timestamp: 1508332860
+layout:
+  header: {  }
+  navigation: {  }
+  banner:
+    -
+      - custom-9157
+  /container-main/:
+    -
+      -
+        'main 68': {  }
+      -
+        'sidebar 32':
+          -
+            - position-widget-1717
+          -
+            - position-widget-5606
+  footer: {  }
+  offcanvas: {  }
+structure:
+  header:
+    inherit:
+      outline: default
+      include:
+        - attributes
+        - children
+  navigation:
+    type: section
+    inherit:
+      outline: default
+      include:
+        - attributes
+        - children
+  banner:
+    type: section
+    subtype: div
+    attributes:
+      class: ''
+  main:
+    inherit:
+      outline: default
+      include:
+        - attributes
+        - block
+        - children
+  sidebar:
+    type: section
+    subtype: aside
+    attributes:
+      class: ''
+    block:
+      fixed: '1'
+  container-main:
+    attributes:
+      boxed: ''
+      class: ''
+      extra: {  }
+  footer:
+    inherit:
+      outline: default
+      include:
+        - attributes
+        - children
+  offcanvas:
+    inherit:
+      outline: default
+      include:
+        - attributes
+        - children
+content:
+  custom-9157:
+    title: 'Custom HTML'
+    attributes:
+      html: "<div class=\"glide\" id=\"glide\">\n  <div class=\"glide__track\" data-glide-el=\"track\">\n    <ul class=\"glide__slides\">\n      <li class=\"glide__slide\">0</li>\n      <li class=\"glide__slide\">1</li>\n      <li class=\"glide__slide\">2</li>\n      <li class=\"glide__slide\">3</li>\n      <li class=\"glide__slide\">4</li>\n    </ul>\n  </div>\n  <div data-glide-el=\"controls\">\n    <button class=\"slider__arrow slider__arrow--prev glide__arrow glide__arrow--prev\" data-glide-dir=\"<\">\n      <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\">\n        <path d=\"M0 12l10.975 11 2.848-2.828-6.176-6.176H24v-3.992H7.646l6.176-6.176L10.975 1 0 12z\"/>\n      </svg>\n    </button>\n\n    <button class=\"slider__arrow slider__arrow--next glide__arrow glide__arrow--next\" data-glide-dir=\">\">\n      <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\">\n        <path d=\"M13.025 1l-2.847 2.828 6.176 6.176h-16.354v3.992h16.354l-6.176 6.176 2.847 2.828 10.975-11z\"/>\n      </svg>\n    </button>\n  </div>\n  <div class=\"glide__bullets\" data-glide-el=\"controls[nav]\">\n    <button class=\"glide__bullet\" data-glide-dir=\"=0\"></button>\n    <button class=\"glide__bullet\" data-glide-dir=\"=1\"></button>\n    <button class=\"glide__bullet\" data-glide-dir=\"=2\"></button>\n  </div>\n\n</div>\n"
+  position-widget-1717:
+    attributes:
+      widget: '{"type":"widget","widget":"mc4wp_form_widget","title":"MailChimp Sign-Up Form","options":{"widget":{"title":""}}}'
+      key: widget
+  position-widget-5606:
+    attributes:
+      widget: '{"type":"widget","widget":"twitter-timeline-profile","title":"Twitter Profile","options":{"widget":{"height":700,"screen_name":"CAStateStrong"}}}'
+      key: widget

@@ -1,0 +1,49 @@
+name: vanilla_react
+timestamp: 1534304765
+version: 7
+preset:
+  image: 'gantry-admin://images/layouts/default.png'
+  name: default
+  timestamp: 1508332860
+positions: {  }
+sections:
+  header: Header
+  navigation: Navigation
+  main: Main
+  footer: Footer
+  offcanvas: Offcanvas
+particles:
+  messages:
+    system-messages-6674: 'System Messages'
+  logo:
+    logo-9193: 'Logo / Image'
+  menu:
+    menu-1005: Menu
+  content:
+    system-content-6106: 'Page Content'
+  widget:
+    position-widget-1357: Widget
+  copyright:
+    copyright-5170: Copyright
+  social:
+    social-6269: Social
+  branding:
+    branding-3372: Branding
+  mobile-menu:
+    mobile-menu-6221: Mobile-menu
+inherit:
+  default:
+    header: header
+    navigation: navigation
+    main: main
+    footer: footer
+    offcanvas: offcanvas
+    system-messages-6674: system-messages-4735
+    logo-9193: logo-7296
+    menu-1005: menu-6948
+    system-content-6106: system-content-3116
+    position-widget-1357: position-widget-1625
+    copyright-5170: copyright-6921
+    social-6269: social-8965
+    branding-3372: branding-3800
+    mobile-menu-6221: mobile-menu-1056
