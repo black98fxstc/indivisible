@@ -14,20 +14,20 @@
  */
 define( 'PUBLIC_STATIC_URL', 'https://static.state-strong.org/' );
 
-//define( 'OPEN_STATES_URL', "https://api.state-strong.org/open-states/" );
-//define( 'LEGISCAN_URL',    "https://api.state-strong.org/legiscan/" );
+// define( 'OPEN_STATES_URL', "https://api.state-strong.org/open-states/" );
+// define( 'LEGISCAN_URL',    "https://api.state-strong.org/legiscan/" );
 //define( 'CIVIC_KEY_URL', 'http://api.state-strong.org/civic-key/');
 // define( 'STATIC_URL', 'https://static.state-strong.org/' );
-//define( 'STATIC_URL', 'http://127.0.0.1:8082/' );
-//define( 'LEGISCAN_URL', "http://127.0.0.1:8084/legiscan/indv-plugin.php/" );
-//define( 'CIVIC_KEY_URL', 'http://127.0.0.1:8085/civic-key/');
-define( 'STATIC_URL', 'http://static/' );
-define( 'LEGISCAN_URL', 'http://legiscan/legiscan/indv-plugin.php/' );
-define( 'CIVIC_KEY_URL', 'http://civic-key:8080/civic-key/');
+define( 'STATIC_URL', 'http://127.0.0.1:8082/' );
+define( 'LEGISCAN_URL', "http://127.0.0.1:8084/legiscan/indv-plugin.php/" );
+define( 'CIVIC_KEY_URL', 'http://127.0.0.1:8085/civic-key/');
+// define( 'STATIC_URL', 'http://static/' );
+// define( 'LEGISCAN_URL', 'http://legiscan/legiscan/indv-plugin.php/' );
+// define( 'CIVIC_KEY_URL', 'http://civic-key:8080/civic-key/');
 
 define( 'OPEN_STATES_URL', STATIC_URL . 'open-states/' );
 define( 'CONGRESS_URL', STATIC_URL . 'congress/' );
-define( 'CONGRESS_CURRENT', '115' );
+define( 'CONGRESS_CURRENT', '116' );
 
 // post types
 define( 'INDV_POLITICIAN', 'indv_politician' );
@@ -87,6 +87,8 @@ add_filter ( 'manage_indv_politician_posts_columns',  'indv_plugin_columns_polit
 add_filter ( 'manage_edit-indv_politician_sortable_columns', 'indv_plugin_sortable_politician', 10, 1 );
 add_filter ( 'manage_indv_legislation_posts_columns', 'indv_plugin_columns_legislation', 10, 1 );
 
+add_filter( 'use_block_editor_for_post_type', 'indv_plugin_post_type_filter', 10, 2 );
+
 add_filter ( 'query_vars', function ( $vars ) {
 	$vars[] = 'lat';
 	$vars[] = 'lng';
@@ -145,6 +147,14 @@ function indv_plugin_cron_update() {
 function indv_plugin_twitter() {
 	remove_meta_box ( 'twitter-custom', get_current_screen (), 'advanced' );
 	remove_meta_box ( 'twitter-custom', get_current_screen (), 'normal' );
+}
+
+function indv_plugin_post_type_filter($use_block_editor, $post_type) {
+    if (INDV_LEGISLATION === $post_type || INDV_POLITICIAN === $post_type) {
+        return false;
+    }
+
+    return $use_block_editor;
 }
 
 class Indivisible_Plugin {
@@ -1297,7 +1307,7 @@ function indv_plugin_save_post ( $post_id, $post, $update ) {
 						wp_set_post_terms( $post_id, $new_status, INDV_BILL_STATUS);
 				}
 			} else {
-				preg_match ( '/(?:^|[^A-Z]+)([A-Z][A-Z])(?:\/.*\/|[^A-Z]|[\s,-\/]*)([A-Z]+(?:\s*)[\d]+)[\s,-\]]*(\d\d\d\d|)/',
+				preg_match ( '/(?:^|[^A-Z]+)([A-Z][A-Z])(?:\/.*\/|[^A-Z]|[\s,-\/]*)([A-Z]+(?:\s*)[\d]+)[\s,-\/]*(\d\d\d\d|)/',
 						strtoupper($post->post_title), $matches, PREG_OFFSET_CAPTURE );
 				if (count($matches) == 4)
 					$key = array ( $matches [1] [0], $matches [2] [0], $matches [3] [0] );
