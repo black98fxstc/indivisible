@@ -2,7 +2,7 @@
  * 
  */
 
-var http = require('https');
+var http = require('http');
 const CONGRESS_NUMBER = "116";
 const CONGRESS_DOCKER = "http://static/congress/";
 const CONGRESS_URL = "https://static.state-strong.org/congress/";
