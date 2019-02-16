@@ -1,0 +1,57 @@
+{% extends '@nucleus/partials/particle.html.twig' %}
+
+{% block particle %}
+
+    <div class="slide-show widget widget_search">
+<div class="glide g-container ss-slide-show" id="glide">
+  <div class="glide__track" data-glide-el="track">
+    <ul class="glide__slides">
+        {% for slide in particle.slides %}
+          <li class="glide__slide"><img class="ss-slide-show" src="{{ slide.url }}"></li>
+        {% endfor %}
+    </ul>
+  </div>
+</div>
+    </div>
+
+<script>
+  new Glide('.glide',{
+  type: 'carousel',
+  startAt: 0,
+  perView: 3,
+  focusAt: 'center',
+  autoplay: 2000,
+  breakpoints: {
+    800: {
+      perView: 2
+    },
+     200: {
+      perView: 1
+    }
+  }
+}).mount();
+</script>
+
+<style>
+.glide__slide {
+  height: 10rem;
+}
+.glide__slides {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+img.ss-slide-show {
+  object-fit: fill;
+}
+</style>
+
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" type="text/css" href="gantry-theme://custom/scss/glide.core.min.css" /> 
+    <link rel="stylesheet" type="text/css" href="gantry-theme://custom/scss/glide.theme.min.css" /> 
+{% endblock %}
+
+{% block javascript %}
+    <script src="{{ url('gantry-theme://custom/js/glide.min.js') }}"></script>
+{% endblock %}  
