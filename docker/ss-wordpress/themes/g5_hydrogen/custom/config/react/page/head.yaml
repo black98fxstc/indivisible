@@ -25,7 +25,7 @@ atoms:
       css: {  }
       javascript:
         - { location: 'https://maps.googleapis.com/maps/api/js?key=AIzaSyD6-CGpCzt5hhveIVcYUNp3auafwiqmK-4&libraries=places,drawing,geometry,visualization', inline: '', in_footer: '0', extra: {  }, priority: '0', name: 'Google Maps' }
-        - { location: 'https://api.mapbox.com/mapbox.js/v3.1.1/mapbox.js', inline: '', in_footer: '0', extra: {  }, priority: '0', name: 'Map Box' }
+        - { location: 'https://storage.googleapis.com/castatestrong.org/bundle.js', inline: '', in_footer: '0', extra: {  }, priority: '0', name: 'Map Box' }
   -
     id: assets-2867
     type: assets

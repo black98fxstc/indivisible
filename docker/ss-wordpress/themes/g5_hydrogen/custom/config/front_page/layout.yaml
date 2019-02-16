@@ -6,9 +6,9 @@ preset:
 layout:
   header: {  }
   navigation: {  }
-  banner:
+  /banner/:
     -
-      - custom-9157
+      - slide-show-5496
   /container-main/:
     -
       -
@@ -39,7 +39,8 @@ structure:
     type: section
     subtype: div
     attributes:
-      class: ''
+      boxed: ''
+      class: ss-banner
   main:
     inherit:
       outline: default
@@ -72,10 +73,26 @@ structure:
         - attributes
         - children
 content:
-  custom-9157:
-    title: 'Custom HTML'
+  slide-show-5496:
+    title: 'Slide Show'
     attributes:
-      html: "<div class=\"glide\" id=\"glide\">\n  <div class=\"glide__track\" data-glide-el=\"track\">\n    <ul class=\"glide__slides\">\n      <li class=\"glide__slide\">0</li>\n      <li class=\"glide__slide\">1</li>\n      <li class=\"glide__slide\">2</li>\n      <li class=\"glide__slide\">3</li>\n      <li class=\"glide__slide\">4</li>\n    </ul>\n  </div>\n  <div data-glide-el=\"controls\">\n    <button class=\"slider__arrow slider__arrow--prev glide__arrow glide__arrow--prev\" data-glide-dir=\"<\">\n      <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\">\n        <path d=\"M0 12l10.975 11 2.848-2.828-6.176-6.176H24v-3.992H7.646l6.176-6.176L10.975 1 0 12z\"/>\n      </svg>\n    </button>\n\n    <button class=\"slider__arrow slider__arrow--next glide__arrow glide__arrow--next\" data-glide-dir=\">\">\n      <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\">\n        <path d=\"M13.025 1l-2.847 2.828 6.176 6.176h-16.354v3.992h16.354l-6.176 6.176 2.847 2.828 10.975-11z\"/>\n      </svg>\n    </button>\n  </div>\n  <div class=\"glide__bullets\" data-glide-el=\"controls[nav]\">\n    <button class=\"glide__bullet\" data-glide-dir=\"=0\"></button>\n    <button class=\"glide__bullet\" data-glide-dir=\"=1\"></button>\n    <button class=\"glide__bullet\" data-glide-dir=\"=2\"></button>\n  </div>\n\n</div>\n"
+      slides:
+        -
+          url: 'https://dev.state-strong.org/wp-content/uploads/2019/02/capitol.jpg'
+          description: ''
+          title: 'New item'
+        -
+          url: 'https://dev.state-strong.org/wp-content/uploads/2019/02/statestrong13.jpg'
+          description: ''
+          title: 'New item'
+        -
+          url: 'https://dev.state-strong.org/wp-content/uploads/2019/02/statestrong12.jpg'
+          description: ''
+          title: 'New item'
+        -
+          url: 'https://dev.state-strong.org/wp-content/uploads/2019/02/statestrong3.jpg'
+          description: ''
+          title: Another
   position-widget-1717:
     attributes:
       widget: '{"type":"widget","widget":"mc4wp_form_widget","title":"MailChimp Sign-Up Form","options":{"widget":{"title":""}}}'

@@ -1,12 +1,1 @@
-atoms:
-  -
-    id: assets-6806
-    type: assets
-    title: 'Custom CSS / JS'
-    attributes:
-      enabled: '1'
-      css:
-        - { location: 'gantry-theme://custom/scss/glide.core.min.css', inline: '', extra: {  }, priority: '0', name: 'Glide Core' }
-        - { location: 'gantry-theme://custom/scss/glide.theme.min.css', inline: '', extra: {  }, priority: '0', name: 'Glide Theme' }
-      javascript:
-        - { location: 'gantry-theme://custom/js/glide.min.js', inline: "  new Glide('.glide',{\n  type: 'carousel',\n  startAt: 0,\n  perView: 3,\n  autoplay: 2000,\n  breakpoints: {\n    800: {\n      perView: 2\n    },\n     200: {\n      perView: 1\n    }\n  }\n}).mount();\n", in_footer: '1', extra: {  }, priority: '0', name: Glide }
+atoms: {  }

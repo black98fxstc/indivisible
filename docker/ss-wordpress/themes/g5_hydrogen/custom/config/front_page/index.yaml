@@ -1,5 +1,5 @@
 name: front_page
-timestamp: 1550193890
+timestamp: 1550272869
 version: 7
 preset:
   image: 'gantry-admin://images/layouts/2-col-right.png'
@@ -21,8 +21,8 @@ particles:
     logo-5676: 'Logo / Image'
   menu:
     menu-2721: Menu
-  custom:
-    custom-9157: 'Custom HTML'
+  slide-show:
+    slide-show-5496: 'Slide Show'
   content:
     system-content-4296: 'Page Content'
   widget:

@@ -8,7 +8,7 @@ services:
     container_name: dev-state-strong
     env_file: ./KEYS.env
     environment:
-      WORDPRESS_DB_NAME: "dev_ss_wordpress"
+      WORDPRESS_DB_NAME: "wolverine_wordpress"
       WORDPRESS_DB_HOST: "database"
     restart: always
     depends_on:
@@ -127,7 +127,7 @@ services:
       - 127.0.0.1:3306:3306
     volumes:
       - ./database/cloudsql:/cloudsql
-      - /home/rider/indivisible.json:/config:ro
+      - /home/wmoore/wolverine.json:/config:ro
 
 volumes:
   ca-state-strong:
