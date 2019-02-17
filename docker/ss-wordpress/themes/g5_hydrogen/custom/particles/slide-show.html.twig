@@ -1,19 +1,17 @@
 {% extends '@nucleus/partials/particle.html.twig' %}
 
 {% block particle %}
-
-    <div class="slide-show widget widget_search">
-<div class="glide g-container ss-slide-show" id="glide">
-  <div class="glide__track" data-glide-el="track">
-    <ul class="glide__slides">
-        {% for slide in particle.slides %}
-          <li class="glide__slide"><img class="ss-slide-show" src="{{ slide.url }}"></li>
-        {% endfor %}
-    </ul>
-  </div>
+<div class="slide-show widget widget_search">
+	<div class="glide g-container ss-slide-show" id="glide">
+		<div class="glide__track" data-glide-el="track">
+			<ul class="glide__slides">
+	        {% for slide in particle.slides %}
+				<li class="glide__slide"><img class="ss-slide-show" src="{{ slide.url }}"></li>
+	        {% endfor %}
+			</ul>
+		</div>
+	</div>
 </div>
-    </div>
-
 <script>
   new Glide('.glide',{
   type: 'carousel',
@@ -31,18 +29,17 @@
   }
 }).mount();
 </script>
-
 <style>
-.glide__slide {
-  height: 10rem;
-}
-.glide__slides {
-  margin-top: 0px;
-  margin-bottom: 0px;
-}
-img.ss-slide-show {
-  object-fit: fill;
-}
+	.glide__slide {
+	  height: 12rem;
+	}
+	.glide__slides {
+	  margin-top: 0px;
+	  margin-bottom: 0px;
+	}
+	img.ss-slide-show {
+	  object-fit: cover;
+	}
 </style>
 
 {% endblock %}

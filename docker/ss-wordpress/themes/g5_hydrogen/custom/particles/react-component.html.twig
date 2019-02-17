@@ -1,10 +1,13 @@
 {% extends '@nucleus/partials/particle.html.twig' %}
 
 {% block particle %}
-	<div id="{{ particle.selector }}"></div>
 	<script>
-		const domContainer = document.querySelector('#{{ particle.selector }}');
-		ReactDOM.render(e({{ particle.class }}), domContainer);
+		let domContainer = document.querySelector('#{{ particle.selector }}');
+		if (domContainer != null) {
+			let reactElement = React.createElement({{ particle.class }}, 
+				{ {% for prop in particle.props %} {{ prop.name }}: '{{ prop.value }}', {% endfor %} } );
+			ReactDOM.render(reactElement, domContainer);
+		}
 	</script>
 {% endblock %}
 

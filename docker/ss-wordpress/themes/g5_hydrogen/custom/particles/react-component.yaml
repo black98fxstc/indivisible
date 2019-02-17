@@ -1,5 +1,5 @@
-name: React
-description: React component
+name: React Element
+description: Render a React element in a DOM element obtained by ID.
 type: particle
 
 form:
@@ -18,38 +18,44 @@ form:
     selector:
       type: input.text
       label: Selector
-      description: The selector for the target element.
+      description: The selector id for the target element.
 
     class:
       type: input.text
       label: Class
       description: The class of the React component.
 
-    library:
+    props:
       type: collection.list
       array: true
-      label: Library
-      description: Create each slide to appear in the slide show.
-      value: title
+      label: Properties
+      description: Properties passed to the constructor.
+      value: name
       ajax: true
 
       fields:
-        .title:
+        .name:
           type: input.text
-          label: Title
-          description: Customize the slide title text.
+          label: Name.
+          description: The property name.
 
-        .url:
-          type: input.url
-          label: URL
+        .value:
+          type: textarea.text
+          label: Value
 
         .description:
           type: textarea.textarea
           label: Description
 
+    library:
+      type: collection.list
+      array: true
+      label: Library
+      description: JavaScript library to load.
+      value: url
+      ajax: true
 
-    class:
-      type: input.selectize
-      label: CSS Classes
-      description: Enter CSS class names.
-      default:
+      fields:
+        .url:
+          type: input.url
+          label: URL
