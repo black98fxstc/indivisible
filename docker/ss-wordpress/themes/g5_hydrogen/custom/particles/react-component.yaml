@@ -1,0 +1,55 @@
+name: React
+description: React component
+type: particle
+
+form:
+  fields:
+    enabled:
+      type: input.checkbox
+      label: Enabled
+      description: Globally enable to the particles.
+      default: true
+
+    title:
+      type: input.text
+      label: Title
+      description: Customize the section title text.   
+
+    selector:
+      type: input.text
+      label: Selector
+      description: The selector for the target element.
+
+    class:
+      type: input.text
+      label: Class
+      description: The class of the React component.
+
+    library:
+      type: collection.list
+      array: true
+      label: Library
+      description: Create each slide to appear in the slide show.
+      value: title
+      ajax: true
+
+      fields:
+        .title:
+          type: input.text
+          label: Title
+          description: Customize the slide title text.
+
+        .url:
+          type: input.url
+          label: URL
+
+        .description:
+          type: textarea.textarea
+          label: Description
+
+
+    class:
+      type: input.selectize
+      label: CSS Classes
+      description: Enter CSS class names.
+      default:
