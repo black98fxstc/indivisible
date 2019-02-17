@@ -1,6 +1,17 @@
 {% extends '@nucleus/partials/particle.html.twig' %}
 
 {% block particle %}
+{% endblock %}
+
+{% block stylesheets %}
+{% endblock %}
+
+{% block javascript_footer %}
+    <script src="{{ url('https://unpkg.com/react@16/umd/react.development.js') }}"></script>
+    <script src="{{ url('https://unpkg.com/react-dom@16/umd/react-dom.development.js') }}"></script>
+    {% for library in particle.library %}
+	    <script src="{{ url(library.url) }}"></script>
+    {% endfor %}
 	<script>
 		let domContainer = document.querySelector('#{{ particle.selector }}');
 		if (domContainer != null) {
@@ -9,15 +20,4 @@
 			ReactDOM.render(reactElement, domContainer);
 		}
 	</script>
-{% endblock %}
-
-{% block stylesheets %}
-{% endblock %}
-
-{% block javascript %}
-    <script src="{{ url('https://unpkg.com/react@16/umd/react.development.js') }}"></script>
-    <script src="{{ url('https://unpkg.com/react-dom@16/umd/react-dom.development.js') }}"></script>
-    {% for library in particle.library %}
-	    <script src="{{ url(library.url) }}"></script>
-    {% endfor %}
 {% endblock %}  
