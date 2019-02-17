@@ -76,7 +76,7 @@ function doFrontPage(req, res, q) {
 	res.end(JSON.stringify(response));
 }
 
-function doLocationSe0arch(req, res, q) {
+function doLocationSearch(req, res, q) {
 	let response = new Object();
 	try {
 		if (!(q && q.lat && q.lng))
