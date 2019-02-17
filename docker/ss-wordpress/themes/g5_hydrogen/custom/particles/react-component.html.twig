@@ -1,6 +1,15 @@
 {% extends '@nucleus/partials/particle.html.twig' %}
 
 {% block particle %}
+	{% set initialize %}
+		let domContainer = document.querySelector('#{{ particle.selector }}');
+		if (domContainer != null) {
+			let reactElement = React.createElement({{ particle.class }}, 
+				{ {% for prop in particle.props %} {{ prop.name }}: '{{ prop.value }}', {% endfor %} } );
+			ReactDOM.render(reactElement, domContainer);
+		}
+	{% endset %}
+	{% do gantry.document.addInlineScript(initialize, 0, 'footer') %}
 {% endblock %}
 
 {% block stylesheets %}
@@ -12,12 +21,4 @@
     {% for library in particle.library %}
 	    <script src="{{ url(library.url) }}"></script>
     {% endfor %}
-	<script>
-		let domContainer = document.querySelector('#{{ particle.selector }}');
-		if (domContainer != null) {
-			let reactElement = React.createElement({{ particle.class }}, 
-				{ {% for prop in particle.props %} {{ prop.name }}: '{{ prop.value }}', {% endfor %} } );
-			ReactDOM.render(reactElement, domContainer);
-		}
-	</script>
 {% endblock %}  
