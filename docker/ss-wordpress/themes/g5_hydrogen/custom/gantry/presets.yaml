@@ -1,3 +1,44 @@
+preset3:
+  image: 'gantry-admin://images/IndivisibleCAStateStrongLogo_ForPreset.png'
+  description: 'Indivisible CA: State Strong'
+  colors:
+    - '#2d4c6b'
+    - '#666666'
+    - '#ca4948'
+
+  styles:
+    base:
+      background: '#ffffff'
+      text-color: '#666666'
+    accent:
+      color-1: '#2d4c6b'
+      color-2: '#ca4948'
+    header:
+      background: '#2d4c6b'
+      text-color: '#ffffff'
+    navigation:
+      background: '#ffffff'
+      text-color: '#2d4c6b'
+      overlay: 'rgba(0, 0, 0, 0.4)'
+    showcase:
+      background: '#ca4948'
+      text-color: '#ffffff'
+    feature:
+      background: '#ffffff'
+      text-color: '#666666'
+    subfeature:
+      background: '#f0f0f0'
+      text-color: '#666666'
+    main:
+      background: '#ffffff'
+      text-color: '#666666'
+    footer:
+      background: '#2d4c6b'
+      text-color: '#ffffff'
+    offcanvas:
+      background: '#2d4c6b'
+      text-color: '#ffffff'
+
 preset1:
   image: 'gantry-admin://images/Indiv-CA-StateStrong-FINAL-500px.png'
   description: 'Indivisible CA'

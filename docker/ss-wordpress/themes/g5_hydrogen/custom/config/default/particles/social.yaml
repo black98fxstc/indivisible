@@ -30,3 +30,9 @@ items:
     text: Feed
     link: /feed
     name: Feed
+  -
+    icon: 'fa fa-legal'
+    text: Legal
+    link: /privacy-policy
+    name: Legal
+    

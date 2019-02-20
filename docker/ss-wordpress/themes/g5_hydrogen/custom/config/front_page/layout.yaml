@@ -12,7 +12,11 @@ layout:
   /container-main/:
     -
       -
-        'main 68': {  }
+        '/main/ 68':
+          -
+            - system-content-3116
+          -
+            - custom-4080
       -
         'sidebar 32':
           -
@@ -42,12 +46,10 @@ structure:
       boxed: ''
       class: ss-banner
   main:
-    inherit:
-      outline: default
-      include:
-        - attributes
-        - block
-        - children
+    attributes:
+      boxed: ''
+      class: ''
+      variations: ''
   sidebar:
     type: section
     subtype: aside
@@ -93,6 +95,17 @@ content:
           url: 'https://dev.state-strong.org/wp-content/uploads/2019/02/statestrong3.jpg'
           description: ''
           title: Another
+  system-content-3116:
+    inherit:
+      outline: default
+      particle: system-content-3116
+      include:
+        - attributes
+        - block
+  custom-4080:
+    title: Quadrants
+    attributes:
+      html: "<style>\n.ss-container {\n  display: grid;\n}\n@media only screen and (min-width: 480px) {\n.ss-container {\n  display: grid;\n  grid-template-columns: 50% 50%;\n  grid-template-rows: 40% 10% 40% 10%;\n}\n.ss-item-a1 { grid-area: 1 / 1 / 2 / 2 }\n.ss-item-a2 { grid-area: 2 / 1 / 3 / 2 }\n.ss-item-b1 { grid-area: 1 / 2 / 2 / 3 }\n.ss-item-b2 { grid-area: 2 / 2 / 3 / 3 }\n.ss-item-c1 { grid-area: 3 / 1 / 4 / 2 }\n.ss-item-c2 { grid-area: 4 / 1 / 5 / 2 }\n.ss-item-d1 { grid-area: 3 / 2 / 4 / 3 }\n.ss-item-d2 { grid-area: 4 / 2 / 5 / 3 }\n.ss-item {\n  padding-left: 2rem;\n  padding-right: 2rem;\n}\n.ss-button {\n}\n</style>\n<hr class=\"wp-block-separator\">\n<div class=\"ss-container\">\n<div class=\"ss-item ss-item-a1\">\n<h2>Indivisible States <br>Guide</h2>\n<p style=\"text-align:left\">Check out Indivisible National's guide for how to make impact in your state legislature!</p>\n</div>\n<div class=\"ss-item ss-item-a2 ss-button\">\n<div class=\"wp-block-button center\"><a target=\"_blank\" class=\"wp-block-button__link has-text-color has-very-dark-gray-color has-background has-pale-cyan-blue-background-color\" href=\"https://indivisible.org/resource/indivisible-states-introduction\">Read Indivisible States</a></div>\n</div>\n<div class=\"ss-item ss-item-b1\">\n<h2>CA Legislative <br>Guide</h2>\n<p style=\"text-align:left\">Check out our guide that demystifies the wonky details of the CA state legislative process!</p>\n</div>\n<div class=\"ss-item ss-item-b2 ss-button\">\n<div class=\"wp-block-button center\"><a class=\"wp-block-button__link has-text-color has-very-dark-gray-color has-background has-pale-cyan-blue-background-color\" href=\"/guide/\">Read our CA Leg Guide</a></div>\n</div>\n<div class=\"ss-item ss-item-c1\">\n<h2 id=\"mce_23\">Who represents you in the CA legislature?</h2>\n<p>Find out who your state Assemblymember and state Senator are by using our look up tool!</p>\n</div>\n<div class=\"ss-item ss-item-c2 ss-button\">\n<div class=\"wp-block-button center\"><a class=\"wp-block-button__link has-text-color has-very-dark-gray-color has-background has-pale-cyan-blue-background-color\" href=\"/app/#/find_rep\">Find my rep!</a></div>\n</div>\n<div class=\"ss-item ss-item-d1\">\n<h2>How progressive are your legislators?</h2>\n<p>Do your representatives vote in line with progressive interests? Find out your legislator's Courage Score!</p>\n</div>\n<div class=\"ss-item ss-item-d2 ss-button\">\n<div class=\"wp-block-button center\"><a target=\"_blank\" class=\"wp-block-button__link has-text-color has-very-dark-gray-color has-background has-pale-cyan-blue-background-color\" href=\"https://www.couragescore.org/\">Courage score</a></div>\n</div>\n</div>"
   position-widget-1717:
     attributes:
       widget: '{"type":"widget","widget":"mc4wp_form_widget","title":"MailChimp Sign-Up Form","options":{"widget":{"title":""}}}'
