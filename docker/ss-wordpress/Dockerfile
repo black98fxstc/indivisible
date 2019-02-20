@@ -30,6 +30,7 @@ ENV JETPACK_VERSION  7.0.1
 ENV MAILCHIMP_VERSION 4.3.3
 ENV TWOFACTOR_VERSION 1.4.7
 ENV TWITTER_VERSION 2.0.3
+ENV SITEMAP_VERSION 4.1.0
 
 RUN echo ${GANTRY_VERSION}; \
         curl -o gantry5.zip -fSL "https://github.com/gantry/gantry5/releases/download/${GANTRY_VERSION}/wordpress-pkg_gantry5_v${GANTRY_VERSION}.zip"; \
@@ -49,7 +50,10 @@ RUN echo ${GANTRY_VERSION}; \
     mv twitter /usr/src/wordpress/wp-content/plugins/; \
 	curl -o mailchimp-for-wp.zip -fSL  https://downloads.wordpress.org/plugin/mailchimp-for-wp.${MAILCHIMP_VERSION}.zip; \
 	unzip mailchimp-for-wp.zip; \
-	mv mailchimp-for-wp /usr/src/wordpress/wp-content/plugins/;
+	mv mailchimp-for-wp /usr/src/wordpress/wp-content/plugins/;  \
+	curl -o google-sitemap-generator.zip -fSL  https://downloads.wordpress.org/plugin/google-sitemap-generator.${SITEMAP_VERSION}.zip; \
+	unzip google-sitemap-generator.zip; \
+	mv google-sitemap-generator /usr/src/wordpress/wp-content/plugins/; 
 
 COPY plugins/indivisible/indivisible.php /usr/src/wordpress/wp-content/plugins/indivisible/indivisible.php
 COPY KEYS.js /usr/src/wordpress/wp-content/plugins/indivisible/indv-react/
