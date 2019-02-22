@@ -38,6 +38,7 @@ preset3:
     offcanvas:
       background: '#2d4c6b'
       text-color: '#ffffff'
+      toggle-color: '#2d4c6b'
 
 preset1:
   image: 'gantry-admin://images/Indiv-CA-StateStrong-FINAL-500px.png'

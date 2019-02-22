@@ -1,9 +1,9 @@
-preset: preset1
+preset: preset3
 header:
-  background: '#2c4c6b'
+  background: '#2d4c6b'
   text-color: '#ffffff'
 showcase:
-  background: '#002253'
+  background: '#ca4948'
   image: ''
   text-color: '#ffffff'
 subfeature:
@@ -13,29 +13,29 @@ feature:
   background: '#ffffff'
   text-color: '#666666'
 footer:
-  background: '#2c4c6b'
+  background: '#2d4c6b'
   text-color: '#ffffff'
 main:
   background: '#ffffff'
   text-color: '#666666'
 navigation:
   background: '#ffffff'
-  text-color: '#2c4c6b'
+  text-color: '#2d4c6b'
   overlay: 'rgba(0, 0, 0, 0.4)'
 offcanvas:
-  background: '#2c4c6b'
+  background: '#2d4c6b'
   text-color: '#ffffff'
   width: 17rem
-  toggle-color: '#ffffff'
+  toggle-color: '#2d4c6b'
   toggle-visibility: '1'
 base:
   background: '#ffffff'
   text-color: '#666666'
-  body-font: 'montserrat, sans-serif'
-  heading-font: 'chivo, sans-serif'
+  body-font: 'roboto, sans-serif'
+  heading-font: 'roboto, sans-serif'
 accent:
-  color-1: '#6c9fc2'
-  color-2: '#0071b9'
+  color-1: '#2d4c6b'
+  color-2: '#ca4948'
 breakpoints:
   large-desktop-container: 75rem
   desktop-container: 60rem

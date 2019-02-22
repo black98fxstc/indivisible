@@ -48,13 +48,11 @@ structure:
 content:
   logo-7296:
     title: 'Logo / Image'
-    attributes:
-      image: 'gantry-media://Indiv-CA-StateStrong-FINAL-500px.png'
   menu-6948:
     attributes:
       mobileTarget: '1'
     block:
-      variations: align-right
+      variations: center
   position-widget-1625:
     attributes:
       enabled: 0
