@@ -114,6 +114,18 @@ services:
     volumes:
       - /var/lib/indivisible/civic-key/maps:/maps:ro
 
+  api-twilio:
+    build: ./twilio
+    image: twilio
+    container_name: api-twilio
+    restart: always
+    networks:
+      indivisible:
+        aliases:
+          - twilio
+    ports:
+      - 8087:8080
+
   database:
     image: gcr.io/cloudsql-docker/gce-proxy
     command: /cloud_sql_proxy -instances=atomic-producer-160402:us-west1:indivisible-db=tcp:0.0.0.0:3306 -credential_file=/config
