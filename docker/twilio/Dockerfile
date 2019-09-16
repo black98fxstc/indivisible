@@ -6,6 +6,6 @@ WORKDIR call-congress
 
 RUN npm install
 
-COPY env.no-keys .
+COPY .env .
 
 CMD [ "npm", "start" ]
