@@ -11,7 +11,6 @@ if (!fs.existsSync(MAP_BASE))
 class LineReader extends Transform {
 	constructor(options) {
 		super(options);
-		super.readableObjectMode = true;
 		this.parts = new Array();
 		this.decoder = new StringDecoder('utf8');
 	}
