@@ -38,6 +38,7 @@ function doFrontPage(req, res, q) {
 					let district = state.congressional[d];
 					if (maps.isInside(p, district)) {
 						response['congressional_district'] = district.attributes["NAME"];
+						response['congressional_boundary'] = district.simplified;;
 						break;
 					}
 				}
@@ -47,7 +48,7 @@ function doFrontPage(req, res, q) {
 					if (maps.isInside(p, district)) {
 						response['state_upper_district'] = district.attributes["NAME"];
 						response['state_upper_legislators'] = district.legislators;
-						response['state_upper_boundary'] = district.os_boundary_id;
+						response['state_upper_boundary'] = district.simplified;;
 						break;
 					}
 				}
@@ -57,7 +58,7 @@ function doFrontPage(req, res, q) {
 					if (maps.isInside(p, district)) {
 						response['state_lower_district'] = district.attributes["NAME"];
 						response['state_lower_legislators'] = district.legislators;
-						response['state_lower_boundary'] = district.os_boundary_id;
+						response['state_lower_boundary'] = district.simplified;
 						break;
 					}
 				}
@@ -257,7 +258,7 @@ function linkCongressToCensus() {
 			legislators: state.legislators,
 			boundary: state.simplified.rings,
 			boundingBox: state.simplified.box,
-}
+		}
 		state.congressional.forEach((district) => {
 			district.legislators = new Array();
 			district.division = {
@@ -271,7 +272,7 @@ function linkCongressToCensus() {
 				legislators: district.legislators,
 				boundary: district.simplified.rings,
 				boundingBox: district.simplified.box,
-		}
+			}
 		})
 	})
 

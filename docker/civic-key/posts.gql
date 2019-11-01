@@ -1,25 +1,42 @@
 query posts($id: ID) {
   organization(id: $id) {
+    name
+    classification
+    links {
+      note
+      url
+    }
+    sources {
+      note
+      url
+    }
     members: currentMemberships {
       id
       person {
         id
         name
-        sortName
         familyName
         givenName
         image
+        contactDetails {
+          type
+          value
+          note
+          label
+        }
         links {
           note
           url
         }
-        otherNames {
-          name
+        sources {
+          note
+          url
         }
         identifiers {
           scheme
           identifier
         }
+        updatedAt
       }
       post {
         id
