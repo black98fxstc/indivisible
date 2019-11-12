@@ -125,14 +125,12 @@ function getStateDistricts() {
         graphQuery(posts_gql, { id: legislature.id }, response => {
             response.data.organization.members.forEach(member => {
                 osStateDistricts.push({
-                    id: member.post.division.id,
-                    name: member.post.division.name,
+                    id: legislature.id,
                     state: legislature.state,
                     chamber: legislature.name,
                     classification: legislature.classification,
-                    label: member.post.label,
-                    role: member.post.role,
                     person: member.person,
+                    post: member.post,
                 })
             })
             setImmediate(getStateDistricts);
