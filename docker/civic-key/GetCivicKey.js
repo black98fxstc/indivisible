@@ -13,6 +13,61 @@ var states;
 var state4 = new Array();
 var boundary4 = new Array();
 
+function doStateLegislature(req, res, q) {
+	let response = new Object();
+	try {
+		let code = q['state'];
+		if (!code)
+			throw new Error("state missing");
+
+		let state = state4[code];
+		let legislators = new Array();
+		for (d in state.upperHouse) {
+			let district = state.upperHouse[d];
+			for(p in district.legislators) {
+				let politician = district.legislators[p];
+				legislators.push({
+					state: politician.state,
+					chamber: politician.chamber,
+					label: politician.post.label,
+					role: politician.post.role,
+					district: politician.post.division.name,
+					person: politician.person,
+					post: politician.post,
+					organizaion_id: district.openstates.id,
+					division_id: politician.post.division.id,
+				});
+			}
+		}
+		for (d in state.lowerHouse) {
+			let district = state.lowerHouse[d];
+			for(p in district.legislators) {
+				let politician = district.legislators[p];
+				legislators.push({
+					state: politician.state,
+					chamber: politician.chamber,
+					label: politician.post.label,
+					role: politician.post.role,
+					district: politician.post.division.name,
+					person: politician.person,
+					post: politician.post,
+					organizaion_id: district.openstates.id,
+					division_id: politician.post.division.id,
+				});
+			}
+		}
+		response['politicians'] = legislators;
+
+		response['status'] = "success";
+	} catch (error) {
+		response['status'] = "failure";
+		response['reason'] = error.message;
+	}
+	res.setHeader('Access-Control-Allow-Origin', '*');
+	res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" });
+	res.end(JSON.stringify(response));
+}
+
 function doFrontPage(req, res, q) {
 	let response = new Object();
 	try {
@@ -243,6 +298,25 @@ function isNumeric(string) {
 	return true;
 }
 
+// function uuidv4() {
+//   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+//     var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+//     return v.toString(16);
+//   });
+// }
+
+crypto = require('crypto');
+
+function jumble (byte) {
+	crypto.randomFillSync(byte);
+	return byte;
+}
+function uuidv4() {
+	let byte = new Uint8Array(1);
+	return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+	  (c ^ jumble(byte)[0] & 15 >> c / 4).toString(16)
+	);
+  }
 function linkCongressToCensus() {
 	states.forEach((state) => {
 		state4[state.attributes["STUSAB"]] = state;
@@ -482,7 +556,7 @@ function linkOpenStates2ToCensus() {
 	let stateDistricts = os.districts();
 	stateDistricts.forEach(district => {
 		let state = state4[district.state];
-		let districtID = district.label;
+		let districtID = district.post.label;
 		let cd = null;
 		switch (district.classification) {
 			case "upper":
@@ -604,12 +678,9 @@ function linkOpenStates2ToCensus() {
 			cd.legislators.push({
 				state: district.state,
 				chamber: district.chamber,
-				type: district.classification,
-				role: district.role,
-				division_id: district.id,
+				classification: district.classification,
 				person: district.person,
-				id: district.person ?  district.person.id : null,
-				full_name: district.person ?  district.person.name : null,
+				post: district.post,
 			})
 		}
 		else
@@ -641,6 +712,9 @@ startServer = function () {
 				return;
 			case 'district-lookup':
 				doDistrictLookup(req, res, req_url.query);
+				return;
+			case 'us-state-legislators':
+				doStateLegislature(req, res, req_url.query);
 				return;
 			default:
 		}
