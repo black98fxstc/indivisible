@@ -1,5 +1,6 @@
 query posts($id: ID) {
   organization(id: $id) {
+    id
     name
     classification
     links {

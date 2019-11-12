@@ -16,14 +16,14 @@ define( 'PUBLIC_STATIC_URL', 'https://static.state-strong.org/' );
 
 // define( 'OPEN_STATES_URL', "https://api.state-strong.org/open-states/" );
 // define( 'LEGISCAN_URL',    "https://api.state-strong.org/legiscan/" );
-// define( 'CIVIC_KEY_URL', 'http://api.state-strong.org/civic-key/');
+define( 'CIVIC_KEY_URL', 'https://api.state-strong.org/civic-key/');
 // define( 'STATIC_URL', 'https://static.state-strong.org/' );
 // define( 'STATIC_URL', 'http://127.0.0.1:8082/' );
 // define( 'LEGISCAN_URL', "http://127.0.0.1:8084/legiscan/indv-plugin.php/" );
 // define( 'CIVIC_KEY_URL', 'http://127.0.0.1:8085/civic-key/');
 define( 'STATIC_URL', 'http://static/' );
 define( 'LEGISCAN_URL', 'http://legiscan/legiscan/indv-plugin.php/' );
-define( 'CIVIC_KEY_URL', 'http://civic-key:8080/civic-key/');
+// define( 'CIVIC_KEY_URL', 'http://civic-key:8080/civic-key/');
 
 define( 'OPEN_STATES_URL', STATIC_URL . 'open-states/' );
 define( 'CONGRESS_URL', STATIC_URL . 'congress/' );
@@ -63,9 +63,9 @@ define( 'INDV_LEXICON_FEC_ID', 'fec_id' );
 
 define( 'INDIVISIBLE_TEXT_DOMAIN',  'indivisible-text-domain' );
 
-add_action ( 'init', 'indv_plugin_post_types' );
-add_action ( 'init', 'indv_plugin_taxonomies' );
-add_action ( 'rest_api_init', 'indv_plugin_rest_init' );
+// add_action ( 'init', 'indv_plugin_post_types' );
+// add_action ( 'init', 'indv_plugin_taxonomies' );
+// add_action ( 'rest_api_init', 'indv_plugin_rest_init' );
 add_action ( 'add_meta_boxes', 'indv_plugin_twitter', 90 );
 add_action ( 'add_meta_boxes', 'indv_plugin_meta_boxes', 10, 3 );
 add_action ( 'manage_pages_custom_column', 'indv_plugin_column', 10, 2 );
@@ -78,71 +78,73 @@ add_action ( 'pre_get_posts', 'indv_plugin_geography_filter', 1, 1 );
 add_action ( 'admin_notices', 'indv_plugin_errors' );
 add_action ( 'restrict_manage_posts','indv_plugin_taxonomy_select', 10, 2);
 add_action ( 'admin_head', 'indv_plugin_admin_style', 10, 1 );
-add_action ( 'load-edit.php', 'indv_plugin_add_help' );
-add_action ( 'load-post.php', 'indv_plugin_add_help' );
-add_action ( 'load-post-new.php', 'indv_plugin_add_help' );
+// add_action ( 'load-edit.php', 'indv_plugin_add_help' );
+// add_action ( 'load-post.php', 'indv_plugin_add_help' );
+// add_action ( 'load-post-new.php', 'indv_plugin_add_help' );
 add_action ( 'indv_plugin_politician_add', 'indv_plugin_add_politician', 10, 5 );
 
 add_filter ( 'manage_indv_politician_posts_columns',  'indv_plugin_columns_politician', 10, 1 );
 add_filter ( 'manage_edit-indv_politician_sortable_columns', 'indv_plugin_sortable_politician', 10, 1 );
 add_filter ( 'manage_indv_legislation_posts_columns', 'indv_plugin_columns_legislation', 10, 1 );
 
-add_filter ( 'query_vars', function ( $vars ) {
-	$vars[] = 'lat';
-	$vars[] = 'lng';
-	$vars[] = 'by_name';
-	return $vars;
-});
+// add_filter ( 'query_vars', function ( $vars ) {
+// 	$vars[] = 'lat';
+// 	$vars[] = 'lng';
+// 	$vars[] = 'by_name';
+// 	return $vars;
+// });
 
 if (is_admin ()) { // admin actions
-	add_action ( 'admin_init', 'indv_plugin_settings' );
-	add_action ( 'admin_menu', 'indv_plugin_menu' );
+// 	add_action ( 'admin_init', 'indv_plugin_settings' );
+// 	add_action ( 'admin_menu', 'indv_plugin_menu' );
 	
 	add_filter( 'use_block_editor_for_post_type', 'indv_plugin_post_type_filter', 10, 2 );
+	
+// 	wp_enqueue_script( 'wp-api' );
 }
 
-register_activation_hook ( __FILE__, 'indv_plugin_install' );
-register_deactivation_hook ( __FILE__, 'indv_plugin_deactivation' );
+// register_activation_hook ( __FILE__, 'indv_plugin_install' );
+// register_deactivation_hook ( __FILE__, 'indv_plugin_deactivation' );
 
-add_action ( 'indv_plugin_cron_hook', 'indv_plugin_cron_update' );
-if (! wp_next_scheduled ( 'indv_plugin_cron_hook' )) {
-	wp_schedule_event ( time (), 'hourly', 'indv_plugin_cron_hook' );
-}
+// add_action ( 'indv_plugin_cron_hook', 'indv_plugin_cron_update' );
+// if (! wp_next_scheduled ( 'indv_plugin_cron_hook' )) {
+// 	wp_schedule_event ( time (), 'hourly', 'indv_plugin_cron_hook' );
+// }
 
-function indv_plugin_install() {
-	// trigger our function that registers the custom post type
-	indv_plugin_post_types();
-	indv_plugin_taxonomies();
-	foreach (array( 'Interested', 'Support', 'Oppose') as $term)
-		if (!term_exists($term, INDV_POSITION))
-			wp_insert_term($term, INDV_POSITION);
-	foreach (array( 'Introduced',
-			'1st House Policy', '1st House Appropriations', '1st House Floor', 
-			'2nd House Policy', '2nd House Appropriations', '2nd House Floor',
-			'Govenor Signed' ) as $term)
-		if (!term_exists($term, INDV_BILL_STATUS))
-			wp_insert_term($term, INDV_BILL_STATUS);
-	delete_option('legislatures');
-	delete_option('states');
+// function indv_plugin_install() {
+// 	// trigger our function that registers the custom post type
+// 	indv_plugin_post_types();
+// 	indv_plugin_taxonomies();
+// 	foreach (array( 'Interested', 'Support', 'Oppose') as $term)
+// 		if (!term_exists($term, INDV_POSITION))
+// 			wp_insert_term($term, INDV_POSITION);
+// 	foreach (array( 'Introduced',
+// 			'1st House Policy', '1st House Appropriations', '1st House Floor', 
+// 			'2nd House Policy', '2nd House Appropriations', '2nd House Floor',
+// 			'Govenor Signed' ) as $term)
+// 		if (!term_exists($term, INDV_BILL_STATUS))
+// 			wp_insert_term($term, INDV_BILL_STATUS);
+// 	delete_option('legislatures');
+// 	delete_option('states');
 			
-	// clear the permalinks after the post type has been registered
-	flush_rewrite_rules ();
-}
+// 	// clear the permalinks after the post type has been registered
+// 	flush_rewrite_rules ();
+// }
 
-function indv_plugin_deactivation() {
-	// our post type will be automatically removed, so no need to unregister it
+// function indv_plugin_deactivation() {
+// 	// our post type will be automatically removed, so no need to unregister it
 	
-	// clear the permalinks to remove our post type's rules
-	flush_rewrite_rules ();
+// 	// clear the permalinks to remove our post type's rules
+// 	flush_rewrite_rules ();
 	
-	// remove cron
-	$timestamp = wp_next_scheduled ( 'indv_plugin_cron_hook' );
-	wp_unschedule_event ( $timestamp, 'indv_plugin_cron_hook' );
-	wp_clear_scheduled_hook( 'indv_plugin_politician_add' );
-}
+// 	// remove cron
+// 	$timestamp = wp_next_scheduled ( 'indv_plugin_cron_hook' );
+// 	wp_unschedule_event ( $timestamp, 'indv_plugin_cron_hook' );
+// 	wp_clear_scheduled_hook( 'indv_plugin_politician_add' );
+// }
 
-function indv_plugin_cron_update() {
-}
+// function indv_plugin_cron_update() {
+// }
 
 function indv_plugin_twitter() {
 	remove_meta_box ( 'twitter-custom', get_current_screen (), 'advanced' );
@@ -157,12 +159,580 @@ function indv_plugin_post_type_filter($use_block_editor, $post_type) {
     return $use_block_editor;
 }
 
+
+
 class Indivisible_Plugin {
+    public const CRON_HOOK = 'indv_plugin_cron_hook';
+    public const NAMESPACE = 'indv/v1';
 	private $legiscan_bill = array();
 	private $open_states_bill = array();
 	private $lexicon = array();
 	private $cache = array();
 	
+	public function register_post_types () {
+	    $args = array (
+	        'label' => esc_html__ ( 'Politician', INDIVISIBLE_TEXT_DOMAIN ),
+	        'labels' => array (
+	            'menu_name' => esc_html__ ( 'Politicians', INDIVISIBLE_TEXT_DOMAIN ),
+	            'name_admin_bar' => esc_html__ ( 'Politicians', INDIVISIBLE_TEXT_DOMAIN ),
+	            'add_new' => esc_html__ ( 'Find More', INDIVISIBLE_TEXT_DOMAIN ),
+	            'add_new_item' => esc_html__ ( 'Find Another Politician', INDIVISIBLE_TEXT_DOMAIN ),
+	            'new_item' => esc_html__ ( 'New Politician', INDIVISIBLE_TEXT_DOMAIN ),
+	            'edit_item' => esc_html__ ( 'Edit Politician', INDIVISIBLE_TEXT_DOMAIN ),
+	            'view_item' => esc_html__ ( 'View Politician', INDIVISIBLE_TEXT_DOMAIN ),
+	            'update_item' => esc_html__ ( 'Update Politician', INDIVISIBLE_TEXT_DOMAIN ),
+	            'all_items' => esc_html__ ( 'Following', INDIVISIBLE_TEXT_DOMAIN ),
+	            'search_items' => esc_html__ ( 'Search Politicians', INDIVISIBLE_TEXT_DOMAIN ),
+	            'parent_item_colon' => esc_html__ ( 'Parent Politician', INDIVISIBLE_TEXT_DOMAIN ),
+	            'not_found' => esc_html__ ( 'No Politicians found', INDIVISIBLE_TEXT_DOMAIN ),
+	            'not_found_in_trash' => esc_html__ ( 'No Politicians found in Trash', INDIVISIBLE_TEXT_DOMAIN ),
+	            'name' => esc_html__ ( 'Politicians', INDIVISIBLE_TEXT_DOMAIN ),
+	            'singular_name' => esc_html__ ( 'Politician', INDIVISIBLE_TEXT_DOMAIN )
+	        ),
+	        'public' => true,
+	        'description' => 'Track legislation for Indivisible',
+	        'exclude_from_search' => false,
+	        'publicly_queryable' => true,
+	        'show_ui' => true,
+	        'show_in_nav_menus' => true,
+	        'show_in_menu' => true,
+	        'show_in_admin_bar' => false,
+	        'show_in_rest' => true,
+	        'rest_base' => 'politicians',
+	        'rest_controller_class' => 'Indv_REST_Controller',
+	        'capability_type' => 'post',
+	        'hierarchical' => true,
+	        'has_archive' => true,
+	        'query_var' => 'politician',
+	        'can_export' => false,
+	        'supports' => array (
+	            'title',
+	            'editor',
+	            'comments',
+	            'revisions'
+	        ),
+	        'menu_icon' => 'dashicons-businessman',
+	        'rewrite' => array (
+	            'slug' => 'politicians',
+	            'with_front' => false
+	        ),
+	    );
+	    register_post_type ( INDV_POLITICIAN, $args );
+	    
+	    $args = array (
+	        'label' => esc_html__ ( 'Legislation', INDIVISIBLE_TEXT_DOMAIN ),
+	        'labels' => array (
+	            'menu_name' => esc_html__ ( 'Legislation', INDIVISIBLE_TEXT_DOMAIN ),
+	            'name_admin_bar' => esc_html__ ( 'Legislation', INDIVISIBLE_TEXT_DOMAIN ),
+	            'add_new' => esc_html__ ( 'Find More', INDIVISIBLE_TEXT_DOMAIN ),
+	            'add_new_item' => esc_html__ ( 'Find Legislation', INDIVISIBLE_TEXT_DOMAIN ),
+	            'new_item' => esc_html__ ( 'New Legislation', INDIVISIBLE_TEXT_DOMAIN ),
+	            'edit_item' => esc_html__ ( 'Edit Legislation', INDIVISIBLE_TEXT_DOMAIN ),
+	            'view_item' => esc_html__ ( 'View Legislation', INDIVISIBLE_TEXT_DOMAIN ),
+	            'update_item' => esc_html__ ( 'Update Legislation', INDIVISIBLE_TEXT_DOMAIN ),
+	            'all_items' => esc_html__ ( 'Tracking', INDIVISIBLE_TEXT_DOMAIN ),
+	            'search_items' => esc_html__ ( 'Search Legislation', INDIVISIBLE_TEXT_DOMAIN ),
+	            'parent_item_colon' => esc_html__ ( 'Parent Legislation', INDIVISIBLE_TEXT_DOMAIN ),
+	            'not_found' => esc_html__ ( 'No Legislation found', INDIVISIBLE_TEXT_DOMAIN ),
+	            'not_found_in_trash' => esc_html__ ( 'No Legislation found in Trash', INDIVISIBLE_TEXT_DOMAIN ),
+	            'name' => esc_html__ ( 'Legislation', INDIVISIBLE_TEXT_DOMAIN ),
+	            'singular_name' => esc_html__ ( 'Legislation', INDIVISIBLE_TEXT_DOMAIN )
+	        ),
+	        'public' => true,
+	        'description' => 'Track legislation for Indivisible',
+	        'exclude_from_search' => false,
+	        'publicly_queryable' => true,
+	        'show_ui' => true,
+	        'show_in_nav_menus' => true,
+	        'show_in_menu' => true,
+	        'show_in_admin_bar' => false,
+	        'show_in_rest' => true,
+	        'rest_base' => 'legislation',
+	        'rest_controller_class' => 'Indv_REST_Controller',
+	        'capability_type' => 'post',
+	        'hierarchical' => true,
+	        'has_archive' => true,
+	        'query_var' => 'legislation',
+	        'can_export' => true,
+	        'supports' => array (
+	            'title',
+	            'editor',
+	            'excerpt',
+	            'comments',
+	            'revisions'
+	        ),
+	        'menu_icon' => 'dashicons-media-text',
+	        'rewrite' => array (
+	            'slug' => 'legislation',
+	            'with_front' => false,
+	        ),
+	    );
+	    register_post_type ( INDV_LEGISLATION, $args );
+	    
+	    $args = array (
+	        'label' => esc_html__ ( 'Action', INDIVISIBLE_TEXT_DOMAIN ),
+	        'labels' => array (
+	            'menu_name' => esc_html__ ( 'Actions', INDIVISIBLE_TEXT_DOMAIN ),
+	            'name_admin_bar' => esc_html__ ( 'Actions', INDIVISIBLE_TEXT_DOMAIN ),
+	            'add_new' => esc_html__ ( 'Add New', INDIVISIBLE_TEXT_DOMAIN ),
+	            'add_new_item' => esc_html__ ( 'Add New Action', INDIVISIBLE_TEXT_DOMAIN ),
+	            'new_item' => esc_html__ ( 'New Action', INDIVISIBLE_TEXT_DOMAIN ),
+	            'edit_item' => esc_html__ ( 'Edit Action', INDIVISIBLE_TEXT_DOMAIN ),
+	            'view_item' => esc_html__ ( 'View Action', INDIVISIBLE_TEXT_DOMAIN ),
+	            'update_item' => esc_html__ ( 'Update Action', INDIVISIBLE_TEXT_DOMAIN ),
+	            'all_items' => esc_html__ ( 'All Actions', INDIVISIBLE_TEXT_DOMAIN ),
+	            'search_items' => esc_html__ ( 'Search Actions', INDIVISIBLE_TEXT_DOMAIN ),
+	            'parent_item_colon' => esc_html__ ( 'Parent Action', INDIVISIBLE_TEXT_DOMAIN ),
+	            'not_found' => esc_html__ ( 'No Actions found', INDIVISIBLE_TEXT_DOMAIN ),
+	            'not_found_in_trash' => esc_html__ ( 'No Actions found in Trash', INDIVISIBLE_TEXT_DOMAIN ),
+	            'name' => esc_html__ ( 'Action', INDIVISIBLE_TEXT_DOMAIN ),
+	            'singular_name' => esc_html__ ( 'Action', INDIVISIBLE_TEXT_DOMAIN )
+	        ),
+	        'public' => true,
+	        'description' => 'Track legislation for Indivisible',
+	        'exclude_from_search' => false,
+	        'publicly_queryable' => true,
+	        'show_ui' => true,
+	        'show_in_nav_menus' => true,
+	        'show_in_menu' => true,
+	        'show_in_admin_bar' => false,
+	        'show_in_rest' => true,
+	        'rest_base' => 'actions',
+	        'rest_controller_class' => 'Indv_REST_Controller',
+	        'capability_type' => 'post',
+	        'hierarchical' => true,
+	        'has_archive' => true,
+	        'query_var' => 'actions',
+	        'can_export' => true,
+	        'supports' => array (
+	            'title',
+	            'editor',
+	            'comments',
+	            'revisions'
+	        ),
+	        'menu_icon' => 'dashicons-megaphone',
+	        'rewrite' => array (
+	            'slug' => 'actions',
+	            'with_front' => false
+	        ),
+	    );
+	    
+	    register_post_type ( INDV_ACTION, $args );
+	}
+	
+	public function register_taxonomies () {
+	    $labels = [
+	        'name' => _x ( 'Position', 'taxonomy general name' ),
+	        'singular_name' => _x ( 'Position', 'taxonomy singular name' ),
+	        'search_items' => __ ( 'Search Positions' ),
+	        'all_items' => __ ( 'All Positions' ),
+	        'parent_item' => __ ( 'Parent Position' ),
+	        'parent_item_colon' => __ ( 'Parent Position:' ),
+	        'edit_item' => __ ( 'Edit Position' ),
+	        'update_item' => __ ( 'Update Position' ),
+	        'add_new_item' => __ ( 'Add New Position' ),
+	        'new_item_name' => __ ( 'New Position Name' ),
+	        'menu_name' => __ ( 'Position' )
+	    ];
+	    $args = [
+	        'public' => true,
+	        'hierarchical' => false,
+	        'labels' => $labels,
+	        'show_ui' => false,
+	        'show_admin_column' => true,
+	        'show_in_rest' => true,
+	        'rest_base' => 'position',
+	        'query_var' => 'position',
+	        'rewrite' => [
+	            'slug' => 'position',
+	            'witn_front' => false,
+	        ]
+	    ];
+	    register_taxonomy ( INDV_POSITION, INDV_LEGISLATION, $args );
+	    
+	    $labels = [
+	        'name' => _x ( 'Status', 'taxonomy general name' ),
+	        'singular_name' => _x ( 'Status', 'taxonomy singular name' ),
+	        'search_items' => __ ( 'Search Status' ),
+	        'all_items' => __ ( 'All Status' ),
+	        'parent_item' => __ ( 'Parent Status' ),
+	        'parent_item_colon' => __ ( 'Parent Status:' ),
+	        'edit_item' => __ ( 'Edit Status' ),
+	        'update_item' => __ ( 'Update Status' ),
+	        'add_new_item' => __ ( 'Add New Status' ),
+	        'new_item_name' => __ ( 'New Status Name' ),
+	        'menu_name' => __ ( 'Status' )
+	    ];
+	    $args = [
+	        'public' => true,
+	        'hierarchical' => false,
+	        'labels' => $labels,
+	        'show_ui' => false,
+	        'show_admin_column' => true,
+	        'show_in_rest' => true,
+	        'rest_base' => 'bill_status',
+	        'query_var' => 'bill_status',
+	        'rewrite' => [
+	            'slug' => 'bill_status',
+	            'witn_front' => false,
+	        ]
+	    ];
+	    register_taxonomy ( INDV_BILL_STATUS, INDV_LEGISLATION, $args );
+	    
+	    $labels = [
+	        'name' => _x ( 'Interest', 'taxonomy general name' ),
+	        'singular_name' => _x ( 'Interest', 'taxonomy singular name' ),
+	        'search_items' => __ ( 'Search Interests' ),
+	        'all_items' => __ ( 'All Interested' ),
+	        'parent_item' => __ ( 'Parent Interest' ),
+	        'parent_item_colon' => __ ( 'Parent Interest:' ),
+	        'edit_item' => __ ( 'Edit Interest' ),
+	        'update_item' => __ ( 'Update Interest' ),
+	        'add_new_item' => __ ( 'Add New Interest' ),
+	        'new_item_name' => __ ( 'New Interest Name' ),
+	        'menu_name' => __ ( 'Interested' )
+	    ];
+	    $args = [
+	        'public' => true,
+	        'hierarchical' => true, // make it hierarchical (like categories)
+	        'labels' => $labels,
+	        'show_ui' => true,
+	        'show_admin_column' => true,
+	        'show_in_rest' => true,
+	        'rest_base' => 'interest',
+	        'query_var' => 'interest',
+	        'rewrite' => [
+	            'slug' => 'interest',
+	            'witn_front' => false,
+	        ]
+	    ];
+	    register_taxonomy ( INDV_INTEREST, array( INDV_LEGISLATION, INDV_ACTION, INDV_POLITICIAN ), $args );
+	    
+	    $labels = [
+	        'name' => _x ( 'Issue', 'taxonomy general name' ),
+	        'singular_name' => _x ( 'Issue', 'taxonomy singular name' ),
+	        'search_items' => __ ( 'Search Issues' ),
+	        'all_items' => __ ( 'All Issues' ),
+	        'parent_item' => __ ( 'Parent Issue' ),
+	        'parent_item_colon' => __ ( 'Parent Issue:' ),
+	        'edit_item' => __ ( 'Edit Issue' ),
+	        'update_item' => __ ( 'Update Issue' ),
+	        'add_new_item' => __ ( 'Add New Issue' ),
+	        'new_item_name' => __ ( 'New Issue Name' ),
+	        'menu_name' => __ ( 'Issues' )
+	    ];
+	    $args = [
+	        'public' => true,
+	        'hierarchical' => true, // make it hierarchical (like categories)
+	        'labels' => $labels,
+	        'show_ui' => true,
+	        'show_admin_column' => true,
+	        'show_in_rest' => true,
+	        'rest_base' => 'issue',
+	        'query_var' => 'issue',
+	        'rewrite' => [
+	            'slug' => 'issue',
+	            'witn_front' => false,
+	        ]
+	    ];
+	    register_taxonomy ( INDV_ISSUE, array( INDV_LEGISLATION, INDV_ACTION ), $args );
+	}
+
+	function get field ($object, $field_name, $reques, $type ) {
+
+	}
+	
+	function register_rest_api () {
+    	wp_enqueue_script( 'wp-api' );
+    	
+	    register_rest_field( array(INDV_POLITICIAN, INDV_LEGISLATION ), 'lexicon', array(
+	        'get_callback' => function(  $object, $field_name, $request ) {
+	        global $indv;
+	        return $indv->get_lexicon( $object[ 'id' ] );
+	        },
+	        'schema' => array(
+	            'description' => __( 'Lexicon', INDIVISIBLE_TEXT_DOMAIN ),
+	            'type'        => 'object'
+	        ) )
+	    );
+	    
+	    register_rest_field( INDV_POLITICIAN, 'photo_url', array(
+	        'get_callback' => function(  $object, $field_name, $request ) {
+	        return get_post_meta( $object[ 'id' ], INDV_PHOTO_URL, true );
+	        },
+	        'update_callback' => function( $value, $object, $field_name ) {
+	        if ( ! $value || ! is_string( $value ) )
+	            return;
+	            return update_post_meta( $object->ID, INDV_PHOTO_URL, sanitize_url( $value ) );
+	        },
+	        'schema' => array(
+	            'description' => __( 'Photo URL', INDIVISIBLE_TEXT_DOMAIN ),
+	            'type'        => 'string'
+	        ) )
+	    );
+	    
+	    foreach (array('full_name', 'first_name', 'middle_name', 'last_name', 'roles', 'email', 'url', 'offices') as $rest_field)
+	        register_rest_field( INDV_POLITICIAN, $rest_field, array(
+	            'get_callback' => function ($object, $field_name, $request) {
+    	            global $indv;
+    	            $post_slug = $object['slug'];
+    	            $politician = strtoupper($post_slug);
+    	            if (is_national($politician)) {
+    	                $member = $indv->get_congress('members/' . $politician)[0];
+    	                if ($member && isset($member[$field_name]))
+    	                    return $member[$field_name];
+    	                    if ($field_name == 'full_name')
+    	                        return $member['first_name']
+    	                        . ($member['middle_name'] ? (' ' . $member['middle_name']) : '') . ' '
+    	                            . $member['last_name']
+    	                            . ($member['suffix'] ? (' ' . $member['suffix']) : '');
+    	            } else {
+    	                $url = OPEN_STATES_URL . 'legislators/' . $politician . '/';;
+    	                $legislator = $indv->get_json($url);
+    	                if ($legislator && isset($legislator[$field_name]))
+    	                    return $legislator[$field_name];
+    	            }
+	            },
+	            'schema' => array(
+	                'description' => __( 'Reflect Open States', INDIVISIBLE_TEXT_DOMAIN ),
+	                'type'        => 'object'
+	            )
+	        )
+	    );
+	        
+        foreach (array('calendar', 'history', 'votes') as $rest_field)
+            register_rest_field( INDV_LEGISLATION, $rest_field, array(
+                'get_callback' => function ($object, $field_name, $request) {
+                global $indv;
+                $bill = $indv->getLegiscanBill($object['id']);
+                if ($bill && isset($bill[$field_name]))
+                    return $bill[$field_name];
+                },
+                'schema' => array(
+                    'description' => __( 'Reflect Legiscan', INDIVISIBLE_TEXT_DOMAIN ),
+                    'type'        => 'object'
+                ) )
+            );
+            
+        foreach (array('sponsors', ) as $rest_field)
+            register_rest_field( INDV_LEGISLATION, $rest_field, array(
+                'get_callback' => function ($object, $field_name, $request) {
+                global $indv;
+                $bill = $indv->getOpenStatesBill($object['id']);
+                if ($bill && isset($bill[$field_name]))
+                    return $bill[$field_name];
+                },
+                'schema' => array(
+                    'description' => __( 'Reflect Open States', INDIVISIBLE_TEXT_DOMAIN ),
+                    'type'        => 'object'
+                ) )
+            );
+            
+//             register_rest_route( 'indv/v1', '/autocomplete/politician', array(
+//                 'methods' => 'GET',
+//                 'callback' => 'indv_plugin_politician_directory',
+//             ) );
+    }
+	    
+	public function activate () {
+	    // trigger our function that registers the custom post type
+	    $this->register_post_types();
+	    $this->register_taxonomies();
+	    foreach (array( 'Interested', 'Support', 'Oppose') as $term)
+	        if (!term_exists($term, INDV_POSITION))
+	            wp_insert_term($term, INDV_POSITION);
+	            foreach (array( 'Introduced',
+	                '1st House Policy', '1st House Appropriations', '1st House Floor',
+	                '2nd House Policy', '2nd House Appropriations', '2nd House Floor',
+	                'Govenor Signed' ) as $term)
+	                if (!term_exists($term, INDV_BILL_STATUS))
+	                    wp_insert_term($term, INDV_BILL_STATUS);
+	                    delete_option('legislatures');
+	                    delete_option('states');
+	                    
+	                    // clear the permalinks after the post type has been registered
+	                    flush_rewrite_rules ();
+	                    
+	}
+	
+	public function deactivate () {
+	    // our post type will be automatically removed, so no need to unregister it
+	    
+	    // clear the permalinks to remove our post type's rules
+	    flush_rewrite_rules ();
+	    
+	    // remove cron
+	    $timestamp = wp_next_scheduled ( Indivisible_Plugin::CRON_HOOK );
+	    wp_unschedule_event ( $timestamp, Indivisible_Plugin::CRON_HOOK );
+	    wp_clear_scheduled_hook( 'indv_plugin_politician_add' );
+	}
+	
+	public function uninstall () {
+	    
+	}
+	
+	public static function cron_update () {
+	    
+	}
+	
+	public function add_help () {
+	    $screen = get_current_screen();
+	    
+	    $screen->add_help_tab( array(
+	        'id'	=> 'indv_plugin_help_tab',
+	        'title'	=> __('My Help Tab'),
+	        'content'	=> '<p>' . __( 'Descriptive content that will show in My Help Tab-body goes here.' ) . '</p>',
+	    ) );
+	}
+	
+	function render_settings() {
+	    if (! current_user_can ( 'manage_options' )) {
+	        wp_die ( __ ( 'You do not have sufficient permissions to access this page.' ) );
+	    }
+	    // add error/update messages
+	    
+	    // check if the user have submitted the settings
+	    // wordpress will add the "settings-updated" $_GET parameter to the url
+	    if ( isset( $_GET['settings-updated'] ) ) {
+	        // add settings saved message with the class of "updated"
+	        add_settings_error( 'indv_messages', 'indv_message', __( 'Settings Saved', 'wporg' ), 'updated' );
+	    }
+	    
+	    // show error/update messages
+	    settings_errors( 'indv_messages' );
+	    
+	    wp_localize_script( 'ajax-script', 'indv_ajax_obj', array(
+	        'ajax_url' => admin_url( 'admin-ajax.php' ),
+	        'nonce'    => wp_create_nonce('indv_ajax_action'), 
+	    ) );  
+	    ?>
+		<div class="wrap">
+		<h1>Indivisible Settings</h1>
+
+		<form method="post" action="options.php">
+            <?php  settings_fields( 'indivisible' ); ?>
+            <?php  do_settings_sections( 'indv_settings' ); ?>
+
+            <?php submit_button(); ?>
+        </form>
+        
+        <button id="indv_plugin_ajax_button" class="button button-primary" onclick="console.log('set');">Ajax Button</button>
+    	<div id="indv_plugin_update_status" >
+    	</div>
+        <script>
+        	jQuery(document).ready(function($) {
+        		var data = {
+        			'action': 'my_action',
+        			'whatever': 1234
+        		};
+        		console.log("ready");
+				jQuery("#indv_plugin_ajax_button").click(()=>{ 
+					console.log("go");
+					indv_update($);
+				});
+				
+// 				// Create a new post
+// 				var post = new wp.api.models.Post( { title: 'This is a test post' } );
+// 				post.save();
+				 
+// 				// Load an existing post
+// 				var post = new wp.api.models.Post( { id: 1 } );
+// 				post.fetch();
+// 				 // 				jQuery("#indv_plugin_ajax_button").css("color: red");
+// 				jQuery("#indv_plugin_ajax_button").text("Button Pushed");
+//          		jQuery.post(ajaxurl, data, function(response) {
+//         			alert('Got this from the server: ' + response);
+//         		});
+        	});
+        </script>
+    	</div>
+    	<?php
+    }
+	
+	public function register_settings () {
+	    register_setting ( 'indivisible', 'legislatures', array (
+	        'description' => 'Legislatures to preload'  ) );
+	    
+	    register_setting ( 'indivisible', 'states', array (
+	        'sanitize_callback' => 'indv_plugin_sanitize',
+	        'description' => 'States to preload'  ) );
+	    
+	    add_settings_section (
+	        'default',
+	        __( 'Preload Politicians', INDIVISIBLE_TEXT_DOMAIN ),
+	        '',
+	        'indv_settings' );
+	        
+	        add_settings_field(
+	            'legislatures',
+	            __( 'Legislatures', INDIVISIBLE_TEXT_DOMAIN ),
+	            'indv_plugin_legislatures_render',
+	            'indv_settings',
+	            'default'
+	            );
+	        
+	        add_settings_field(
+	            'states',
+	            __( 'States', INDIVISIBLE_TEXT_DOMAIN ),
+	            'indv_plugin_states_render',
+	            'indv_settings',
+	            'default'
+	            );
+	}
+	
+	public function ajax_handler () {
+	    check_ajax_referer('indv_action');
+	    echo "sonething";
+	    // do something
+	    wp_die();
+	}
+	
+	public function __construct() {
+	    add_action ( 'init', array( $this, 'register_post_types' ) );
+	    add_action ( 'init', array( $this, 'register_taxonomies' ) );
+	    add_action ( 'rest_api_init', array( $this, 'register_rest_api' ) );
+	    
+	    add_filter ( 'query_vars', function ($vars) {
+	        $vars[] = 'lng';
+	        $vars[] = 'lat';
+	        $vars[] = 'by_name';
+	        return $vars;
+	    } );
+	        
+	    add_action ( Indivisible_Plugin::CRON_HOOK, array( $this, 'cron_update' ) );
+	    if (! wp_next_scheduled ( Indivisible_Plugin::CRON_HOOK )) {
+	        wp_schedule_event ( time(), 'hourly', Indivisible_Plugin::CRON_HOOK );
+	    }
+	    
+	    if (is_admin()) {
+	        add_action ( 'admin_init', array( $this, 'register_settings' ) );
+	        add_action ( 'wp_ajax_indv_action', array( $this, 'ajax_handler') );
+	        add_action ( 'admin_menu', function () {
+	            add_options_page ( 'Indivisible', 'Indivisible', 'manage_options', 'indv_settings', array( $this, 'render_settings' ) );
+	        } );
+	        add_action ( 'admin_enqueue_scripts', function ( $hook ) {
+	            if( 'settings_page_indv_settings' != $hook ) return;
+	            wp_enqueue_script( 'indv-ajax-script',
+	                plugins_url( '/js/admin-ajax.js', __FILE__ ),
+	                array( 'jquery' )
+	            );
+	            $indv_nonce = wp_create_nonce( 'indv_action' );
+	            wp_localize_script( 'indv-ajax-script', 'indv_ajax_obj', array(
+	                'ajax_url' => admin_url( 'admin-ajax.php' ),
+	                'nonce'    => $indv_nonce,
+	            ) );
+    	    } );
+
+    	    add_action ( 'load-edit.php',     array( $this, 'add_help' ) );
+	        add_action ( 'load-post.php',     array( $this, 'add_help' ) );
+	        add_action ( 'load-post-new.php', array( $this, 'add_help' ) );
+	}
+
+	    register_activation_hook   ( __FILE__, array( $this, 'activate'   ) );
+	    register_deactivation_hook ( __FILE__, array( $this, 'deactivate' ) );
+// 	    register_uninstall_hook    ( __FILE__, array( $this , 'uninstall' ) );
+	}
+		
 	public function getLegiscanBill($post_id) {
 		$id = (int) $post_id;
 		$bill = $this->legiscan_bill[$id];
@@ -240,277 +810,612 @@ class Indivisible_Plugin {
 	}
 }
 
+class Indv_REST_Controller extends WP_REST_Controller {
+    protected $wrapped = null;
+    protected $post_type;
+    
+    /**
+     * Registers the routes for the objects of the controller.
+     *
+     * @since 4.7.0
+     */
+    public function register_routes() {
+        $this->wrapped->register_routes();
+        
+        register_rest_route(
+            $this->namespace,
+            '/' . $this->wrapped->rest_base,
+            array(
+                array(
+                    'methods'             => WP_REST_Server::READABLE,
+                    'callback'            => array( $this, 'get_items' ),
+                    'permission_callback' => array( $this, 'get_items_permissions_check' ),
+                    'args'                => $this->get_collection_params(),
+                ),
+                array(
+                    'methods'             => WP_REST_Server::CREATABLE,
+                    'callback'            => array( $this, 'create_item' ),
+                    'permission_callback' => array( $this, 'create_item_permissions_check' ),
+                    'args'                => $this->get_endpoint_args_for_item_schema( WP_REST_Server::CREATABLE ),
+                ),
+                'schema' => array( $this, 'get_public_item_schema' ),
+            )
+        );
+    }
+    
+    /**
+     * Checks if a given request has access to get items.
+     *
+     * @since 4.7.0
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|bool True if the request has read access, WP_Error object otherwise.
+     */
+    public function get_items_permissions_check( $request ) {
+        if ( $request->get_param('lng') != null && $request->get_param('lat') != null )
+            return true;
+        
+        return $this->wrapped->get_items_permissions_check( $request );
+    }
+    
+    /**
+     * Retrieves a collection of items.
+     *
+     * @since 4.7.0
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
+     */
+public function get_items( $request ) {
+//     $query = '
+// query politician($id: ID) {
+//   person(id: $id) {
+//     id
+//     name
+//     familyName
+//     givenName
+//     image
+//     updatedAt
+//     identifiers {
+//       identifier
+//       scheme
+//     }
+//     links {
+//       note
+//       url
+//     }
+//     sources {
+//       note
+//       url
+//     }
+//     contactDetails {
+//       type
+//       value
+//       note
+//       label
+//     }
+//   }
+// }
+// ';
+    if ( $request->get_param('lng') != null && $request->get_param('lat') != null ) {
+        $url = CIVIC_KEY_URL . 'location-search';
+        $url = $url . '?lng=' . $request->get_param('lng');
+        $url = $url . '&lat=' . $request->get_param('lat');
+        $response = wp_remote_get( $url );
+        $response = rest_ensure_response($response);
+        if (is_wp_error($response))
+            return $response;
+        $json = json_decode($response->get_data()['body']);
+        $politicians = $json->politicians;
+        $results = array();
+        foreach ($politicians as $politician) {
+            if (!(substr($politician, 0, 4 ) == 'ocd-'))
+                continue;
+            $query = file_get_contents(plugin_dir_path(__FILE__) . 'graphql/politician-by-id.gql');
+            $vars = array( 'id' => $politician );
+            $body = array( 'query' =>preg_replace('/\s+/', ' ', $query), 'variables' => $vars);
+            $body = json_encode($body);
+            $args = array(
+                'headers' => array(
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                    'X-API-KEY' => '8d20b2a8-01b5-46b1-be6b-108e0fd2b852'
+                ),
+                'body' => $body,
+            );
+            $response = wp_remote_post('http://openstates.org/graphql/', $args );
+            if (is_wp_error($response))
+                return $response;
+            $json = json_decode($response['body']);
+            $results[] = $json->data;
+        }
+        return $results;
+    }
+    return $this->wrapped->get_items( $request );
+}
+    
+    /**
+     * Checks if a given request has access to get a specific item.
+     *
+     * @since 4.7.0
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|bool True if the request has read access for the item, WP_Error object otherwise.
+     */
+    public function get_item_permissions_check( $request ) {
+        return $this->wrapped->get_item_permissions_check( $request );
+    }
+    
+    /**
+     * Retrieves one item from the collection.
+     *
+     * @since 4.7.0
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
+     */
+    public function get_item( $request ) {
+        return $this->wrapped->get_item( $request );
+    }
+    
+    /**
+     * Checks if a given request has access to create items.
+     *
+     * @since 4.7.0
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|bool True if the request has access to create items, WP_Error object otherwise.
+     */
+    public function create_item_permissions_check( $request ) {
+        return $this->wrapped->create_item_permissions_check( $request );
+    }
+    
+    /**
+     * Creates one item from the collection.
+     *
+     * @since 4.7.0
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
+     */
+    public function create_item( $request ) {
+        return $this->wrapped->create_item( $request );
+    }
+    
+    /**
+     * Checks if a given request has access to update a specific item.
+     *
+     * @since 4.7.0
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|bool True if the request has access to update the item, WP_Error object otherwise.
+     */
+    public function update_item_permissions_check( $request ) {
+        return $this->wrapped->update_item_permissions_check( $request );
+    }
+    
+    /**
+     * Updates one item from the collection.
+     *
+     * @since 4.7.0
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
+     */
+    public function update_item( $request ) {
+        return $this->wrapped->update_item( $request );
+    }
+    
+    /**
+     * Checks if a given request has access to delete a specific item.
+     *
+     * @since 4.7.0
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|bool True if the request has access to delete the item, WP_Error object otherwise.
+     */
+    public function delete_item_permissions_check( $request ) {
+        return $this->wrapped->delete_item_permissions_check( $request );
+    }
+    
+    /**
+     * Deletes one item from the collection.
+     *
+     * @since 4.7.0
+     *
+     * @param WP_REST_Request $request Full data about the request.
+     * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
+     */
+    public function delete_item( $request ) {
+        return $this->wrapped->delete_item( $request );
+    }
+    
+    /**
+     * Prepares one item for create or update operation.
+     *
+     * @since 4.7.0
+     *
+     * @param WP_REST_Request $request Request object.
+     * @return WP_Error|object The prepared item, or WP_Error object on failure.
+     */
+    protected function prepare_item_for_database( $request ) {
+        return $this->wrapped->prepare_item_for_database( $request );
+    }
+    
+    /**
+     * Prepares the item for the REST response.
+     *
+     * @since 4.7.0
+     *
+     * @param mixed           $item    WordPress representation of the item.
+     * @param WP_REST_Request $request Request object.
+     * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
+     */
+    public function prepare_item_for_response( $item, $request ) {
+        return $this->wrapped->prepare_item_for_response( $request );
+    }
+    
+    /**
+     * Retrieves the item's schema, conforming to JSON Schema.
+     *
+     * @since 4.7.0
+     *
+     * @return array Item schema data.
+     */
+    public function get_item_schema() {
+        return $this->wrapped->get_item_schema();
+    }
+    
+    /**
+     * Retrieves the query params for the collections.
+     *
+     * @since 4.7.0
+     *
+     * @return array Query parameters for the collection.
+     */
+    public function get_collection_params() {
+        $query_params = parent::get_collection_params();
+        
+        $query_params['context']['default'] = 'view';
+        
+        switch ($this->post_type) {
+            case 'indv_politician':
+                $query_params['lng'] = array(
+                    'description' => __( 'Longitude' ),
+                    'type'        => 'number', 
+                    'minimum'     => -180.0,
+                    'maximum'     =>  180.0,
+                );
+                $query_params['lat'] = array(
+                    'description' => __( 'Latitude' ),
+                    'type'        => 'number',
+                    'minimum'     => -90.0,
+                    'maximum'     =>  90.0,
+                );
+                $query_params['ocd-id'] = array(
+                    'description' => __( 'Open Civic Data Identifier' ),
+                    'type'        => 'string',
+                    'sanatize_callback' => 'sanatize_text_field',
+                );
+        }
+
+        return $query_params;
+    }
+    
+    /**
+     * Retrieves the magical context param.
+     *
+     * Ensures consistent descriptions between endpoints, and populates enum from schema.
+     *
+     * @since 4.7.0
+     *
+     * @param array $args Optional. Additional arguments for context parameter. Default empty array.
+     * @return array Context parameter details.
+     */
+    public function get_context_param( $args = array() ) {
+        return $this->wrapped->get_context_param( $args );
+    }
+    
+    /**
+     * Adds the values from additional fields to a data object.
+     *
+     * @since 4.7.0
+     *
+     * @param array           $object  Data object.
+     * @param WP_REST_Request $request Full details about the request.
+     * @return array Modified data object with additional fields.
+     */
+    protected function add_additional_fields_to_object( $object, $request ) {
+        return $this->wrapped->add_additional_fields_to_object( $object, $request );
+    }
+
+    /**
+     * Constructor.
+     *
+     * @since 4.7.0
+     *       
+     * @param string $post_type
+     *            Post type.
+     */
+    public function __construct($post_type)
+    {
+        $this->wrapped = new WP_REST_Posts_Controller($post_type);
+        $this->namespace = Indivisible_Plugin::NAMESPACE;
+        $this->post_type = $post_type;
+    }
+}
+
 global $indv;
 $indv = new Indivisible_Plugin();
 
 /////////////////////////////////////////////////////
 
-function indv_plugin_post_types() {
-	$args = array (
-			'label' => esc_html__ ( 'Politician', INDIVISIBLE_TEXT_DOMAIN ),
-			'labels' => array (
-					'menu_name' => esc_html__ ( 'Politicians', INDIVISIBLE_TEXT_DOMAIN ),
-					'name_admin_bar' => esc_html__ ( 'Politicians', INDIVISIBLE_TEXT_DOMAIN ),
-					'add_new' => esc_html__ ( 'Find More', INDIVISIBLE_TEXT_DOMAIN ),
-					'add_new_item' => esc_html__ ( 'Find Another Politician', INDIVISIBLE_TEXT_DOMAIN ),
-					'new_item' => esc_html__ ( 'New Politician', INDIVISIBLE_TEXT_DOMAIN ),
-					'edit_item' => esc_html__ ( 'Edit Politician', INDIVISIBLE_TEXT_DOMAIN ),
-					'view_item' => esc_html__ ( 'View Politician', INDIVISIBLE_TEXT_DOMAIN ),
-					'update_item' => esc_html__ ( 'Update Politician', INDIVISIBLE_TEXT_DOMAIN ),
-					'all_items' => esc_html__ ( 'Following', INDIVISIBLE_TEXT_DOMAIN ),
-					'search_items' => esc_html__ ( 'Search Politicians', INDIVISIBLE_TEXT_DOMAIN ),
-					'parent_item_colon' => esc_html__ ( 'Parent Politician', INDIVISIBLE_TEXT_DOMAIN ),
-					'not_found' => esc_html__ ( 'No Politicians found', INDIVISIBLE_TEXT_DOMAIN ),
-					'not_found_in_trash' => esc_html__ ( 'No Politicians found in Trash', INDIVISIBLE_TEXT_DOMAIN ),
-					'name' => esc_html__ ( 'Politicians', INDIVISIBLE_TEXT_DOMAIN ),
-					'singular_name' => esc_html__ ( 'Politician', INDIVISIBLE_TEXT_DOMAIN )
-			),
-			'public' => true,
-			'description' => 'Track legislation for Indivisible',
-			'exclude_from_search' => false,
-			'publicly_queryable' => true,
-			'show_ui' => true,
-			'show_in_nav_menus' => true,
-			'show_in_menu' => true,
-			'show_in_admin_bar' => false,
-			'show_in_rest' => true,
-			'rest_base' => 'politician',
-			'capability_type' => 'post',
-			'hierarchical' => true,
-			'has_archive' => true,
-			'query_var' => 'politician',
-			'can_export' => false,
-			'supports' => array (
-					'title',
-					'editor',
-					'comments',
-					'revisions'
-			),
-			'menu_icon' => 'dashicons-businessman',
-			'rewrite' => array (
-					'slug' => 'politician',
-					'with_front' => false
-			),
-	);
-	register_post_type ( INDV_POLITICIAN, $args );
+// function indv_plugin_post_types() {
+// 	$args = array (
+// 			'label' => esc_html__ ( 'Politician', INDIVISIBLE_TEXT_DOMAIN ),
+// 			'labels' => array (
+// 					'menu_name' => esc_html__ ( 'Politicians', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'name_admin_bar' => esc_html__ ( 'Politicians', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'add_new' => esc_html__ ( 'Find More', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'add_new_item' => esc_html__ ( 'Find Another Politician', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'new_item' => esc_html__ ( 'New Politician', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'edit_item' => esc_html__ ( 'Edit Politician', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'view_item' => esc_html__ ( 'View Politician', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'update_item' => esc_html__ ( 'Update Politician', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'all_items' => esc_html__ ( 'Following', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'search_items' => esc_html__ ( 'Search Politicians', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'parent_item_colon' => esc_html__ ( 'Parent Politician', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'not_found' => esc_html__ ( 'No Politicians found', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'not_found_in_trash' => esc_html__ ( 'No Politicians found in Trash', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'name' => esc_html__ ( 'Politicians', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'singular_name' => esc_html__ ( 'Politician', INDIVISIBLE_TEXT_DOMAIN )
+// 			),
+// 			'public' => true,
+// 			'description' => 'Track legislation for Indivisible',
+// 			'exclude_from_search' => false,
+// 			'publicly_queryable' => true,
+// 			'show_ui' => true,
+// 			'show_in_nav_menus' => true,
+// 			'show_in_menu' => true,
+// 			'show_in_admin_bar' => false,
+// 			'show_in_rest' => true,
+// 			'rest_base' => 'politician',
+// 			'capability_type' => 'post',
+// 			'hierarchical' => true,
+// 			'has_archive' => true,
+// 			'query_var' => 'politician',
+// 			'can_export' => false,
+// 			'supports' => array (
+// 					'title',
+// 					'editor',
+// 					'comments',
+// 					'revisions'
+// 			),
+// 			'menu_icon' => 'dashicons-businessman',
+// 			'rewrite' => array (
+// 					'slug' => 'politician',
+// 					'with_front' => false
+// 			),
+// 	);
+// 	register_post_type ( INDV_POLITICIAN, $args );
 	
-	$args = array (
-			'label' => esc_html__ ( 'Legislation', INDIVISIBLE_TEXT_DOMAIN ),
-			'labels' => array (
-					'menu_name' => esc_html__ ( 'Legislation', INDIVISIBLE_TEXT_DOMAIN ),
-					'name_admin_bar' => esc_html__ ( 'Legislation', INDIVISIBLE_TEXT_DOMAIN ),
-					'add_new' => esc_html__ ( 'Find More', INDIVISIBLE_TEXT_DOMAIN ),
-					'add_new_item' => esc_html__ ( 'Find Legislation', INDIVISIBLE_TEXT_DOMAIN ),
-					'new_item' => esc_html__ ( 'New Legislation', INDIVISIBLE_TEXT_DOMAIN ),
-					'edit_item' => esc_html__ ( 'Edit Legislation', INDIVISIBLE_TEXT_DOMAIN ),
-					'view_item' => esc_html__ ( 'View Legislation', INDIVISIBLE_TEXT_DOMAIN ),
-					'update_item' => esc_html__ ( 'Update Legislation', INDIVISIBLE_TEXT_DOMAIN ),
-					'all_items' => esc_html__ ( 'Tracking', INDIVISIBLE_TEXT_DOMAIN ),
-					'search_items' => esc_html__ ( 'Search Legislation', INDIVISIBLE_TEXT_DOMAIN ),
-					'parent_item_colon' => esc_html__ ( 'Parent Legislation', INDIVISIBLE_TEXT_DOMAIN ),
-					'not_found' => esc_html__ ( 'No Legislation found', INDIVISIBLE_TEXT_DOMAIN ),
-					'not_found_in_trash' => esc_html__ ( 'No Legislation found in Trash', INDIVISIBLE_TEXT_DOMAIN ),
-					'name' => esc_html__ ( 'Legislation', INDIVISIBLE_TEXT_DOMAIN ),
-					'singular_name' => esc_html__ ( 'Legislation', INDIVISIBLE_TEXT_DOMAIN )
-			),
-			'public' => true,
-			'description' => 'Track legislation for Indivisible',
-			'exclude_from_search' => false,
-			'publicly_queryable' => true,
-			'show_ui' => true,
-			'show_in_nav_menus' => true,
-			'show_in_menu' => true,
-			'show_in_admin_bar' => false,
-			'show_in_rest' => true,
-			'rest_base' => 'legislation',
-			'capability_type' => 'post',
-			'hierarchical' => true,
-			'has_archive' => true,
-			'query_var' => 'legislation',
-			'can_export' => true,
-			'supports' => array (
-					'title',
-					'editor',
-					'excerpt',
-					'comments',
-					'revisions'
-			),
-			'menu_icon' => 'dashicons-media-text',
-			'rewrite' => array (
-					'slug' => 'legislation',
-					'with_front' => false,
-			),
-	);
-	register_post_type ( INDV_LEGISLATION, $args );
+// 	$args = array (
+// 			'label' => esc_html__ ( 'Legislation', INDIVISIBLE_TEXT_DOMAIN ),
+// 			'labels' => array (
+// 					'menu_name' => esc_html__ ( 'Legislation', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'name_admin_bar' => esc_html__ ( 'Legislation', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'add_new' => esc_html__ ( 'Find More', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'add_new_item' => esc_html__ ( 'Find Legislation', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'new_item' => esc_html__ ( 'New Legislation', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'edit_item' => esc_html__ ( 'Edit Legislation', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'view_item' => esc_html__ ( 'View Legislation', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'update_item' => esc_html__ ( 'Update Legislation', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'all_items' => esc_html__ ( 'Tracking', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'search_items' => esc_html__ ( 'Search Legislation', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'parent_item_colon' => esc_html__ ( 'Parent Legislation', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'not_found' => esc_html__ ( 'No Legislation found', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'not_found_in_trash' => esc_html__ ( 'No Legislation found in Trash', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'name' => esc_html__ ( 'Legislation', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'singular_name' => esc_html__ ( 'Legislation', INDIVISIBLE_TEXT_DOMAIN )
+// 			),
+// 			'public' => true,
+// 			'description' => 'Track legislation for Indivisible',
+// 			'exclude_from_search' => false,
+// 			'publicly_queryable' => true,
+// 			'show_ui' => true,
+// 			'show_in_nav_menus' => true,
+// 			'show_in_menu' => true,
+// 			'show_in_admin_bar' => false,
+// 			'show_in_rest' => true,
+// 			'rest_base' => 'legislation',
+// 			'capability_type' => 'post',
+// 			'hierarchical' => true,
+// 			'has_archive' => true,
+// 			'query_var' => 'legislation',
+// 			'can_export' => true,
+// 			'supports' => array (
+// 					'title',
+// 					'editor',
+// 					'excerpt',
+// 					'comments',
+// 					'revisions'
+// 			),
+// 			'menu_icon' => 'dashicons-media-text',
+// 			'rewrite' => array (
+// 					'slug' => 'legislation',
+// 					'with_front' => false,
+// 			),
+// 	);
+// 	register_post_type ( INDV_LEGISLATION, $args );
 	
-	$args = array (
-			'label' => esc_html__ ( 'Action', INDIVISIBLE_TEXT_DOMAIN ),
-			'labels' => array (
-					'menu_name' => esc_html__ ( 'Actions', INDIVISIBLE_TEXT_DOMAIN ),
-					'name_admin_bar' => esc_html__ ( 'Actions', INDIVISIBLE_TEXT_DOMAIN ),
-					'add_new' => esc_html__ ( 'Add New', INDIVISIBLE_TEXT_DOMAIN ),
-					'add_new_item' => esc_html__ ( 'Add New Action', INDIVISIBLE_TEXT_DOMAIN ),
-					'new_item' => esc_html__ ( 'New Action', INDIVISIBLE_TEXT_DOMAIN ),
-					'edit_item' => esc_html__ ( 'Edit Action', INDIVISIBLE_TEXT_DOMAIN ),
-					'view_item' => esc_html__ ( 'View Action', INDIVISIBLE_TEXT_DOMAIN ),
-					'update_item' => esc_html__ ( 'Update Action', INDIVISIBLE_TEXT_DOMAIN ),
-					'all_items' => esc_html__ ( 'All Actions', INDIVISIBLE_TEXT_DOMAIN ),
-					'search_items' => esc_html__ ( 'Search Actions', INDIVISIBLE_TEXT_DOMAIN ),
-					'parent_item_colon' => esc_html__ ( 'Parent Action', INDIVISIBLE_TEXT_DOMAIN ),
-					'not_found' => esc_html__ ( 'No Actions found', INDIVISIBLE_TEXT_DOMAIN ),
-					'not_found_in_trash' => esc_html__ ( 'No Actions found in Trash', INDIVISIBLE_TEXT_DOMAIN ),
-					'name' => esc_html__ ( 'Action', INDIVISIBLE_TEXT_DOMAIN ),
-					'singular_name' => esc_html__ ( 'Action', INDIVISIBLE_TEXT_DOMAIN )
-			),
-			'public' => true,
-			'description' => 'Track legislation for Indivisible',
-			'exclude_from_search' => false,
-			'publicly_queryable' => true,
-			'show_ui' => true,
-			'show_in_nav_menus' => true,
-			'show_in_menu' => true,
-			'show_in_admin_bar' => false,
-			'show_in_rest' => true,
-			'rest_base' => 'actions',
-			'capability_type' => 'post',
-			'hierarchical' => true,
-			'has_archive' => true,
-			'query_var' => 'actions',
-			'can_export' => true,
-			'supports' => array (
-					'title',
-					'editor',
-					'comments',
-					'revisions'
-			),
-			'menu_icon' => 'dashicons-megaphone',
-			'rewrite' => array (
-					'slug' => 'actions',
-					'with_front' => false
-			),
-	);
+// 	$args = array (
+// 			'label' => esc_html__ ( 'Action', INDIVISIBLE_TEXT_DOMAIN ),
+// 			'labels' => array (
+// 					'menu_name' => esc_html__ ( 'Actions', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'name_admin_bar' => esc_html__ ( 'Actions', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'add_new' => esc_html__ ( 'Add New', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'add_new_item' => esc_html__ ( 'Add New Action', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'new_item' => esc_html__ ( 'New Action', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'edit_item' => esc_html__ ( 'Edit Action', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'view_item' => esc_html__ ( 'View Action', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'update_item' => esc_html__ ( 'Update Action', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'all_items' => esc_html__ ( 'All Actions', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'search_items' => esc_html__ ( 'Search Actions', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'parent_item_colon' => esc_html__ ( 'Parent Action', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'not_found' => esc_html__ ( 'No Actions found', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'not_found_in_trash' => esc_html__ ( 'No Actions found in Trash', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'name' => esc_html__ ( 'Action', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'singular_name' => esc_html__ ( 'Action', INDIVISIBLE_TEXT_DOMAIN )
+// 			),
+// 			'public' => true,
+// 			'description' => 'Track legislation for Indivisible',
+// 			'exclude_from_search' => false,
+// 			'publicly_queryable' => true,
+// 			'show_ui' => true,
+// 			'show_in_nav_menus' => true,
+// 			'show_in_menu' => true,
+// 			'show_in_admin_bar' => false,
+// 			'show_in_rest' => true,
+// 			'rest_base' => 'actions',
+// 			'capability_type' => 'post',
+// 			'hierarchical' => true,
+// 			'has_archive' => true,
+// 			'query_var' => 'actions',
+// 			'can_export' => true,
+// 			'supports' => array (
+// 					'title',
+// 					'editor',
+// 					'comments',
+// 					'revisions'
+// 			),
+// 			'menu_icon' => 'dashicons-megaphone',
+// 			'rewrite' => array (
+// 					'slug' => 'actions',
+// 					'with_front' => false
+// 			),
+// 	);
 	
-	register_post_type ( INDV_ACTION, $args );
-}
+// 	register_post_type ( INDV_ACTION, $args );
+// }
 
-function indv_plugin_taxonomies() {
-	$labels = [
-			'name' => _x ( 'Position', 'taxonomy general name' ),
-			'singular_name' => _x ( 'Position', 'taxonomy singular name' ),
-			'search_items' => __ ( 'Search Positions' ),
-			'all_items' => __ ( 'All Positions' ),
-			'parent_item' => __ ( 'Parent Position' ),
-			'parent_item_colon' => __ ( 'Parent Position:' ),
-			'edit_item' => __ ( 'Edit Position' ),
-			'update_item' => __ ( 'Update Position' ),
-			'add_new_item' => __ ( 'Add New Position' ),
-			'new_item_name' => __ ( 'New Position Name' ),
-			'menu_name' => __ ( 'Position' )
-	];
-	$args = [
-			'public' => true,
-			'hierarchical' => false,
-			'labels' => $labels,
-			'show_ui' => false,
-			'show_admin_column' => true,
-			'show_in_rest' => true,
-			'rest_base' => 'position',
-			'query_var' => 'position',
-			'rewrite' => [
-					'slug' => 'position',
-					'witn_front' => false,
-			]
-	];
-	register_taxonomy ( INDV_POSITION, INDV_LEGISLATION, $args );
+// function indv_plugin_taxonomies() {
+// 	$labels = [
+// 			'name' => _x ( 'Position', 'taxonomy general name' ),
+// 			'singular_name' => _x ( 'Position', 'taxonomy singular name' ),
+// 			'search_items' => __ ( 'Search Positions' ),
+// 			'all_items' => __ ( 'All Positions' ),
+// 			'parent_item' => __ ( 'Parent Position' ),
+// 			'parent_item_colon' => __ ( 'Parent Position:' ),
+// 			'edit_item' => __ ( 'Edit Position' ),
+// 			'update_item' => __ ( 'Update Position' ),
+// 			'add_new_item' => __ ( 'Add New Position' ),
+// 			'new_item_name' => __ ( 'New Position Name' ),
+// 			'menu_name' => __ ( 'Position' )
+// 	];
+// 	$args = [
+// 			'public' => true,
+// 			'hierarchical' => false,
+// 			'labels' => $labels,
+// 			'show_ui' => false,
+// 			'show_admin_column' => true,
+// 			'show_in_rest' => true,
+// 			'rest_base' => 'position',
+// 			'query_var' => 'position',
+// 			'rewrite' => [
+// 					'slug' => 'position',
+// 					'witn_front' => false,
+// 			]
+// 	];
+// 	register_taxonomy ( INDV_POSITION, INDV_LEGISLATION, $args );
 			
-	$labels = [
-			'name' => _x ( 'Status', 'taxonomy general name' ),
-			'singular_name' => _x ( 'Status', 'taxonomy singular name' ),
-			'search_items' => __ ( 'Search Status' ),
-			'all_items' => __ ( 'All Status' ),
-			'parent_item' => __ ( 'Parent Status' ),
-			'parent_item_colon' => __ ( 'Parent Status:' ),
-			'edit_item' => __ ( 'Edit Status' ),
-			'update_item' => __ ( 'Update Status' ),
-			'add_new_item' => __ ( 'Add New Status' ),
-			'new_item_name' => __ ( 'New Status Name' ),
-			'menu_name' => __ ( 'Status' )
-	];
-	$args = [
-			'public' => true,
-			'hierarchical' => false,
-			'labels' => $labels,
-			'show_ui' => false,
-			'show_admin_column' => true,
-			'show_in_rest' => true,
-			'rest_base' => 'bill_status',
-			'query_var' => 'bill_status',
-			'rewrite' => [
-					'slug' => 'bill_status',
-					'witn_front' => false,
-			]
-	];
-	register_taxonomy ( INDV_BILL_STATUS, INDV_LEGISLATION, $args );
+// 	$labels = [
+// 			'name' => _x ( 'Status', 'taxonomy general name' ),
+// 			'singular_name' => _x ( 'Status', 'taxonomy singular name' ),
+// 			'search_items' => __ ( 'Search Status' ),
+// 			'all_items' => __ ( 'All Status' ),
+// 			'parent_item' => __ ( 'Parent Status' ),
+// 			'parent_item_colon' => __ ( 'Parent Status:' ),
+// 			'edit_item' => __ ( 'Edit Status' ),
+// 			'update_item' => __ ( 'Update Status' ),
+// 			'add_new_item' => __ ( 'Add New Status' ),
+// 			'new_item_name' => __ ( 'New Status Name' ),
+// 			'menu_name' => __ ( 'Status' )
+// 	];
+// 	$args = [
+// 			'public' => true,
+// 			'hierarchical' => false,
+// 			'labels' => $labels,
+// 			'show_ui' => false,
+// 			'show_admin_column' => true,
+// 			'show_in_rest' => true,
+// 			'rest_base' => 'bill_status',
+// 			'query_var' => 'bill_status',
+// 			'rewrite' => [
+// 					'slug' => 'bill_status',
+// 					'witn_front' => false,
+// 			]
+// 	];
+// 	register_taxonomy ( INDV_BILL_STATUS, INDV_LEGISLATION, $args );
 	
-	$labels = [
-			'name' => _x ( 'Interest', 'taxonomy general name' ),
-			'singular_name' => _x ( 'Interest', 'taxonomy singular name' ),
-			'search_items' => __ ( 'Search Interests' ),
-			'all_items' => __ ( 'All Interested' ),
-			'parent_item' => __ ( 'Parent Interest' ),
-			'parent_item_colon' => __ ( 'Parent Interest:' ),
-			'edit_item' => __ ( 'Edit Interest' ),
-			'update_item' => __ ( 'Update Interest' ),
-			'add_new_item' => __ ( 'Add New Interest' ),
-			'new_item_name' => __ ( 'New Interest Name' ),
-			'menu_name' => __ ( 'Interested' )
-	];
-	$args = [
-			'public' => true,
-			'hierarchical' => true, // make it hierarchical (like categories)
-			'labels' => $labels,
-			'show_ui' => true,
-			'show_admin_column' => true,
-			'show_in_rest' => true,
-			'rest_base' => 'interest',
-			'query_var' => 'interest',
-			'rewrite' => [
-					'slug' => 'interest',
-					'witn_front' => false,
-			]
-	];
-	register_taxonomy ( INDV_INTEREST, array( INDV_LEGISLATION, INDV_ACTION, INDV_POLITICIAN ), $args );
+// 	$labels = [
+// 			'name' => _x ( 'Interest', 'taxonomy general name' ),
+// 			'singular_name' => _x ( 'Interest', 'taxonomy singular name' ),
+// 			'search_items' => __ ( 'Search Interests' ),
+// 			'all_items' => __ ( 'All Interested' ),
+// 			'parent_item' => __ ( 'Parent Interest' ),
+// 			'parent_item_colon' => __ ( 'Parent Interest:' ),
+// 			'edit_item' => __ ( 'Edit Interest' ),
+// 			'update_item' => __ ( 'Update Interest' ),
+// 			'add_new_item' => __ ( 'Add New Interest' ),
+// 			'new_item_name' => __ ( 'New Interest Name' ),
+// 			'menu_name' => __ ( 'Interested' )
+// 	];
+// 	$args = [
+// 			'public' => true,
+// 			'hierarchical' => true, // make it hierarchical (like categories)
+// 			'labels' => $labels,
+// 			'show_ui' => true,
+// 			'show_admin_column' => true,
+// 			'show_in_rest' => true,
+// 			'rest_base' => 'interest',
+// 			'query_var' => 'interest',
+// 			'rewrite' => [
+// 					'slug' => 'interest',
+// 					'witn_front' => false,
+// 			]
+// 	];
+// 	register_taxonomy ( INDV_INTEREST, array( INDV_LEGISLATION, INDV_ACTION, INDV_POLITICIAN ), $args );
 
-	$labels = [
-			'name' => _x ( 'Issue', 'taxonomy general name' ),
-			'singular_name' => _x ( 'Issue', 'taxonomy singular name' ),
-			'search_items' => __ ( 'Search Issues' ),
-			'all_items' => __ ( 'All Issues' ),
-			'parent_item' => __ ( 'Parent Issue' ),
-			'parent_item_colon' => __ ( 'Parent Issue:' ),
-			'edit_item' => __ ( 'Edit Issue' ),
-			'update_item' => __ ( 'Update Issue' ),
-			'add_new_item' => __ ( 'Add New Issue' ),
-			'new_item_name' => __ ( 'New Issue Name' ),
-			'menu_name' => __ ( 'Issues' )
-	];
-	$args = [
-			'public' => true,
-			'hierarchical' => true, // make it hierarchical (like categories)
-			'labels' => $labels,
-			'show_ui' => true,
-			'show_admin_column' => true,
-			'show_in_rest' => true,
-			'rest_base' => 'issue',
-			'query_var' => 'issue',
-			'rewrite' => [
-					'slug' => 'issue',
-					'witn_front' => false,
-			]
-	];
-	register_taxonomy ( INDV_ISSUE, array( INDV_LEGISLATION, INDV_ACTION ), $args );
+// 	$labels = [
+// 			'name' => _x ( 'Issue', 'taxonomy general name' ),
+// 			'singular_name' => _x ( 'Issue', 'taxonomy singular name' ),
+// 			'search_items' => __ ( 'Search Issues' ),
+// 			'all_items' => __ ( 'All Issues' ),
+// 			'parent_item' => __ ( 'Parent Issue' ),
+// 			'parent_item_colon' => __ ( 'Parent Issue:' ),
+// 			'edit_item' => __ ( 'Edit Issue' ),
+// 			'update_item' => __ ( 'Update Issue' ),
+// 			'add_new_item' => __ ( 'Add New Issue' ),
+// 			'new_item_name' => __ ( 'New Issue Name' ),
+// 			'menu_name' => __ ( 'Issues' )
+// 	];
+// 	$args = [
+// 			'public' => true,
+// 			'hierarchical' => true, // make it hierarchical (like categories)
+// 			'labels' => $labels,
+// 			'show_ui' => true,
+// 			'show_admin_column' => true,
+// 			'show_in_rest' => true,
+// 			'rest_base' => 'issue',
+// 			'query_var' => 'issue',
+// 			'rewrite' => [
+// 					'slug' => 'issue',
+// 					'witn_front' => false,
+// 			]
+// 	];
+// 	register_taxonomy ( INDV_ISSUE, array( INDV_LEGISLATION, INDV_ACTION ), $args );
 	
-}
+// }
 
 function indv_plugin_taxonomy_select($post_type, $which){
 	
@@ -629,109 +1534,109 @@ function indv_plugin_geography_filter( $query ) {
 	}
 }
 
-function indv_plugin_rest_init () {
-	register_rest_field( array(INDV_POLITICIAN, INDV_LEGISLATION ), 'lexicon', array(
-		'get_callback' => function(  $object, $field_name, $request ) {
-			global $indv;
-			return $indv->get_lexicon( $object[ 'id' ] );
-		},
-		'schema' => array(
-			'description' => __( 'Lexicon', INDIVISIBLE_TEXT_DOMAIN ),
-			'type'        => 'object'
-		) )
-	);
-	
-	register_rest_field( INDV_POLITICIAN, 'photo_url', array(
-		'get_callback' => function(  $object, $field_name, $request ) {
-			return get_post_meta( $object[ 'id' ], INDV_PHOTO_URL, true );
-		},
-		'update_callback' => function( $value, $object, $field_name ) {
-			if ( ! $value || ! is_string( $value ) )
-				return;
-			return update_post_meta( $object->ID, INDV_PHOTO_URL, sanitize_url( $value ) );
-		},
-		'schema' => array(
-				'description' => __( 'Photo URL', INDIVISIBLE_TEXT_DOMAIN ),
-				'type'        => 'string'
-		) )
-	);
-	
-// 	register_rest_field( INDV_LEGISLATION, 'bill_status', array(
+// function indv_plugin_rest_init () {
+// 	register_rest_field( array(INDV_POLITICIAN, INDV_LEGISLATION ), 'lexicon', array(
 // 		'get_callback' => function(  $object, $field_name, $request ) {
-// 			return get_post_meta( $object[ 'id' ], INDV_BILL_STATUS, true );
+// 			global $indv;
+// 			return $indv->get_lexicon( $object[ 'id' ] );
+// 		},
+// 		'schema' => array(
+// 			'description' => __( 'Lexicon', INDIVISIBLE_TEXT_DOMAIN ),
+// 			'type'        => 'object'
+// 		) )
+// 	);
+	
+// 	register_rest_field( INDV_POLITICIAN, 'photo_url', array(
+// 		'get_callback' => function(  $object, $field_name, $request ) {
+// 			return get_post_meta( $object[ 'id' ], INDV_PHOTO_URL, true );
 // 		},
 // 		'update_callback' => function( $value, $object, $field_name ) {
 // 			if ( ! $value || ! is_string( $value ) )
 // 				return;
-// 			return update_post_meta( $object->ID, INDV_BILL_STATUS, sanitize_text_field( $value ) );
+// 			return update_post_meta( $object->ID, INDV_PHOTO_URL, sanitize_url( $value ) );
 // 		},
 // 		'schema' => array(
-// 			'description' => __( 'Photo URL', INDIVISIBLE_TEXT_DOMAIN ),
-// 			'type'        => 'string'
+// 				'description' => __( 'Photo URL', INDIVISIBLE_TEXT_DOMAIN ),
+// 				'type'        => 'string'
 // 		) )
 // 	);
 	
-	foreach (array('full_name', 'first_name', 'middle_name', 'last_name', 'roles', 'email', 'url', 'offices') as $rest_field)
-		register_rest_field( INDV_POLITICIAN, $rest_field, array(
-			'get_callback' => function ($object, $field_name, $request) {
-				global $indv;
-				$post_slug = $object['slug'];
-				$politician = strtoupper($post_slug);
-				if (is_national($politician)) {
-					$member = $indv->get_congress('members/' . $politician)[0];
-					if ($member && isset($member[$field_name]))
-						return $member[$field_name];
-					if ($field_name == 'full_name') 
-						return $member['first_name'] 
-						. ($member['middle_name'] ? (' ' . $member['middle_name']) : '') . ' ' 
-						. $member['last_name'] 
-						. ($member['suffix'] ? (' ' . $member['suffix']) : '');
-				} else {
-					$url = OPEN_STATES_URL . 'legislators/' . $politician . '/';;
-					$legislator = $indv->get_json($url);
-					if ($legislator && isset($legislator[$field_name]))
-						return $legislator[$field_name];
-				}
-			},
-			'schema' => array(
-				'description' => __( 'Reflect Open States', INDIVISIBLE_TEXT_DOMAIN ),
-				'type'        => 'object'
-			) )
-		);
+// // 	register_rest_field( INDV_LEGISLATION, 'bill_status', array(
+// // 		'get_callback' => function(  $object, $field_name, $request ) {
+// // 			return get_post_meta( $object[ 'id' ], INDV_BILL_STATUS, true );
+// // 		},
+// // 		'update_callback' => function( $value, $object, $field_name ) {
+// // 			if ( ! $value || ! is_string( $value ) )
+// // 				return;
+// // 			return update_post_meta( $object->ID, INDV_BILL_STATUS, sanitize_text_field( $value ) );
+// // 		},
+// // 		'schema' => array(
+// // 			'description' => __( 'Photo URL', INDIVISIBLE_TEXT_DOMAIN ),
+// // 			'type'        => 'string'
+// // 		) )
+// // 	);
 	
-	foreach (array('calendar', 'history', 'votes') as $rest_field)
-		register_rest_field( INDV_LEGISLATION, $rest_field, array(
-			'get_callback' => function ($object, $field_name, $request) {
-				global $indv;
-				$bill = $indv->getLegiscanBill($object['id']);
-				if ($bill && isset($bill[$field_name]))
-					return $bill[$field_name];
-			},
-			'schema' => array(
-					'description' => __( 'Reflect Legiscan', INDIVISIBLE_TEXT_DOMAIN ),
-					'type'        => 'object'
-			) )
-		);
+// 	foreach (array('full_name', 'first_name', 'middle_name', 'last_name', 'roles', 'email', 'url', 'offices') as $rest_field)
+// 		register_rest_field( INDV_POLITICIAN, $rest_field, array(
+// 			'get_callback' => function ($object, $field_name, $request) {
+// 				global $indv;
+// 				$post_slug = $object['slug'];
+// 				$politician = strtoupper($post_slug);
+// 				if (is_national($politician)) {
+// 					$member = $indv->get_congress('members/' . $politician)[0];
+// 					if ($member && isset($member[$field_name]))
+// 						return $member[$field_name];
+// 					if ($field_name == 'full_name') 
+// 						return $member['first_name'] 
+// 						. ($member['middle_name'] ? (' ' . $member['middle_name']) : '') . ' ' 
+// 						. $member['last_name'] 
+// 						. ($member['suffix'] ? (' ' . $member['suffix']) : '');
+// 				} else {
+// 					$url = OPEN_STATES_URL . 'legislators/' . $politician . '/';;
+// 					$legislator = $indv->get_json($url);
+// 					if ($legislator && isset($legislator[$field_name]))
+// 						return $legislator[$field_name];
+// 				}
+// 			},
+// 			'schema' => array(
+// 				'description' => __( 'Reflect Open States', INDIVISIBLE_TEXT_DOMAIN ),
+// 				'type'        => 'object'
+// 			) )
+// 		);
+	
+// 	foreach (array('calendar', 'history', 'votes') as $rest_field)
+// 		register_rest_field( INDV_LEGISLATION, $rest_field, array(
+// 			'get_callback' => function ($object, $field_name, $request) {
+// 				global $indv;
+// 				$bill = $indv->getLegiscanBill($object['id']);
+// 				if ($bill && isset($bill[$field_name]))
+// 					return $bill[$field_name];
+// 			},
+// 			'schema' => array(
+// 					'description' => __( 'Reflect Legiscan', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'type'        => 'object'
+// 			) )
+// 		);
 		
-	foreach (array('sponsors', ) as $rest_field)
-		register_rest_field( INDV_LEGISLATION, $rest_field, array(
-			'get_callback' => function ($object, $field_name, $request) {
-				global $indv;
-				$bill = $indv->getOpenStatesBill($object['id']);
-				if ($bill && isset($bill[$field_name]))
-					return $bill[$field_name];
-			},
-			'schema' => array(
-					'description' => __( 'Reflect Open States', INDIVISIBLE_TEXT_DOMAIN ),
-					'type'        => 'object'
-			) )
-		);
+// 	foreach (array('sponsors', ) as $rest_field)
+// 		register_rest_field( INDV_LEGISLATION, $rest_field, array(
+// 			'get_callback' => function ($object, $field_name, $request) {
+// 				global $indv;
+// 				$bill = $indv->getOpenStatesBill($object['id']);
+// 				if ($bill && isset($bill[$field_name]))
+// 					return $bill[$field_name];
+// 			},
+// 			'schema' => array(
+// 					'description' => __( 'Reflect Open States', INDIVISIBLE_TEXT_DOMAIN ),
+// 					'type'        => 'object'
+// 			) )
+// 		);
 		
-	register_rest_route( 'indv/v1', '/autocomplete/politician', array(
-		'methods' => 'GET',
-		'callback' => 'indv_plugin_politician_directory',
-	) );
-}
+// 	register_rest_route( 'indv/v1', '/autocomplete/politician', array(
+// 		'methods' => 'GET',
+// 		'callback' => 'indv_plugin_politician_directory',
+// 	) );
+// }
 
 function indv_plugin_meta_boxes ($post_type) {
 	switch ($post_type) {
@@ -1386,15 +2291,15 @@ function indv_plugin_save_post ( $post_id, $post, $update ) {
 	}
 }
 
-function indv_plugin_add_help () {
-	$screen = get_current_screen();
+// function indv_plugin_add_help () {
+// 	$screen = get_current_screen();
 		
-	$screen->add_help_tab( array(
-			'id'	=> 'indv_plugin_help_tab',
-			'title'	=> __('My Help Tab'),
-			'content'	=> '<p>' . __( 'Descriptive content that will show in My Help Tab-body goes here.' ) . '</p>',
-		) );
-}
+// 	$screen->add_help_tab( array(
+// 			'id'	=> 'indv_plugin_help_tab',
+// 			'title'	=> __('My Help Tab'),
+// 			'content'	=> '<p>' . __( 'Descriptive content that will show in My Help Tab-body goes here.' ) . '</p>',
+// 		) );
+// }
 
 function indv_plugin_subtitle ($post) {
 	global $indv;
@@ -1710,9 +2615,9 @@ function indv_plugin_sanitize($input) {
 	return $input;
 }
 
-function indv_plugin_menu() {
-	add_options_page ( 'Indivisible', 'Indivisible', 'manage_options', 'indv_settings', 'indv_plugin_render_settings' );
-}
+// function indv_plugin_menu() {
+// 	add_options_page ( 'Indivisible', 'Indivisible', 'manage_options', 'indv_settings', 'indv_plugin_render_settings' );
+// }
 
 function indv_plugin_legislatures_render() {
 	$current = get_option ( 'legislatures' );
@@ -1769,6 +2674,30 @@ function indv_plugin_render_settings() {
 
             <?php submit_button(); ?>
         </form>
+        
+        <button id="indv_plugin_ajax_button" class="button button-primary" onclick="console.log('set');">Ajax Button</button>
+        <script>
+        	jQuery(document).ready(function($) {
+        		var data = {
+        			'action': 'my_action',
+        			'whatever': 1234
+        		};
+        		console.log("ready");
+				jQuery("#indv_plugin_ajax_button").click(()=>{console.log("go")});
+				// Create a new post
+				var post = new wp.api.models.Post( { title: 'This is a test post' } );
+				post.save();
+				 
+				// Load an existing post
+				var post = new wp.api.models.Post( { id: 1 } );
+				post.fetch();
+				 // 				jQuery("#indv_plugin_ajax_button").css("color: red");
+// 				jQuery("#indv_plugin_ajax_button").text("Button Pushed");
+ //         		jQuery.post(ajaxurl, data, function(response) {
+//         			alert('Got this from the server: ' + response);
+//         		});
+        	});
+        </script>
 	</div>
 	<?php
 }
