@@ -9,9 +9,12 @@ const maps = require("./GetCensusMaps.js");
 const os = require("./GetOpenStates2.js");
 const cong = require("./GetCongress.js");
 
+const PUBLIC_STATIC_URL = 'https://static.open-states.org/';
+
 var states;
 var state4 = new Array();
 var boundary4 = new Array();
+var division4 = new Array();
 
 function doStateLegislature(req, res, q) {
 	let response = new Object();
@@ -22,6 +25,17 @@ function doStateLegislature(req, res, q) {
 
 		let state = state4[code];
 		let legislators = new Array();
+		state.legislators.forEach( legislator => legislators.push(legislators) );
+		state.congressional.forEach( district => {
+			district.legislators.forEach( legislator => legislators.push(legilsator) );
+		});
+		state.upperHouse.forEach( district => {
+			district.legislators.forEach( legislator => legislators.push(legilsator) );
+		});
+		state.lowerHouse.forEach( district => {
+			district.legislators.forEach( legislator => legislators.push(legilsator) );
+		});
+
 		for (d in state.upperHouse) {
 			let district = state.upperHouse[d];
 			for(p in district.legislators) {
@@ -88,12 +102,24 @@ function doFrontPage(req, res, q) {
 			let state = states[s];
 			if (maps.isInside(p, state)) {
 				response['state'] = state.attributes["NAME"];
-
+				response['state_division'] = state.division.id;;
+				response['state_boundary'] = state.simplified;;
+ 
+				let federal = new Array();
+				state.legislators.forEach( (senator) => {
+					federal.push( senator );
+				});
+				
 				for (d in state.congressional) {
 					let district = state.congressional[d];
 					if (maps.isInside(p, district)) {
 						response['congressional_district'] = district.attributes["NAME"];
+						response['congressional_division'] = district.division.id;;
 						response['congressional_boundary'] = district.simplified;;
+						district.legislators.forEadh( (representative) => {
+							federal.push(representative);
+						})
+						response['federal_legislators'   ] = federal;
 						break;
 					}
 				}
@@ -102,7 +128,8 @@ function doFrontPage(req, res, q) {
 					let district = state.upperHouse[d];
 					if (maps.isInside(p, district)) {
 						response['state_upper_district'] = district.attributes["NAME"];
-						response['state_upper_legislators'] = district.legislators;
+						response['state_upper_division'] = district.division.id;;						
+ 						response['state_upper_legislators'] = district.legislators;
 						response['state_upper_boundary'] = district.simplified;;
 						break;
 					}
@@ -112,6 +139,7 @@ function doFrontPage(req, res, q) {
 					let district = state.lowerHouse[d];
 					if (maps.isInside(p, district)) {
 						response['state_lower_district'] = district.attributes["NAME"];
+						response['state_lower_division'] = district.division.id;;						
 						response['state_lower_legislators'] = district.legislators;
 						response['state_lower_boundary'] = district.simplified;
 						break;
@@ -317,31 +345,25 @@ function uuidv4() {
 	  (c ^ jumble(byte)[0] & 15 >> c / 4).toString(16)
 	);
   }
+
 function linkCongressToCensus() {
-	states.forEach((state) => {
+	states.forEach( (state) => {
 		state4[state.attributes["STUSAB"]] = state;
 		state4[state.attributes["NAME"]] = state;
 		state.legislators = new Array();
 		state.division = {
-			government: "Federal",
-			chamber: "Senate",
 			state: state.attributes["NAME"],
 			state_abbr: state.attributes["STUSAB"],
-			type: "senate",
-			label: state.attributes["STUSAB"],
 			legislators: state.legislators,
 			boundary: state.simplified.rings,
 			boundingBox: state.simplified.box,
 		}
-		state.congressional.forEach((district) => {
+		state.congressional.forEach( (district) => {
 			district.legislators = new Array();
 			district.division = {
-				government: "Federal",
-				chamber: "House",
 				state: state.attributes["NAME"],
 				state_abbr: state.attributes["STUSAB"],
 				name: district.attributes["NAME"],
-				type: "house",
 				label: district.attributes["BASENAME"],
 				legislators: district.legislators,
 				boundary: district.simplified.rings,
@@ -351,16 +373,19 @@ function linkCongressToCensus() {
 	})
 
 	let senate = cong.senate();
-	senate.members.forEach((member, index) => {
+	senate.members.forEach( (member) => {
 		if (!member.in_office)
 			return;
 		let state = state4[member.state];
 		state.division.id = member.ocd_id;
 		state.legislators.push({
+			government: "Federal",
 			chamber: "Senate",
-			id: member.id,
+			id: 'ocd-person/bioguide.congress.gov/' + member.id,
+			name: member.first_name + (member.middle_name ? (' ' + member.middle_name) : '') 
+				+ ' ' + member.last_name + (member.suffix      ? (' ' + member.suffix)      : ''),
+			image: PUBLIC_STATIC_URL + 'theunitedstates/images/congress/450x550/' + member.id +'.jpg',
 			division_id: state.division.id,
-			full_name: member.first_name + (member.middle_name ? (' ' + member.middle_name) : '') + ' ' + member.last_name,
 		});
 	});
 
@@ -371,42 +396,52 @@ function linkCongressToCensus() {
 		let state = state4[member.state];
 		if (member.at_large)
 			state.legislators.push({
+				government: "Federal",
 				chamber: "House",
-				id: member.id,
+				id: 'ocd-person/bioguide.congress.gov/' + member.id,
+				name: member.first_name + (member.middle_name ? (' ' + member.middle_name) : '') 
+					+ ' ' + member.last_name + (member.suffix      ? (' ' + member.suffix)      : ''),
+				image: PUBLIC_STATIC_URL + 'theunitedstates/images/congress/450x550/' + member.id +'.jpg',
 				division_id: state.division.id,
-				full_name: member.first_name + (member.middle_name ? (' ' + member.middle_name) : '') + ' ' + member.last_name,
 			});
 		else {
 			district = state.congressional[member.district];
 			if (district) {
 				district.division.id = member.ocd_id;
 				district.legislators.push({
+					government: "Federal",
 					chamber: "House",
-					id: member.id,
+					id: 'ocd-person/bioguide.congress.gov/' + member.id,
+					name: member.first_name + (member.middle_name ? (' ' + member.middle_name) : '') 
+						+ ' ' + member.last_name + (member.suffix      ? (' ' + member.suffix)      : ''),
+					image: PUBLIC_STATIC_URL + 'theunitedstates/images/congress/450x550/' + member.id +'.jpg',
 					division_id: member.ocd_id,
-					full_name: member.first_name + (member.middle_name ? (' ' + member.middle_name) : '') + ' ' + member.last_name,
 				});
 			}
 			else
 				console.log("Can't find " + member.district);
 		}
 	});
+
+	states.forEach((state) => {
+		division4[ state.division.id ] = state.district;
+		state.congressional.forEach((district) => {
+			division4[ district.id ] = district;
+		})
+	})
 }
 
 function linkDistrictsToBoundaries() {
-	for (s in states) {
-		let state = states[s];
-		for (d in state.upperHouse) {
-			let district = state.upperHouse[d];
+	states.forEach( (state) => {
+		state.upperHouse.forEach( (district) => {
 			let code =  (state.attributes['STUSAB'] + '-upper-' + district.attributes['BASENAME']).toLowerCase();
 			boundary4[code] = district;
-		}
-		for (d in state.lowerHouse) {
-			let district = state.lowerHouse[d];
+		})
+		state.lowerHouse.forEach( (district) => {
 			let code =  (state.attributes['STUSAB'] + '-lower-' + district.attributes['BASENAME']).toLowerCase();
 			boundary4[code] = district;
-		}
-	}
+		})
+	})
 }
 
 function linkOpenStatesToCensus() {
@@ -554,7 +589,9 @@ function linkOpenStatesToCensus() {
 
 function linkOpenStates2ToCensus() {
 	let stateDistricts = os.districts();
-	stateDistricts.forEach(district => {
+	stateDistricts.forEach( (district) => {
+		if (district.person == null)
+			return;
 		let state = state4[district.state];
 		let districtID = district.post.label;
 		let cd = null;
@@ -676,15 +713,21 @@ function linkOpenStates2ToCensus() {
 				};
 			}
 			cd.legislators.push({
+				government: "State",
 				state: district.state,
+				state_abbr: state.attributes["STUSAB"],
 				chamber: district.chamber,
-				classification: district.classification,
+				type: district.classification,
+				id: district.person.id,
+				division_id: cd.division.id,
+				image: district.person.image,
+				name: district.person.name,
 				person: district.person,
 				post: district.post,
 			})
 		}
 		else
-			console.log("cant find " + district.name);
+			console.log("cant find " + district.state + ' ' + district.post.label);
 	});
 }
 
@@ -736,7 +779,9 @@ console.log("start");
 // os.bootstrap(() => { maps.bootstrap(startServer) });
 //cong.bootstrap(() => { os.bootstrap(() => { maps.bootstrap(startServer) }) });
 setTimeout(() => {
-	cong.bootstrap(() => { os.bootstrap(() => { maps.bootstrap(startServer) }) },
-		2000)
+	cong.bootstrap( () => { 
+		os.bootstrap( () => { 
+			maps.bootstrap( startServer ) }) },
+	2000)
 });
 // startServer();

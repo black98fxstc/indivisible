@@ -8,7 +8,7 @@ var legislatures_gql, legislatures;
 var posts_gql, posts;
 var work = new Array();
 
-var osStateDistricts;
+var osPosts = null;
 
 function graphQuery(query, variables, callback) {
     request = url.parse('https://openstates.org/graphql');
@@ -42,7 +42,7 @@ function graphQuery(query, variables, callback) {
     }).end(JSON.stringify({ query, variables }));
 }
 
-function getStateDistricts() {
+function getPosts() {
     if (!legislatures_gql) {
         fs.readFile(
             'civic-key/legislatures.gql',
@@ -52,7 +52,7 @@ function getStateDistricts() {
             (err, data) => {
                 if (err) throw err;
                 legislatures_gql = data;
-                setImmediate(getStateDistricts);
+                setImmediate(getPosts);
             }
         )
         return;
@@ -67,7 +67,7 @@ function getStateDistricts() {
             (err, data) => {
                 if (err) throw err;
                 posts_gql = data;
-                setImmediate(getStateDistricts);
+                setImmediate(getPosts);
             }
         )
         return;
@@ -114,7 +114,7 @@ function getStateDistricts() {
                         name: legislature.name,
                     })
             });
-            setImmediate(getStateDistricts);
+            setImmediate(getPosts);
         })
         return;
     }
@@ -124,7 +124,7 @@ function getStateDistricts() {
         console.log(legislature.state + " " + legislature.name);
         graphQuery(posts_gql, { id: legislature.id }, response => {
             response.data.organization.members.forEach(member => {
-                osStateDistricts.push({
+                osPosts.push({
                     id: legislature.id,
                     state: legislature.state,
                     chamber: legislature.name,
@@ -133,15 +133,15 @@ function getStateDistricts() {
                     post: member.post,
                 })
             })
-            setImmediate(getStateDistricts);
+            setImmediate(getPosts);
         });
         return;
     } else {
         let n = 0;
-        for (st in osStateDistricts)
+        for (st in  osPosts)
             ++n;
         console.log("open states " + n + " districts fetched");
-        io.writeArray("os-districts", osStateDistricts, bootstrap);
+        io.writeArray("os-districts",   osPosts, bootstrap);
     }
 }
 
@@ -150,15 +150,15 @@ var bootstrap_finished = () => {
 };
 
 function bootstrap() {
-    if (!osStateDistricts) {
-        osStateDistricts = new Array();
-        io.readArray("os-districts", osStateDistricts, (result) => {
+    if (osPosts == null) {
+        osPosts = new Array();
+        io.readArray("os-districts",    osPosts, (result) => {
             if (result > 0) {
                 console.log("open states " + result + " districts read");
                 setImmediate(bootstrap);
             }
             else
-                setImmediate(getStateDistricts);
+                setImmediate(getPosts);
         });
         return;
     }
@@ -173,5 +173,5 @@ exports.bootstrap = (callback) => {
 }
 
 exports.districts = () => {
-    return osStateDistricts;
+    return  osPosts;
 }
