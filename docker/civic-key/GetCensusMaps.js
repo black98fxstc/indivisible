@@ -219,6 +219,8 @@ function bootstrap() {
 			}
 			let stateIndex = Number.parseInt(state.attributes['STATE']);
 			stateForIndex[stateIndex] = state;
+			stateForIndex[state.attributes["STUSAB"]] = state;
+			stateForIndex[state.attributes["NAME"]] = state;
 			state.congressional = new Array();
 			state.upperHouse = new Array();
 			state.lowerHouse = new Array();
@@ -332,6 +334,10 @@ exports.fromPointToLatLng = (point) => {
 
 exports.states = () => {
 	return censusStates;
+}
+
+exports.state4 = ( index ) => {
+	return stateForIndex[ index ];
 }
 
 exports.isInside = (point, feature) => {
