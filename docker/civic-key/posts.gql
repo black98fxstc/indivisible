@@ -12,18 +12,20 @@ query posts($id: ID) {
       url
     }
     members: currentMemberships {
-      id
       person {
         id
         name
-        familyName
-        givenName
         image
-        contactDetails {
+        contact: contactDetails {
           type
           value
           note
           label
+        }
+        party: currentMemberships (classification: "party") {
+          organization {
+            name
+          }
         }
         links {
           note
@@ -37,7 +39,6 @@ query posts($id: ID) {
           scheme
           identifier
         }
-        updatedAt
       }
       post {
         id
