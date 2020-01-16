@@ -122,7 +122,7 @@ function getPosts() {
         graphQuery(posts_gql, { id: legislature.id }, response => {
             response.data.organization.members.forEach(member => {
                 subtitle = new Array();
-                lexicon = {};
+                lexicon = new Object();;
                 subtitle.push(member.post.division.name);
                 if (member.person) {
                     subtitle.push(member.person.party[0].organization.name);
