@@ -1,5 +1,4 @@
 <?php
-
 /*
  * Plugin Name: Indivisible Plugin
  * Plugin URI: https://developer.wordpress.org/plugins/the-basics/
@@ -67,12 +66,12 @@ define( 'INDIVISIBLE_TEXT_DOMAIN',  'indivisible-text-domain' );
 // add_action ( 'init', 'indv_plugin_taxonomies' );
 // add_action ( 'rest_api_init', 'indv_plugin_rest_init' );
 add_action ( 'add_meta_boxes', 'indv_plugin_twitter', 90 );
-add_action ( 'add_meta_boxes', 'indv_plugin_meta_boxes', 10, 3 );
+// add_action ( 'add_meta_boxes', 'indv_plugin_meta_boxes', 10, 3 );
 add_action ( 'manage_pages_custom_column', 'indv_plugin_column', 10, 2 );
-add_action ( 'edit_form_before_permalink', 'indv_plugin_preamble' );
+// add_action ( 'edit_form_before_permalink', 'indv_plugin_preamble' );
 add_action ( 'get_sample_permalink_html',  'indv_plugin_permalink', 10, 5 );
-add_action ( 'save_post_indv_politician',  'indv_plugin_save_post', 10, 3 );
-add_action ( 'save_post_indv_legislation', 'indv_plugin_save_post', 10, 3 );
+// add_action ( 'save_post_indv_politician',  'indv_plugin_save_post', 10, 3 );
+// add_action ( 'save_post_indv_legislation', 'indv_plugin_save_post', 10, 3 );
 // add_action ( 'pre_get_posts', 'indv_plugin_orderby', 10, 1  );
 add_action ( 'pre_get_posts', 'indv_plugin_geography_filter', 1, 1 );
 add_action ( 'admin_notices', 'indv_plugin_errors' );
@@ -164,12 +163,13 @@ function indv_plugin_post_type_filter($use_block_editor, $post_type) {
 class Indivisible_Plugin {
     public const CRON_HOOK = 'indv_plugin_cron_hook';
     public const NAMESPACE = 'indv/v1';
+    
 	private $legiscan_bill = array();
 	private $open_states_bill = array();
 	private $lexicon = array();
 	private $cache = array();
 	
-	public function register_post_types () {
+	function register_post_types () {
 	    $args = array (
 	        'label' => esc_html__ ( 'Politician', INDIVISIBLE_TEXT_DOMAIN ),
 	        'labels' => array (
@@ -190,7 +190,7 @@ class Indivisible_Plugin {
 	            'singular_name' => esc_html__ ( 'Politician', INDIVISIBLE_TEXT_DOMAIN )
 	        ),
 	        'public' => true,
-	        'description' => 'Track legislation for Indivisible',
+	        'description' => 'Track politicians for Indivisible',
 	        'exclude_from_search' => false,
 	        'publicly_queryable' => true,
 	        'show_ui' => true,
@@ -320,7 +320,7 @@ class Indivisible_Plugin {
 	    register_post_type ( INDV_ACTION, $args );
 	}
 	
-	public function register_taxonomies () {
+	function register_taxonomies () {
 	    $labels = [
 	        'name' => _x ( 'Position', 'taxonomy general name' ),
 	        'singular_name' => _x ( 'Position', 'taxonomy singular name' ),
@@ -438,95 +438,191 @@ class Indivisible_Plugin {
 	    register_taxonomy ( INDV_ISSUE, array( INDV_LEGISLATION, INDV_ACTION ), $args );
 	}
 
-	function get field ($object, $field_name, $reques, $type ) {
+	function register_meta_boxes ($post_type) {
+		switch ($post_type) {
+		case INDV_POLITICIAN:
+			add_meta_box( INDV_PLUGIN_BOX_ . 'photo',    esc_html__( 'Photo', INDIVISIBLE_TEXT_DOMAIN ),
+				array( $this, 'render_meta_box' ), get_current_screen(),'side', 'default', 'photo' );
+			add_meta_box( INDV_PLUGIN_BOX_ . 'contact',  esc_html__( 'Contact', INDIVISIBLE_TEXT_DOMAIN ),
+			array( $this, 'render_meta_box' ), get_current_screen(),'side', 'default', 'contact' );
+			add_meta_box( INDV_PLUGIN_BOX_ . 'links',    esc_html__( 'External Links', INDIVISIBLE_TEXT_DOMAIN ),
+			array( $this, 'render_meta_box' ), get_current_screen(),'normal', 'default', 'links' );
+			break;
+		case INDV_LEGISLATION:
+			add_meta_box( INDV_PLUGIN_BOX_ . 'links',    esc_html__( 'External Links', INDIVISIBLE_TEXT_DOMAIN ),
+			array( $this, 'render_meta_box' ), get_current_screen(),'normal', 'default', 'links' );
+			break;
+		case INDV_ACTION:
+			add_meta_box( INDV_PLUGIN_BOX_ . 'links',    esc_html__( 'External Links', INDIVISIBLE_TEXT_DOMAIN ),
+			array( $this, 'render_meta_box' ), get_current_screen(),'normal', 'default', 'links' );
+			break;
+		default:
+			break;
+		}
+	}
 
+	function render_meta_box ($post, $box) {
+		global $indv;
+		$post_type = $post->post_type;
+		$box_type = $box['args'];
+		wp_nonce_field( basename( __FILE__ ), INDV_PLUGIN_NONCE_ . $box_type );
+		
+		switch ($box_type) {
+
+			case 'links':
+				switch ($post_type) {
+					case INDV_LEGISLATION:
+						$post_slug = $post->post_name;
+						$parts = explode('-', strtoupper($legislation));
+						$url = 'https://legiscan.com/' . $parts[0] . '/bill/' . $parts[1] . '/' . $parts[2];
+						echo '<strong>Legiscan: </strong><a target="_blank" rel="noopener noreferrer" href=\'' . $url . '\'>' . $url . '</a><br>';
+						break;
+					default:
+						echo "Eventually <a >links back to useful places</a>";
+				}
+				break;
+				
+			case 'lexicon':
+				$lexicon = $indv->get_lexicon($post->ID);
+				foreach ($lexicon as $key => $value) 
+					echo $key . ' => ' . $value . '<br>';
+				break;
+				
+			case 'photo':
+				$photo_url = get_post_meta($post->ID, 'indv_image', true);
+				echo '<input type=\'text\' value=\'' . $photo_url . '\'>';
+				echo '<img width="100%" src="' . $photo_url . '" >';
+				break;
+			
+			case 'contact':
+				echo '<input type=\'text\ id=\'indv_plugin_box_contact\'>Contact info</inpug>';
+				break;
+				
+			default:
+				break;
+		}
+	}
+	
+	// 	function get field ($object, $field_name, $request, $type ) {
+
+// 	}
+
+	function get_meta_text ( $object, $field_name, $request ) {
+	    return get_post_meta( $object->ID, $field_name, true );
+	}
+	
+	function update_meta_text ( $value, $object, $field_name, $request ) {
+	    if ( ! $value || ! is_string( $value ) )
+	        return;
+        return update_post_meta( $object->ID, $field_name, sanitize_text_field( $value ) );
+	}
+	
+	function update_meta_url ( $value, $object, $field_name, $request ) {
+	    if ( ! $value || ! is_string( $value ) )
+	        return;
+        return update_post_meta( $object->ID, $field_name, sanitize_url( $value ) );
 	}
 	
 	function register_rest_api () {
-    	wp_enqueue_script( 'wp-api' );
+    	register_rest_field( INDV_POLITICIAN, 'indv_id', array(
+    	    'get_callback'    => array( $this, 'get_meta_text' ),
+    	    'update_callback' => array( $this, 'update_meta_text' ),
+    	    'schema'          => array(
+    	        'description' => __( 'Indivisible Identifier', INDIVISIBLE_TEXT_DOMAIN ),
+    	        'type'        => 'string'
+    	    ) )
+    	);
+    	register_rest_field( INDV_POLITICIAN, 'indv_image', array(
+    	    'get_callback'    => array( $this, 'get_meta_text' ),
+    	    'update_callback' => array( $this, 'update_meta_url' ),
+    	    'schema'          => array(
+    	        'description' => __( 'URL of stock image', INDIVISIBLE_TEXT_DOMAIN ),
+    	        'type'        => 'string'
+    	    ) )
+    	);
     	
-	    register_rest_field( array(INDV_POLITICIAN, INDV_LEGISLATION ), 'lexicon', array(
-	        'get_callback' => function(  $object, $field_name, $request ) {
-	        global $indv;
-	        return $indv->get_lexicon( $object[ 'id' ] );
-	        },
-	        'schema' => array(
-	            'description' => __( 'Lexicon', INDIVISIBLE_TEXT_DOMAIN ),
-	            'type'        => 'object'
-	        ) )
-	    );
+// 	    register_rest_field( array(INDV_POLITICIAN, INDV_LEGISLATION ), 'lexicon', array(
+// 	        'get_callback' => function(  $object, $field_name, $request ) {
+// 	        global $indv;
+// 	        return $indv->get_lexicon( $object[ 'id' ] );
+// 	        },
+// 	        'schema' => array(
+// 	            'description' => __( 'Lexicon', INDIVISIBLE_TEXT_DOMAIN ),
+// 	            'type'        => 'object'
+// 	        ) )
+// 	    );
 	    
-	    register_rest_field( INDV_POLITICIAN, 'photo_url', array(
-	        'get_callback' => function(  $object, $field_name, $request ) {
-	        return get_post_meta( $object[ 'id' ], INDV_PHOTO_URL, true );
-	        },
-	        'update_callback' => function( $value, $object, $field_name ) {
-	        if ( ! $value || ! is_string( $value ) )
-	            return;
-	            return update_post_meta( $object->ID, INDV_PHOTO_URL, sanitize_url( $value ) );
-	        },
-	        'schema' => array(
-	            'description' => __( 'Photo URL', INDIVISIBLE_TEXT_DOMAIN ),
-	            'type'        => 'string'
-	        ) )
-	    );
+// 	    register_rest_field( INDV_POLITICIAN, 'photo_url', array(
+// 	        'get_callback' => function(  $object, $field_name, $request ) {
+// 	        return get_post_meta( $object[ 'id' ], INDV_PHOTO_URL, true );
+// 	        },
+// 	        'update_callback' => function( $value, $object, $field_name ) {
+// 	        if ( ! $value || ! is_string( $value ) )
+// 	            return;
+// 	            return update_post_meta( $object->ID, INDV_PHOTO_URL, sanitize_url( $value ) );
+// 	        },
+// 	        'schema' => array(
+// 	            'description' => __( 'Photo URL', INDIVISIBLE_TEXT_DOMAIN ),
+// 	            'type'        => 'string'
+// 	        ) )
+// 	    );
 	    
-	    foreach (array('full_name', 'first_name', 'middle_name', 'last_name', 'roles', 'email', 'url', 'offices') as $rest_field)
-	        register_rest_field( INDV_POLITICIAN, $rest_field, array(
-	            'get_callback' => function ($object, $field_name, $request) {
-    	            global $indv;
-    	            $post_slug = $object['slug'];
-    	            $politician = strtoupper($post_slug);
-    	            if (is_national($politician)) {
-    	                $member = $indv->get_congress('members/' . $politician)[0];
-    	                if ($member && isset($member[$field_name]))
-    	                    return $member[$field_name];
-    	                    if ($field_name == 'full_name')
-    	                        return $member['first_name']
-    	                        . ($member['middle_name'] ? (' ' . $member['middle_name']) : '') . ' '
-    	                            . $member['last_name']
-    	                            . ($member['suffix'] ? (' ' . $member['suffix']) : '');
-    	            } else {
-    	                $url = OPEN_STATES_URL . 'legislators/' . $politician . '/';;
-    	                $legislator = $indv->get_json($url);
-    	                if ($legislator && isset($legislator[$field_name]))
-    	                    return $legislator[$field_name];
-    	            }
-	            },
-	            'schema' => array(
-	                'description' => __( 'Reflect Open States', INDIVISIBLE_TEXT_DOMAIN ),
-	                'type'        => 'object'
-	            )
-	        )
-	    );
+// 	    foreach (array('full_name', 'first_name', 'middle_name', 'last_name', 'roles', 'email', 'url', 'offices') as $rest_field)
+// 	        register_rest_field( INDV_POLITICIAN, $rest_field, array(
+// 	            'get_callback' => function ($object, $field_name, $request) {
+//     	            global $indv;
+//     	            $post_slug = $object['slug'];
+//     	            $politician = strtoupper($post_slug);
+//     	            if (is_national($politician)) {
+//     	                $member = $indv->get_congress('members/' . $politician)[0];
+//     	                if ($member && isset($member[$field_name]))
+//     	                    return $member[$field_name];
+//     	                    if ($field_name == 'full_name')
+//     	                        return $member['first_name']
+//     	                        . ($member['middle_name'] ? (' ' . $member['middle_name']) : '') . ' '
+//     	                            . $member['last_name']
+//     	                            . ($member['suffix'] ? (' ' . $member['suffix']) : '');
+//     	            } else {
+//     	                $url = OPEN_STATES_URL . 'legislators/' . $politician . '/';;
+//     	                $legislator = $indv->get_json($url);
+//     	                if ($legislator && isset($legislator[$field_name]))
+//     	                    return $legislator[$field_name];
+//     	            }
+// 	            },
+// 	            'schema' => array(
+// 	                'description' => __( 'Reflect Open States', INDIVISIBLE_TEXT_DOMAIN ),
+// 	                'type'        => 'object'
+// 	            )
+// 	        )
+// 	    );
 	        
-        foreach (array('calendar', 'history', 'votes') as $rest_field)
-            register_rest_field( INDV_LEGISLATION, $rest_field, array(
-                'get_callback' => function ($object, $field_name, $request) {
-                global $indv;
-                $bill = $indv->getLegiscanBill($object['id']);
-                if ($bill && isset($bill[$field_name]))
-                    return $bill[$field_name];
-                },
-                'schema' => array(
-                    'description' => __( 'Reflect Legiscan', INDIVISIBLE_TEXT_DOMAIN ),
-                    'type'        => 'object'
-                ) )
-            );
+//         foreach (array('calendar', 'history', 'votes') as $rest_field)
+//             register_rest_field( INDV_LEGISLATION, $rest_field, array(
+//                 'get_callback' => function ($object, $field_name, $request) {
+//                 global $indv;
+//                 $bill = $indv->getLegiscanBill($object['id']);
+//                 if ($bill && isset($bill[$field_name]))
+//                     return $bill[$field_name];
+//                 },
+//                 'schema' => array(
+//                     'description' => __( 'Reflect Legiscan', INDIVISIBLE_TEXT_DOMAIN ),
+//                     'type'        => 'object'
+//                 ) )
+//             );
             
-        foreach (array('sponsors', ) as $rest_field)
-            register_rest_field( INDV_LEGISLATION, $rest_field, array(
-                'get_callback' => function ($object, $field_name, $request) {
-                global $indv;
-                $bill = $indv->getOpenStatesBill($object['id']);
-                if ($bill && isset($bill[$field_name]))
-                    return $bill[$field_name];
-                },
-                'schema' => array(
-                    'description' => __( 'Reflect Open States', INDIVISIBLE_TEXT_DOMAIN ),
-                    'type'        => 'object'
-                ) )
-            );
+//         foreach (array('sponsors', ) as $rest_field)
+//             register_rest_field( INDV_LEGISLATION, $rest_field, array(
+//                 'get_callback' => function ($object, $field_name, $request) {
+//                 global $indv;
+//                 $bill = $indv->getOpenStatesBill($object['id']);
+//                 if ($bill && isset($bill[$field_name]))
+//                     return $bill[$field_name];
+//                 },
+//                 'schema' => array(
+//                     'description' => __( 'Reflect Open States', INDIVISIBLE_TEXT_DOMAIN ),
+//                     'type'        => 'object'
+//                 ) )
+//             );
             
 //             register_rest_route( 'indv/v1', '/autocomplete/politician', array(
 //                 'methods' => 'GET',
@@ -593,10 +689,10 @@ class Indivisible_Plugin {
 	    
 	    // check if the user have submitted the settings
 	    // wordpress will add the "settings-updated" $_GET parameter to the url
-	    if ( isset( $_GET['settings-updated'] ) ) {
-	        // add settings saved message with the class of "updated"
-	        add_settings_error( 'indv_messages', 'indv_message', __( 'Settings Saved', 'wporg' ), 'updated' );
-	    }
+	    // if ( isset( $_GET['settings-updated'] ) ) {
+	    //     // add settings saved message with the class of "updated"
+	    //     add_settings_error( 'indv_messages', 'indv_message', __( 'Settings Saved', 'wporg' ), 'updated' );
+	    // }
 	    
 	    // show error/update messages
 	    settings_errors( 'indv_messages' );
@@ -654,7 +750,7 @@ class Indivisible_Plugin {
 	        'description' => 'Legislatures to preload'  ) );
 	    
 	    register_setting ( 'indivisible', 'states', array (
-	        'sanitize_callback' => 'indv_plugin_sanitize',
+	        // 'sanitize_callback' => 'indv_plugin_sanitize',
 	        'description' => 'States to preload'  ) );
 	    
 	    add_settings_section (
@@ -666,7 +762,16 @@ class Indivisible_Plugin {
 	        add_settings_field(
 	            'legislatures',
 	            __( 'Legislatures', INDIVISIBLE_TEXT_DOMAIN ),
-	            'indv_plugin_legislatures_render',
+	            function () {
+	                $current = get_option ( 'legislatures' );
+	                
+	                echo '<table><tr>';
+	                echo '<td><input type="checkbox" id="indv_settings_federal" name="legislatures[federal]"' . (isset($current['federal']) ? ' checked' : '') . '>';
+	                echo '<label for="indv_settings_federal">Federal</label></td>';
+	                echo '<td><input type="checkbox" id="indv_settings_state" name="legislatures[state]"' . (isset($current['state']) ? ' checked' : '') . '>';
+	                echo '<label for="indv_settings_state">State</label></td>';
+	                echo '</tr></table>';
+	            },
 	            'indv_settings',
 	            'default'
 	            );
@@ -674,7 +779,31 @@ class Indivisible_Plugin {
 	        add_settings_field(
 	            'states',
 	            __( 'States', INDIVISIBLE_TEXT_DOMAIN ),
-	            'indv_plugin_states_render',
+	            function () {
+	                $states = [
+	                    [  'AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', ],
+	                    [  'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MD', ],
+	                    [  'ME', 'MO', 'MI', 'MN', 'MS', 'MT', 'NB', 'NC', 'ND', 'NH', ],
+	                    [  'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', ],
+	                    [  'SD', 'TN', 'TX', 'UT', 'VA', 'VT', 'WA', 'WI', 'WV', 'WY', ],
+	                    [  'AS', 'DC', 'PR', ]
+	                ];
+	                
+	                $current = get_option ( 'states' );
+	                
+	                echo '<table>';
+	                foreach ($states as $row) {
+	                    echo '<tr>';
+	                    foreach ($row as $state) {
+	                        $html = '<td width="">' . '<input type="checkbox" id="indv_settings_state_' . $state .'" name="states[' . $state . ']" ' . (isset($current[$state]) ? 'checked' : '') . '>';
+    	                    $html .= '<label for="indv_settings_state_' . $state . '">' . $state . '</label>';
+    	                    $html .= '</td>';
+    	                    echo $html;
+	                    }
+	                    echo '</tr>';
+	                }
+	                echo '</table>';
+	            },
 	            'indv_settings',
 	            'default'
 	            );
@@ -698,7 +827,7 @@ class Indivisible_Plugin {
 	        $vars[] = 'by_name';
 	        return $vars;
 	    } );
-	        
+	    
 	    add_action ( Indivisible_Plugin::CRON_HOOK, array( $this, 'cron_update' ) );
 	    if (! wp_next_scheduled ( Indivisible_Plugin::CRON_HOOK )) {
 	        wp_schedule_event ( time(), 'hourly', Indivisible_Plugin::CRON_HOOK );
@@ -725,8 +854,12 @@ class Indivisible_Plugin {
 
     	    add_action ( 'load-edit.php',     array( $this, 'add_help' ) );
 	        add_action ( 'load-post.php',     array( $this, 'add_help' ) );
-	        add_action ( 'load-post-new.php', array( $this, 'add_help' ) );
-	}
+			add_action ( 'load-post-new.php', array( $this, 'add_help' ) );
+			
+			add_action ( 'add_meta_boxes', array( $this, 'register_meta_boxes'), 10, 3 );
+
+			wp_enqueue_script( 'wp-api' );
+}
 
 	    register_activation_hook   ( __FILE__, array( $this, 'activate'   ) );
 	    register_deactivation_hook ( __FILE__, array( $this, 'deactivate' ) );
@@ -810,261 +943,47 @@ class Indivisible_Plugin {
 	}
 }
 
-class Indv_REST_Controller extends WP_REST_Controller {
-    protected $wrapped = null;
-    protected $post_type;
-    
-    /**
-     * Registers the routes for the objects of the controller.
-     *
-     * @since 4.7.0
-     */
-    public function register_routes() {
-        $this->wrapped->register_routes();
-        
-        register_rest_route(
-            $this->namespace,
-            '/' . $this->wrapped->rest_base,
-            array(
-                array(
-                    'methods'             => WP_REST_Server::READABLE,
-                    'callback'            => array( $this, 'get_items' ),
-                    'permission_callback' => array( $this, 'get_items_permissions_check' ),
-                    'args'                => $this->get_collection_params(),
-                ),
-                array(
-                    'methods'             => WP_REST_Server::CREATABLE,
-                    'callback'            => array( $this, 'create_item' ),
-                    'permission_callback' => array( $this, 'create_item_permissions_check' ),
-                    'args'                => $this->get_endpoint_args_for_item_schema( WP_REST_Server::CREATABLE ),
-                ),
-                'schema' => array( $this, 'get_public_item_schema' ),
-            )
-        );
-    }
-    
-    /**
-     * Checks if a given request has access to get items.
-     *
-     * @since 4.7.0
-     *
-     * @param WP_REST_Request $request Full data about the request.
-     * @return WP_Error|bool True if the request has read access, WP_Error object otherwise.
-     */
-    public function get_items_permissions_check( $request ) {
-        if ( $request->get_param('lng') != null && $request->get_param('lat') != null )
-            return true;
-        
-        return $this->wrapped->get_items_permissions_check( $request );
-    }
-    
-    /**
-     * Retrieves a collection of items.
-     *
-     * @since 4.7.0
-     *
-     * @param WP_REST_Request $request Full data about the request.
-     * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
-     */
-public function get_items( $request ) {
-//     $query = '
-// query politician($id: ID) {
-//   person(id: $id) {
-//     id
-//     name
-//     familyName
-//     givenName
-//     image
-//     updatedAt
-//     identifiers {
-//       identifier
-//       scheme
-//     }
-//     links {
-//       note
-//       url
-//     }
-//     sources {
-//       note
-//       url
-//     }
-//     contactDetails {
-//       type
-//       value
-//       note
-//       label
-//     }
-//   }
-// }
-// ';
-    if ( $request->get_param('lng') != null && $request->get_param('lat') != null ) {
-        $url = CIVIC_KEY_URL . 'location-search';
-        $url = $url . '?lng=' . $request->get_param('lng');
-        $url = $url . '&lat=' . $request->get_param('lat');
-        $response = wp_remote_get( $url );
-        $response = rest_ensure_response($response);
-        if (is_wp_error($response))
-            return $response;
-        $json = json_decode($response->get_data()['body']);
-        $politicians = $json->politicians;
-        $results = array();
-        foreach ($politicians as $politician) {
-            if (!(substr($politician, 0, 4 ) == 'ocd-'))
-                continue;
-            $query = file_get_contents(plugin_dir_path(__FILE__) . 'graphql/politician-by-id.gql');
-            $vars = array( 'id' => $politician );
-            $body = array( 'query' =>preg_replace('/\s+/', ' ', $query), 'variables' => $vars);
-            $body = json_encode($body);
-            $args = array(
-                'headers' => array(
-                    'Content-Type' => 'application/json',
-                    'Accept' => 'application/json',
-                    'X-API-KEY' => '8d20b2a8-01b5-46b1-be6b-108e0fd2b852'
-                ),
-                'body' => $body,
-            );
-            $response = wp_remote_post('http://openstates.org/graphql/', $args );
-            if (is_wp_error($response))
-                return $response;
-            $json = json_decode($response['body']);
-            $results[] = $json->data;
-        }
-        return $results;
-    }
-    return $this->wrapped->get_items( $request );
-}
-    
-    /**
-     * Checks if a given request has access to get a specific item.
-     *
-     * @since 4.7.0
-     *
-     * @param WP_REST_Request $request Full data about the request.
-     * @return WP_Error|bool True if the request has read access for the item, WP_Error object otherwise.
-     */
-    public function get_item_permissions_check( $request ) {
-        return $this->wrapped->get_item_permissions_check( $request );
-    }
-    
-    /**
-     * Retrieves one item from the collection.
-     *
-     * @since 4.7.0
-     *
-     * @param WP_REST_Request $request Full data about the request.
-     * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
-     */
-    public function get_item( $request ) {
-        return $this->wrapped->get_item( $request );
-    }
-    
-    /**
-     * Checks if a given request has access to create items.
-     *
-     * @since 4.7.0
-     *
-     * @param WP_REST_Request $request Full data about the request.
-     * @return WP_Error|bool True if the request has access to create items, WP_Error object otherwise.
-     */
-    public function create_item_permissions_check( $request ) {
-        return $this->wrapped->create_item_permissions_check( $request );
-    }
-    
-    /**
-     * Creates one item from the collection.
-     *
-     * @since 4.7.0
-     *
-     * @param WP_REST_Request $request Full data about the request.
-     * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
-     */
-    public function create_item( $request ) {
-        return $this->wrapped->create_item( $request );
-    }
-    
-    /**
-     * Checks if a given request has access to update a specific item.
-     *
-     * @since 4.7.0
-     *
-     * @param WP_REST_Request $request Full data about the request.
-     * @return WP_Error|bool True if the request has access to update the item, WP_Error object otherwise.
-     */
-    public function update_item_permissions_check( $request ) {
-        return $this->wrapped->update_item_permissions_check( $request );
-    }
-    
-    /**
-     * Updates one item from the collection.
-     *
-     * @since 4.7.0
-     *
-     * @param WP_REST_Request $request Full data about the request.
-     * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
-     */
-    public function update_item( $request ) {
-        return $this->wrapped->update_item( $request );
-    }
-    
-    /**
-     * Checks if a given request has access to delete a specific item.
-     *
-     * @since 4.7.0
-     *
-     * @param WP_REST_Request $request Full data about the request.
-     * @return WP_Error|bool True if the request has access to delete the item, WP_Error object otherwise.
-     */
-    public function delete_item_permissions_check( $request ) {
-        return $this->wrapped->delete_item_permissions_check( $request );
-    }
-    
-    /**
-     * Deletes one item from the collection.
-     *
-     * @since 4.7.0
-     *
-     * @param WP_REST_Request $request Full data about the request.
-     * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
-     */
-    public function delete_item( $request ) {
-        return $this->wrapped->delete_item( $request );
-    }
-    
-    /**
-     * Prepares one item for create or update operation.
-     *
-     * @since 4.7.0
-     *
-     * @param WP_REST_Request $request Request object.
-     * @return WP_Error|object The prepared item, or WP_Error object on failure.
-     */
-    protected function prepare_item_for_database( $request ) {
-        return $this->wrapped->prepare_item_for_database( $request );
-    }
-    
-    /**
-     * Prepares the item for the REST response.
-     *
-     * @since 4.7.0
-     *
-     * @param mixed           $item    WordPress representation of the item.
-     * @param WP_REST_Request $request Request object.
-     * @return WP_Error|WP_REST_Response Response object on success, or WP_Error object on failure.
-     */
-    public function prepare_item_for_response( $item, $request ) {
-        return $this->wrapped->prepare_item_for_response( $request );
-    }
-    
-    /**
-     * Retrieves the item's schema, conforming to JSON Schema.
-     *
-     * @since 4.7.0
-     *
-     * @return array Item schema data.
-     */
-    public function get_item_schema() {
-        return $this->wrapped->get_item_schema();
-    }
+class Indv_REST_Controller extends WP_REST_Posts_Controller {
+	public function get_items( $request ) {
+		if ( $request->get_param('lng') != null && $request->get_param('lat') != null ) {
+			$url = CIVIC_KEY_URL . 'location-search';
+			$url = $url . '?lng=' . $request->get_param('lng');
+			$url = $url . '&lat=' . $request->get_param('lat');
+			$response = wp_remote_get( $url );
+			$response = rest_ensure_response($response);
+			if (is_wp_error($response))
+				return $response;
+			$json = json_decode($response->get_data()['body']);
+			$politicians = $json->politicians;
+			$results = array();
+			foreach ($politicians as $politician) {
+				if (!(substr($politician, 0, 4 ) == 'ocd-'))
+					continue;
+				$query = file_get_contents(plugin_dir_path(__FILE__) . 'graphql/politician-by-id.gql');
+				$vars = array( 'id' => $politician );
+				$body = array( 'query' =>preg_replace('/\s+/', ' ', $query), 'variables' => $vars);
+				$body = json_encode($body);
+				$args = array(
+					'headers' => array(
+						'Content-Type' => 'application/json',
+						'Accept' => 'application/json',
+						'X-API-KEY' => '8d20b2a8-01b5-46b1-be6b-108e0fd2b852'
+					),
+					'body' => $body,
+				);
+				$response = wp_remote_post('http://openstates.org/graphql/', $args );
+				if (is_wp_error($response))
+					return $response;
+				$json = json_decode($response['body']);
+				$results[] = $json->data;
+			}
+			return $results;
+		} elseif ($request->get_param('indv-id') != null) {
+
+		}
+
+		return parent::get_items( $request );
+	}
     
     /**
      * Retrieves the query params for the collections.
@@ -1092,8 +1011,8 @@ public function get_items( $request ) {
                     'minimum'     => -90.0,
                     'maximum'     =>  90.0,
                 );
-                $query_params['ocd-id'] = array(
-                    'description' => __( 'Open Civic Data Identifier' ),
+                $query_params['indv-id'] = array(
+                    'description' => __( 'Indivisible Identifier' ),
                     'type'        => 'string',
                     'sanatize_callback' => 'sanatize_text_field',
                 );
@@ -1101,49 +1020,8 @@ public function get_items( $request ) {
 
         return $query_params;
     }
-    
-    /**
-     * Retrieves the magical context param.
-     *
-     * Ensures consistent descriptions between endpoints, and populates enum from schema.
-     *
-     * @since 4.7.0
-     *
-     * @param array $args Optional. Additional arguments for context parameter. Default empty array.
-     * @return array Context parameter details.
-     */
-    public function get_context_param( $args = array() ) {
-        return $this->wrapped->get_context_param( $args );
-    }
-    
-    /**
-     * Adds the values from additional fields to a data object.
-     *
-     * @since 4.7.0
-     *
-     * @param array           $object  Data object.
-     * @param WP_REST_Request $request Full details about the request.
-     * @return array Modified data object with additional fields.
-     */
-    protected function add_additional_fields_to_object( $object, $request ) {
-        return $this->wrapped->add_additional_fields_to_object( $object, $request );
-    }
-
-    /**
-     * Constructor.
-     *
-     * @since 4.7.0
-     *       
-     * @param string $post_type
-     *            Post type.
-     */
-    public function __construct($post_type)
-    {
-        $this->wrapped = new WP_REST_Posts_Controller($post_type);
-        $this->namespace = Indivisible_Plugin::NAMESPACE;
-        $this->post_type = $post_type;
-    }
 }
+
 
 global $indv;
 $indv = new Indivisible_Plugin();
@@ -2532,88 +2410,88 @@ function indv_plugin_add_politician( $id, $user_id, $full_name, $lexicon, $photo
         update_post_meta($post_id, INDV_PHOTO_URL, $photo_url);
 }
 
-function indv_plugin_sanitize($input) {
-	global $indv;
+// function indv_plugin_sanitize($input) {
+// 	global $indv;
 	
-	$legislatures = get_option('legislatures');
-	$states = get_option('states');
-	$count = 0;
-	$now = time();
+// 	$legislatures = get_option('legislatures');
+// 	$states = get_option('states');
+// 	$count = 0;
+// 	$now = time();
 	
-	if (isset($legislatures['national'])) {
-	    $members = array();
-	    $senators = $indv->get_congress(CONGRESS_CURRENT . '/senate/members')[0]['members'];
-	    $representatives = $indv->get_congress(CONGRESS_CURRENT . '/house/members')[0]['members'];
+// 	if (isset($legislatures['national'])) {
+// 	    $members = array();
+// 	    $senators = $indv->get_congress(CONGRESS_CURRENT . '/senate/members')[0]['members'];
+// 	    $representatives = $indv->get_congress(CONGRESS_CURRENT . '/house/members')[0]['members'];
 	    
-	    foreach ($input as $state => $on) {
-			foreach ($senators as $member)
-				if ($member['state'] == $state)
-					$members[] = $member;
-			foreach ($representatives as $member)
-				if ($member['state'] == $state)
-					$members[] = $member;
-	    }	
-		foreach ($members as $member) {
-			$role = $member['roles'][0];
-			$politician = $member['id'];
-			$lexicon = array (
-					INDV_LEXICON_BIOGUIDE_ID => $politician,
-			);
-			if (isset($member['votesmart_id']))
-				$lexicon[INDV_LEXICON_VOTE_SMART] = $member['votesmart_id'];
-			if (isset($member['crp_id']))
-				$lexicon[INDV_LEXICON_OPEN_SECRETS] = $member['crp_id'];
-			if (isset($member['ballotpedia']))
-				$lexicon[INDV_LEXICON_BALLOTPEDIA] = $member['ballotpedia'];
-			if (isset($member['govtrack_id']))
-				$lexicon[INDV_LEXICON_GOVTRACK] = $member['govtrack_id'];
-			if (isset($role['fec_candidate_id']))
-				$lexicon[INDV_LEXICON_FEC_ID] = $role['fec_candidate_id'];
+// 	    foreach ($input as $state => $on) {
+// 			foreach ($senators as $member)
+// 				if ($member['state'] == $state)
+// 					$members[] = $member;
+// 			foreach ($representatives as $member)
+// 				if ($member['state'] == $state)
+// 					$members[] = $member;
+// 	    }	
+// 		foreach ($members as $member) {
+// 			$role = $member['roles'][0];
+// 			$politician = $member['id'];
+// 			$lexicon = array (
+// 					INDV_LEXICON_BIOGUIDE_ID => $politician,
+// 			);
+// 			if (isset($member['votesmart_id']))
+// 				$lexicon[INDV_LEXICON_VOTE_SMART] = $member['votesmart_id'];
+// 			if (isset($member['crp_id']))
+// 				$lexicon[INDV_LEXICON_OPEN_SECRETS] = $member['crp_id'];
+// 			if (isset($member['ballotpedia']))
+// 				$lexicon[INDV_LEXICON_BALLOTPEDIA] = $member['ballotpedia'];
+// 			if (isset($member['govtrack_id']))
+// 				$lexicon[INDV_LEXICON_GOVTRACK] = $member['govtrack_id'];
+// 			if (isset($role['fec_candidate_id']))
+// 				$lexicon[INDV_LEXICON_FEC_ID] = $role['fec_candidate_id'];
 				
-			$photo_url = PUBLIC_STATIC_URL . 'theunitedstates/images/congress/450x550/' . $politician . '.jpg';
-			$full_name = sanitize_text_field( $member['last_name'] . ', ' . $member['first_name'] . ' ' . $member['middle_name'] );
+// 			$photo_url = PUBLIC_STATIC_URL . 'theunitedstates/images/congress/450x550/' . $politician . '.jpg';
+// 			$full_name = sanitize_text_field( $member['last_name'] . ', ' . $member['first_name'] . ' ' . $member['middle_name'] );
             
-            wp_schedule_single_event( $now + ++$count * 60, 'indv_plugin_politician_add', array(
-                $politician,
-                get_current_user_id(),
-                $full_name,
-                $lexicon,
-                $photo_url
-            ));
-		}
-	}
+//             wp_schedule_single_event( $now + ++$count * 60, 'indv_plugin_politician_add', array(
+//                 $politician,
+//                 get_current_user_id(),
+//                 $full_name,
+//                 $lexicon,
+//                 $photo_url
+//             ));
+// 		}
+// 	}
 		
-	if (isset($legislatures['state'])) {
-	    foreach ($input as $state => $on) {
-	        $members = $indv->get_open_states('legislators/?state=' . $state);
-			foreach ($members as $member) {
-				$politician = $member['id'];
-				$lexicon = array (
-						INDV_LEXICON_OPEN_STATES => $politician,
-				);
-				if (isset($member['votesmart_id']))
-					$lexicon[INDV_LEXICON_VOTE_SMART] = $member['votesmart_id'];
-				if (isset($member['opensecrets_id']))
-					$lexicon[INDV_LEXICON_OPEN_SECRETS] = $member['opensecrets_id'];
-				if (isset($member['ballotpedia']))
-					$lexicon[INDV_LEXICON_BALLOTPEDIA] = $member['ballotpedia'];
+// 	if (isset($legislatures['state'])) {
+// 	    foreach ($input as $state => $on) {
+// 	        $members = $indv->get_open_states('legislators/?state=' . $state);
+// 			foreach ($members as $member) {
+// 				$politician = $member['id'];
+// 				$lexicon = array (
+// 						INDV_LEXICON_OPEN_STATES => $politician,
+// 				);
+// 				if (isset($member['votesmart_id']))
+// 					$lexicon[INDV_LEXICON_VOTE_SMART] = $member['votesmart_id'];
+// 				if (isset($member['opensecrets_id']))
+// 					$lexicon[INDV_LEXICON_OPEN_SECRETS] = $member['opensecrets_id'];
+// 				if (isset($member['ballotpedia']))
+// 					$lexicon[INDV_LEXICON_BALLOTPEDIA] = $member['ballotpedia'];
 							
-				$photo_url = sanitize_url($member['photo_url']);
-				$full_name = sanitize_text_field( $member['last_name'] . ', ' . $member['first_name'] . ' ' . $member['middle_name'] );
+// 				$photo_url = sanitize_url($member['photo_url']);
+// 				$full_name = sanitize_text_field( $member['last_name'] . ', ' . $member['first_name'] . ' ' . $member['middle_name'] );
 				
-				wp_schedule_single_event($now + ++$$count * 60, 'indv_plugin_politician_add', array(
-				    $politician,
-				    get_current_user_id(),
-				    $full_name,
-				    $lexicon,
-				    $photo_url
-				));
-			}
-		}
-	}
+// 				wp_schedule_single_event($now + ++$$count * 60, 'indv_plugin_politician_add', array(
+// 				    $politician,
+// 				    get_current_user_id(),
+// 				    $full_name,
+// 				    $lexicon,
+// 				    $photo_url
+// 				));
+// 			}
+// 		}
+// 	}
 	
-	return $input;
-}
+// 	return $input;
+// }
 
 // function indv_plugin_menu() {
 // 	add_options_page ( 'Indivisible', 'Indivisible', 'manage_options', 'indv_settings', 'indv_plugin_render_settings' );
