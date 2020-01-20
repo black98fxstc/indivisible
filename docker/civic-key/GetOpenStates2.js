@@ -5,7 +5,7 @@ const io = require('./IO');
 const keys = require('./KEYS.js')
 
 var legislatures_gql, legislatures, posts_gql;
-var posts, maps;
+var posts, maps, work = new Array();
 
 function graphQuery(query, variables, callback) {
     request = url.parse('https://openstates.org/graphql');
