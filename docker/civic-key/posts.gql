@@ -27,6 +27,14 @@ query posts($id: ID) {
             name
           }
         }
+        committees: currentMemberships(classification: "committee") {
+          organization {
+            name
+            parent {
+              name
+            }
+          }
+        }
         links {
           note
           url

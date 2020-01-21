@@ -75,7 +75,16 @@ function getDetails( member ) {
                         lexicon[key] = detail[key];
                 })
 
+                let committees = new Array();
+                detail.roles[0].committees.forEach( committee =>
+                    committees .push( committee.name)
+                );
+                detail.roles[0].subcommittees.forEach( committee =>
+                    committees .push( committee.name)
+                );
+
                 member.subtitle = subtitle;
+                member.committees = committees;
                 member.lexicon = lexicon;
                 setImmediate(bootstrap);
                 console.log(subtitle[0]);
@@ -253,7 +262,8 @@ function linkCongressToCensus() {
 			division_id: state.division.id,
 			links: links,
 			contact: getcontact( member ),
-			subtitle: member.subtitle,
+            subtitle: member.subtitle,
+            committees: member.committees,
 			lexicon: member.lexicon,
 		});
 	});
@@ -282,6 +292,7 @@ function linkCongressToCensus() {
 				links: links,
 				contact: getcontact( member ),
 				subtitle: member.subtitle,
+                committees: member.committees,
 				lexicon: member.lexicon,
 		});
 		else {
@@ -300,6 +311,7 @@ function linkCongressToCensus() {
 					links: links,
 					contact: getcontact( member ),
 					subtitle: member.subtitle,
+                    committees: member.committees,
 					lexicon: member.lexicon,
 				});
 			}

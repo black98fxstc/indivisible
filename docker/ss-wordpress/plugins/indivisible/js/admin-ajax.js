@@ -81,7 +81,7 @@ function indv_update($) {
                         data.politicians.forEach(politician => {
                             if (get_federal && politician.government == 'Federal' || get_state && politician.government == 'State') {
                                 ++total;
-                                let xhr = $.get( 'http://localhost/wordpress/index.php?rest_route=/' + 'wp/v2/politicians/&indv-id=' + politician.id )
+                                let xhr = $.get( indv_ajax_obj.rest_url + 'wp/v2/politicians/&indv-id=' + politician.id )
                                 .done( (data) => {
                                     if (data.length > 0) {
                                         ++done;

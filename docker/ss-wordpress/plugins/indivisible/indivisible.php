@@ -15,14 +15,14 @@ define( 'PUBLIC_STATIC_URL', 'https://static.state-strong.org/' );
 
 // define( 'OPEN_STATES_URL', "https://api.state-strong.org/open-states/" );
 // define( 'LEGISCAN_URL',    "https://api.state-strong.org/legiscan/" );
-define( 'CIVIC_KEY_URL', 'https://api.state-strong.org/civic-key/');
+// define( 'CIVIC_KEY_URL', 'https://api.state-strong.org/civic-key/');
 // define( 'STATIC_URL', 'https://static.state-strong.org/' );
 // define( 'STATIC_URL', 'http://127.0.0.1:8082/' );
-define( 'LEGISCAN_URL', "http://127.0.0.1:8084/legiscan/indv-plugin.php/" );
+// define( 'LEGISCAN_URL', "http://127.0.0.1:8084/legiscan/indv-plugin.php/" );
 // define( 'CIVIC_KEY_URL', 'http://127.0.0.1:8085/civic-key/');
 define( 'STATIC_URL', 'http://static/' );
-// define( 'LEGISCAN_URL', 'http://legiscan/legiscan/indv-plugin.php/' );
-// define( 'CIVIC_KEY_URL', 'http://civic-key:8080/civic-key/');
+define( 'LEGISCAN_URL', 'http://legiscan/legiscan/indv-plugin.php/' );
+define( 'CIVIC_KEY_URL', 'http://civic-key:8080/civic-key/');
 
 define( 'OPEN_STATES_URL', STATIC_URL . 'open-states/' );
 define( 'CONGRESS_URL', STATIC_URL . 'congress/' );
@@ -1517,33 +1517,34 @@ class Indivisible_Plugin {
 	        add_action ( 'admin_menu', function () {
 	            add_options_page ( 'Indivisible', 'Indivisible', 'manage_options', 'indv_settings', array( $this, 'render_settings' ) );
 				remove_submenu_page( 'edit.php?post_type=indv_politician', 'post-new.php?post_type=indv_politician' );
-				if (isset($_REQUEST['post_type']) && $_REQUEST['post_type'] == Indv_Post::POLITICIAN) {
-					echo '<style type="text/css"> .wrap .page-title-action { display:none; } </style>';	
-				};
-				echo '<style type="text/css"> #chamber-adder { display:none; } </style>';	
 	        } );
 			add_action ( 'admin_head', function () {
-				// if (isset($_GET['post_type']) && Indv_Post::LEGISLATION == $_GET['post_type']) {
-					echo '<style type="text/css">';
+				echo '<style type="text/css">';
+				if (isset($_REQUEST['post_type']) && $_REQUEST['post_type'] == Indv_Post::POLITICIAN) {
+					echo '.wrap .page-title-action { display:none; } ';	
+				};
+				if (isset($_REQUEST['post_type']) && $_REQUEST['post_type'] == Indv_Post::LEGISLATION) {
+					echo '#chamber-adder { display:none; } ';	
 					echo '.wp-list-table .column-id { width: 5%; }';
 					echo '.wp-list-table .column-title { width: 35%; }';
 					echo '.wp-list-table .column-author { width: 35%; }';
 					echo '.wp-list-table .column-identifier { width: 6%; }';	
 			// 		echo 'label.indv-radio .indv-radio { margin:20px; color: red; padding: 25px; }';
-					echo '.indv-admin { text-align: left;
-						padding-top: 10px;
-						// speak: none;
-						 }
-						 #indv-inactivate::before { 
-							display: inline-block;
-							font: normal 20px/1 dashicons;
-							content: "\f157";
-							margin-left: -1px;
-							padding-right: 3px;
-							vertical-align: top;
-							 }';
-					echo '</style>';
-				// }
+				}
+				echo '#chamber-adder { display: none; } ';	
+				echo '.indv-admin { text-align: left;
+					padding-top: 10px;
+					// speak: none;
+						}
+						#indv-inactivate::before { 
+						display: inline-block;
+						font: normal 20px/1 dashicons;
+						content: "\f157";
+						margin-left: -1px;
+						padding-right: 3px;
+						vertical-align: top;
+							}';
+				echo '</style>';
 			}, 10, 1 );
     	    add_action ( 'load-edit.php',     array( $this, 'add_help' ) );
 	        add_action ( 'load-post.php',     array( $this, 'add_help' ) );
@@ -1730,7 +1731,26 @@ class Indv_REST_Controller extends WP_REST_Posts_Controller {
 		if(isset($request["indv-id"])) {
 			$args['meta_key'] = 'indv_id';
 			$args['meta_value'] = $request["indv-id"];
-		}       
+		}
+		switch ($this->post_type) {
+			case Indv_Post::LEGISLATION:
+				if (isset($request['politician'])) {
+					$id = absint($request['politician']);
+					$chambers = get_terms( array(
+						'taxonomy' => Indv_Term::CHAMBER,
+						'object_ids' => $id,
+						'hierarchical' => false,
+						'fields' => 'tt_ids',
+					) );
+					$args['tax_query]' =>] array(
+						'taxonomy' => Indv_Term::CHAMBER,
+						'terms' => $chambers,
+						'field' => 'term_taxonomy_ids',
+						'operator' => 'IN',
+					)
+				};
+				break;
+		}
 	 
 		return $args;
 	}
@@ -2991,107 +3011,10 @@ function indv_plugin_orderby( $query ) {
 // 		) );
 // }
 
-/* function indv_plugin_subtitle ($post) {
+ function indv_plugin_subtitle ($post) {
 	global $indv;
 	return $indv->plugin_subtitle($post);
-
-	$subtitle = array();
-	
-	switch ($post->post_type) {
-		case INDV_POLITICIAN:
-			$post_slug = $post->post_name;
-			$politician = strtoupper($post_slug);
-			$url = OPEN_STATES_URL . 'metadata/';;
-			$metadata = $indv->get_json($url);
-			if (is_national($politician)) {
-				$member = $indv->get_congress('members/' . $politician)[0];
-				
-				$role = $member['roles'][0];
-				$state = 'N/A';
-				foreach ($metadata as $st)
-					if (strcasecmp($st['abbreviation'], $role['state']) == 0)
-						$state = $st['name'];
-				if ($role['chamber'] == 'Senate')
-					$subtitle[] = 'Senator for ' . $state;
-				else
-					$subtitle[] = $state . ' Congressional District ' . $role['district'];
-
-				$html = '';
-				$party = $member['current_party'];				
-				switch ($party) {
-					case 'R':
-						$html .= 'Rebpulican';
-						break;
-					case 'D':
-						$html .= 'Democratic';
-						break;
-					default:
-						$html .=  'Fix Me';
-						break;
-				}
-				$leadership = $role['leadership_role'];
-				if ($leadership)
-					$html .= ', ' . $role['leadership_role'];
-				$subtitle[] = $html;
-			} else {
-				$url = OPEN_STATES_URL . 'legislators/' . $politician . '/';;
-				$body = $indv->get_json($url);
-				
-				$roles = $body['roles'];
-				foreach ($roles as $role)
-					if ('member' == $role['type']) {
-						$url = OPEN_STATES_URL . 'metadata/' . $role['state'] . '/';;
-						$state = $indv->get_json($url);
-						$chamber = $state['chambers'][$role['chamber']]['name'];
-						$subtitle[] = $state['name'] . '&nbsp;' . $chamber . '&nbsp;District&nbsp;' . $role['district'];
-						$subtitle[] = $body['party'];
-					}
-			}
-			break;
-			
-		case INDV_LEGISLATION:
-			$post_slug = $post->post_name;
-			$legislation = implode(' ',explode('-', strtoupper($post_slug)));
-			if ($post_slug) {
-				$html = $legislation;
-				$lexicon = $indv->get_lexicon($post->ID);
-				$bill = $indv->getLegiscanBill($post->ID);
-				
-				$sponsors = $bill['sponsors'];
-				switch (count($sponsors)) {
-					case 1:
-						$html .= ' ' . $sponsors[0]['name'];
-						break;
-					case 2:
-						$html .= ' ' . $sponsors[0]['name'];
-						$html .= ', ' . $sponsors[1]['name'];
-						break;
-					case 3:
-						$html .= ' ' . $sponsors[0]['name'];
-						$html .= ', ' . $sponsors[1]['name'];
-						$html .= ', ' . $sponsors[2]['name'];
-						break;
-					default:
-						$html .= ' ' . $sponsors[0]['name'];
-						$html .= ', ' . $sponsors[1]['name'];
-						$html .= ' and ' . (count($sponsors) - 2) . ' others';
-						break;
-				}
-				$subtitle[] = $html;
-				
-				
-				$last_event = end($bill['history']);
-				if ($last_event)
-					$subtitle[] = $last_event['date'] . ' ' . $last_event['action'];
-			}
-			
-		default:
-			break;
-	}
-	
-	return $subtitle;
 }
- */
 
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////

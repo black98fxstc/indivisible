@@ -123,9 +123,13 @@ function getPosts() {
             response.data.organization.members.forEach(member => {
                 subtitle = new Array();
                 lexicon = new Object();;
+                committees = new Array();
                 subtitle.push(member.post.division.name);
                 if (member.person) {
                     subtitle.push(member.person.party[0].organization.name);
+
+                    member.person.committees.forEach( committee => 
+                        committees.push(committee.organization.name) );
 
                     member.person.identifiers.forEach(mapping => {
                         if (!lexicon[mapping.scheme])
@@ -144,6 +148,7 @@ function getPosts() {
                     person: member.person,
                     post: member.post,
                     subtitle: subtitle,
+                    committees: committees,
                     lexicon: lexicon,
                 })
             })
@@ -360,7 +365,8 @@ function linkOpenStates2ToCensus( ) {
 				image: district.person.image,
 				name: district.person.name,
 				links: district.person.links,
-				contact: district.person.contact,
+                contact: district.person.contact,
+                committees: district.committees,
 				subtitle: district.subtitle,
 				lexicon: district.lexicon,
 			})
