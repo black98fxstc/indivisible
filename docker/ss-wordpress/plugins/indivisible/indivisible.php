@@ -140,7 +140,7 @@ class Indivisible_Plugin {
 	        'capability_type' => 'post',
 	        'hierarchical' => true,
 	        'has_archive' => true,
-	        'query_var' => 'politician',
+	        'query_var' => 'politicians',
 	        'can_export' => false,
 	        'supports' => array (
 	            'title',
@@ -526,8 +526,7 @@ class Indivisible_Plugin {
 						$query = new WP_Query(array(
 							'fields' => 'all',
 							'post_type' => Indv_Post::ACTION,
-							'meta_key'  => Indv_Field::POLITICIANS,
-							'meta_value' => $post->ID,
+							'politician' => $post->ID,
 						));
 						if ($query->found_posts)
 							foreach($query->posts as $action)
@@ -543,8 +542,7 @@ class Indivisible_Plugin {
 						$query = new WP_Query(array(
 							'fields' => 'all',
 							'post_type' => Indv_Post::ACTION,
-							'meta_key'  => Indv_Field::LEGISLATION,
-							'meat_key'  => $post->ID,
+							'politician' => $post->ID,
 						));
 						if ($query->found_posts)
 							foreach($query->posts as $legislation)
@@ -1081,7 +1079,7 @@ class Indivisible_Plugin {
 				// ));
 				// wp_set_post_terms( $post_id, $leg['id'], Indv_Term::CHAMBER, true );
 
-				$title = $post->title;
+				$title = $post->post_title;
 				if (!$title) {
 					wp_redirect(get_admin_url() . 'edit.php?post_type=' . Indv_Post::POLITICIAN);
 					exit();
@@ -1397,6 +1395,105 @@ class Indivisible_Plugin {
 		// }
 	}
 
+	function query_filter( $query ) {
+		if($query->get("indv-id")) {
+			$query->set( 'meta_key', 'indv_id' );
+			$query->set( 'meta_value', $query->get('indv-id') );
+		}
+		$post_type = $query->get('post_type');
+		switch ($post_type) {
+			case Indv_Post::POLITICIAN:
+				if (isset($request['legislation'])) {
+					$id = absint($request['legislation']);
+					$bills = get_terms( array(
+						'taxonomy' => Indv_Term::CHAMBER,
+						'object_ids' => $id,
+						'hierarchical' => false,
+						'fields' => 'tt_ids',
+					) );
+					$args['tax_query'] = array( array(
+						'taxonomy' => Indv_Term::CHAMBER,
+						'terms' => $bills,
+						'field' => 'term_taxonomy_ids',
+						'operator' => 'IN',
+					) );
+				};
+				break;
+			case Indv_Post::LEGISLATION:
+				$politician = $query->get( 'politician' );
+				if ($politician) {
+					$politician = absint($politician);
+					$chambers = get_terms( array(
+						'taxonomy' => Indv_Term::CHAMBER,
+						'object_ids' => $politician,
+						'hierarchical' => false,
+						'fields' => 'tt_ids',
+					) );
+					$query->set( 'tax_query', array( array(
+						'taxonomy' => Indv_Term::CHAMBER,
+						'terms' => $chambers,
+						'field' => 'term_taxonomy_ids',
+						'include_children' => false,
+						'operator' => 'IN',
+					) ) );
+				};
+				break;
+			case Indv_Post::ACTION:
+				$politician = $query->get( 'politician' );
+				if ($politician) {
+					$politician = absint($politician);
+					$chambers = get_terms( array(
+						'taxonomy' => Indv_Term::CHAMBER,
+						'object_ids' => $politician,
+						'hierarchical' => false,
+						'fields' => 'tt_ids',
+					) );
+					$subquery = new WP_Query( array(
+						'post_type' => Indv_Post::LEGISLATION,
+						'fields' => 'ids',
+						'politician' => $politician,
+						// 'tax_query' => array( array(
+						// 	'taxonomy' => Indv_Term::CHAMBER,
+						// 	'terms' => $chambers,
+						// 	'field' => 'term_taxonomy_ids',
+						// 	'include_children' => false,
+						// 	'operator' => 'IN',
+					) );
+					$legislation = $subquery->posts;
+					if (empty($legislation))
+						$query->set( 'meta_query', array(
+							 array (
+								'key' => Indv_Field::POLITICIANS,
+								'value' => $politician, ),
+					) );
+					else
+						$query->set( 'meta_query', array(
+							'relation' => 'OR',
+							array(
+								'key' => Indv_Field::LEGISLATION,
+								'value' => $legislation,
+								'type' => 'UNSIGNED',
+								'compare' => 'IN', ),
+							 array (
+								'key' => Indv_Field::POLITICIANS,
+								'value' => $politician, ),
+					) );
+				};
+				$legislation = $query->get('bill');
+				if ($legislation) {
+					$args['meta_query'] = array( array(
+						'key' => Indv_Field::LEGISLATION,
+						'value' => array( absint( $legislation ) ),
+						'type' => 'UNSIGNED',
+						'compare' => 'IN',
+					) );
+				};
+				break;
+
+			default:
+		}
+	}
+
 	public function ajax_handler () {
 	    check_ajax_referer('indv_action');
 	    echo "sonething";
@@ -1500,12 +1597,14 @@ class Indivisible_Plugin {
 		} );
 
 
-		// add_filter ( 'query_vars', function ($vars) {
-	    //     $vars[] = 'lng';
-	    //     $vars[] = 'lat';
-	    //     $vars[] = 'by_name';
-	    //     return $vars;
-	    // } );
+		add_filter ( 'query_vars', function ($vars) {
+	        $vars[] = 'lng';
+	        $vars[] = 'lat';
+			$vars[] = 'politician';
+			$vars[] = 'bill';
+	        return $vars;
+	    } );
+		add_action ( 'pre_get_posts', array( $this, 'query_filter' ), 10, 1 );
 	    
 	    add_action ( 'indv_plugin_chron_hook', array( $this, 'cron_update' ) );
 	    if (! wp_next_scheduled ( 'indv_plugin_chron_hook' )) {
@@ -1733,6 +1832,23 @@ class Indv_REST_Controller extends WP_REST_Posts_Controller {
 			$args['meta_value'] = $request["indv-id"];
 		}
 		switch ($this->post_type) {
+			case Indv_Post::POLITICIAN:
+				if (isset($request['bill'])) {
+					$id = absint($request['bill']);
+					$bills = get_terms( array(
+						'taxonomy' => Indv_Term::CHAMBER,
+						'object_ids' => $id,
+						'hierarchical' => false,
+						'fields' => 'tt_ids',
+					) );
+					$args['tax_query'] = array( array(
+						'taxonomy' => Indv_Term::CHAMBER,
+						'terms' => $bills,
+						'field' => 'term_taxonomy_ids',
+						'operator' => 'IN',
+					) );
+				};
+				break;
 			case Indv_Post::LEGISLATION:
 				if (isset($request['politician'])) {
 					$id = absint($request['politician']);
@@ -1742,15 +1858,62 @@ class Indv_REST_Controller extends WP_REST_Posts_Controller {
 						'hierarchical' => false,
 						'fields' => 'tt_ids',
 					) );
-					$args['tax_query]' =>] array(
+					$args['tax_query'] = array( array(
 						'taxonomy' => Indv_Term::CHAMBER,
 						'terms' => $chambers,
 						'field' => 'term_taxonomy_ids',
+						'include_children' => false,
 						'operator' => 'IN',
-					)
+					) );
 				};
 				break;
-		}
+			case Indv_Post::ACTION:
+				if (isset($request['politician'])) {
+					$politician = absint($request['politician']);
+					$chambers = get_terms( array(
+						'taxonomy' => Indv_Term::CHAMBER,
+						'object_ids' => $politician,
+						'hierarchical' => false,
+						'fields' => 'tt_ids',
+					) );
+					$query = new WP_Query( array(
+						'post_type' => Indv_Post::LEGISLATION,
+						'fields' => 'ids',
+						'tax_query' => array( array(
+							'taxonomy' => Indv_Term::CHAMBER,
+							'terms' => $chambers,
+							'field' => 'term_taxonomy_ids',
+							'include_children' => false,
+							'operator' => 'IN',
+					) ) ) );
+					$legislation = $query->posts;
+					if (empty($legislation))
+							$legislation = array( 0 );
+					$args['meta_query'] = array( 
+						'relation' => 'OR',
+						array(
+							'key' => Indv_Field::LEGISLATION,
+							'value' => $legislation,
+							'type' => 'UNSIGNED',
+							'compare' => 'IN', ),
+						array(
+							'key' => Indv_Field::POLITICIANS,
+							'value' => $politician,
+					) );
+				};
+				if (isset($request['bill'])) {
+					$legislation = absint($request['bill']);
+					// $args['meta_key'] = Indv_Field::LEGISLATION;
+					// $args['meta_value'] = $legislation;
+					$args['meta_query'] = array( array(
+						'key' => 'bill',
+						'value' => array( $legislation ),
+						'type' => 'UNSIGNED',
+						'compare' => 'IN',
+					) );
+				};
+				break;
+			}
 	 
 		return $args;
 	}
@@ -1853,8 +2016,57 @@ class Indv_REST_Controller extends WP_REST_Posts_Controller {
                     'description' => __( 'Indivisible Identifier' ),
                     'type'        => 'string',
                     'sanatize_callback' => 'sanatize_text_field',
-                );
-        }
+				);
+				break;
+	
+			case Indv_Post::LEGISLATION:
+				$query_params['politician'] = array(
+					'description' => __( 'Politicians voting on this bill' ),
+					'type'              => 'integer',
+					'default'           => 1,
+					'sanitize_callback' => 'absint',
+				);
+				break;
+
+			case Indv_Post::ACTION:
+				$query_params['politician'] = array(
+					'description' => __( 'Politicians voting on this bill' ),
+					'oneOf' => array(
+						array(
+							'type'              => 'integer',
+							'minimum'           => 1,
+							'sanitize_callback' => 'absint',
+						),
+						array(
+							'typ' => 'array',
+							'items' => array( 
+								'type' => 'integer',
+								'minimum' => 1,
+								'sanitize_callback' => 'absint',
+							 ),
+						),
+					),
+				);
+				$query_params['bill'] = array(
+					'description' => __( 'Politicians voting on this bill' ),
+					'oneOf' => array(
+						array(
+							'type'              => 'integer',
+							'minimum'           => 1,
+							'sanitize_callback' => 'absint',
+						),
+						array(
+							'typ' => 'array',
+							'items' => array( 
+								'type' => 'integer',
+								'minimum' => 1,
+								'sanitize_callback' => 'absint',
+							 ),
+						),
+					),
+				);
+				break;
+			}
 
         return $query_params;
     }
@@ -3462,6 +3674,65 @@ function indv_plugin_stock_photo ($post) {
 		return get_post_meta($post->ID, Indv_Field::IMAGE, true);
 	return false;
 }
+
+function indv_plugin_get_actions ($post) {
+	switch ($post->post_type) {
+		case Indv_Post::POLITICIAN :
+			$politician = $post->ID;
+			$query = new WP_Query( array(
+				'post_type' => Indv_Post::LEGISLATION,
+				'fields' => 'ids',
+				'politician' => $politician,
+			) );
+			if ($query->found_posts) {
+				$legislation = $query->posts;
+				$query = new WP_Query( array(
+					'post_type' => Indv_Post::ACTION,
+					'fields' => 'all',
+					'meta_query' => array(
+						'relation' => 'OR',
+						array (
+							'key' => Indv_Field::LEGISLATION,
+							'value' => $legislation,
+							'type' => 'UNSIGNED',
+							'compare' => 'IN', ),
+						array (
+							'key' => Indv_Field::POLITICIANS,
+							'value' => $politician, ),
+				) ) );
+			} else {
+				$query = new WP_Query( array(
+					'post_type' => Indv_Post::ACTION,
+					'fields' => 'all',
+					'meta_query' => array(
+						array (
+							'key' => Indv_Field::POLITICIANS,
+							'value' => $politician, ),
+				) ) );
+			}
+			if ($query->found_posts)
+				return $query->posts;
+			else
+				return false;
+
+		case Indv_Post::LEGISLATION :
+			$legislation = $post->ID;
+			$query = new WP_Query( array(
+				'post_type' => Indv_Post::ACTION,
+				'fields' => 'all',
+				'meta_query' => array(
+					array (
+						'key' => Indv_Field::LEGISLATION,
+						'value' => $legislation,
+				) ) ) );
+			if ($query->found_posts)
+				return $query->posts;
+			else
+				return false;
+		}
+	return false;
+}
+
 const OS_BILL = '
 query bill($jurisdiction: String, $session: String, $bill: String) {
 	bill(jurisdiction: $jurisdiction, session: $session, identifier: $bill) {

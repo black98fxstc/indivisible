@@ -28,6 +28,10 @@ h4 {
 	}
 }
 
+.indv-action {
+	margin-left: .5rem;
+}
+
 @include breakpoint(no-mobile) {
 	.ss-item {
 	  padding-left: 2rem;
