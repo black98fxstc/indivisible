@@ -152,54 +152,88 @@ function doFrontPage(req, res, q) {
 function doLocationSearch(req, res, q) {
 	let response = new Object();
 	try {
-		if (!(q && q.lat && q.lng))
-			throw new Error("Lng/Lat missing");
-		q.lat = Number.parseFloat(q.lat);
-		q.lng = Number.parseFloat(q.lng);
-		response['q'] = q;
-		if (Number.isNaN(q.lat) || Number.isNaN(q.y))
-			throw new Error("Lng/Lat undefined");
-
-		let p = maps.fromLatLngToPoint(q);
-		if (p.x > 0)				// if we happen to be the other side of
-			p.x -= 2 * Math.PI * maps.semimajorAxis;	// the date line in Alaska
-		response['p'] = p;
-
+		var civic_key;
 		let divisions = new Array();
 		let boundaries = new Array();
-		for (s in states) {
-			let state = states[s];
-			if (maps.isInside(p, state)) {
-				divisions.push(state.division);
-				boundaries.push(state.simplified);
+		
+		if (q && q.civic_key)
+			civic_key = q.civic_key;
+		else if (!(q && q.lat && q.lng))
+			throw new Error("Lng/Lat missing");
+		else {
+			q.lat = Number.parseFloat(q.lat);
+			q.lng = Number.parseFloat(q.lng);
+			if (Number.isNaN(q.lat) || Number.isNaN(q.y))
+				throw new Error("Lng/Lat undefined");
+		}
+		response['q'] = q;
 
-				for (d in state.congressional) {
-					let district = state.congressional[d];
-					if (maps.isInside(p, district)) {
-						divisions.push(district.division);
-						boundaries.push(district.simplified);
-						break;
+		if (civic_key) {
+			let buff = new Buffer.from(civic_key, 'base64');
+			true_key = JSON.parse(buff.toString('utf8'));
+			
+			let state = states[true_key[0]];
+			divisions.push(state.division);
+			boundaries.push(state.simplified);
+
+			let district = state.congressional[true_key[1]];
+			divisions.push(district.division);
+			boundaries.push(district.simplified);
+
+			district = state.upperHouse[true_key[2]];
+			divisions.push(district.division);
+			boundaries.push(district.simplified);
+
+			district = state.lowerHouse[true_key[3]];
+			divisions.push(district.division);
+			boundaries.push(district.simplified);
+		} else {
+			let p = maps.fromLatLngToPoint(q);
+			if (p.x > 0)				// if we happen to be the other side of
+				p.x -= 2 * Math.PI * maps.semimajorAxis;	// the date line in Alaska
+			response['p'] = p;
+
+			let true_key = new Array();
+			for (s in states) {
+				let state = states[s];
+				if (maps.isInside(p, state)) {
+					true_key.push(s);
+					divisions.push(state.division);
+					boundaries.push(state.simplified);
+
+					for (d in state.congressional) {
+						let district = state.congressional[d];
+						if (maps.isInside(p, district)) {
+							true_key.push(d);
+							divisions.push(district.division);
+							boundaries.push(district.simplified);
+							break;
+						}
 					}
-				}
 
-				for (d in state.upperHouse) {
-					let district = state.upperHouse[d];
-					if (maps.isInside(p, district)) {
-						divisions.push(district.division);
-						boundaries.push(district.simplified);
+					for (d in state.upperHouse) {
+						let district = state.upperHouse[d];
+						if (maps.isInside(p, district)) {
+							true_key.push(d);
+							divisions.push(district.division);
+							boundaries.push(district.simplified);
+						}
 					}
-				}
 
-				for (d in state.lowerHouse) {
-					let district = state.lowerHouse[d];
-					if (maps.isInside(p, district)) {
-						divisions.push(district.division);
-						boundaries.push(district.simplified);
+					for (d in state.lowerHouse) {
+						let district = state.lowerHouse[d];
+						if (maps.isInside(p, district)) {
+							true_key.push(d);
+							divisions.push(district.division);
+							boundaries.push(district.simplified);
+						}
 					}
-				}
 
-				break;
+					break;
+				}
 			}
+			let buff = new Buffer.from(JSON.stringify(true_key), 'utf8');
+			civic_key = buff.toString('base64');
 		}
 
 		let politicians = new Array();
@@ -211,6 +245,7 @@ function doLocationSearch(req, res, q) {
 				});
 		});
 
+		response['civic_key'] = civic_key;
 		response['divisions'] = divisions;
 		if (q.boundaries != null)
 			response['boundaries'] = boundaries;

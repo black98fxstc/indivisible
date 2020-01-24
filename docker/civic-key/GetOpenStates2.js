@@ -124,7 +124,9 @@ function getPosts() {
                 subtitle = new Array();
                 lexicon = new Object();;
                 committees = new Array();
-                subtitle.push(member.post.division.name);
+                leg_name = member.post.division.name;
+                leg_name = leg_name.replace('district', 'District');
+                subtitle.push(leg_name);
                 if (member.person) {
                     subtitle.push(member.person.party[0].organization.name);
 

@@ -69,6 +69,8 @@ define( 'INDV_PLUGIN_NONCE_', 'indv_plugin_nonce_' );
 
 // add_filter ( 'manage_edit-indv_politician_sortable_columns', 'indv_plugin_sortable_politician', 10, 1 );
 
+include 'KEYS.php';
+
 abstract class Indv_Post {
 	const POLITICIAN = 'indv_politician';
 	const LEGISLATION = 'indv_legislation';
@@ -1429,19 +1431,6 @@ class Indivisible_Plugin {
 						'operator' => 'IN',
 					) );
 				};
-				$lat = $query->get('lat');
-				$lng = $query->get('lng');
-				if ($lat && $lng) {
-					$politicians = $this->get_json((CIVIC_KEY_URL . 'location-search?lat=' . $lat . '&lng=' . $lng));
-					$politicians = $politicians['politicians'];
-					$meta_query = array ( 'relation' => 'OR' );
-					foreach($politicians as $politician) 
-						$meta_query[] = array(
-							'key' => 'indv_id',
-							'value' => $politician,
-						);
-					$query->set('meta_query', $meta_query );
-				}
 				$name = $query->get('by_name');
 				if ($name) {
 					global $wpdb;
@@ -1459,9 +1448,35 @@ class Indivisible_Plugin {
 							$post_names = array();
 						$post_names[] = $politcian->post_name;
 						$query->set('post_name__in', $post_names);
+						break;
 					}
 				}
+				$keyword = $query->get('s');
+				if ($keyword && $keyword !== '')
+					break;
+				$civic_key = $query->get('civic_key');
+				if (!$civic_key && isset($query->query_vars['civic_key']) && isset($_COOKIE['civic_key']))
+					$civic_key = $_COOKIE['civic_key'];
+				$lat = $query->get('lat');
+				$lng = $query->get('lng');
+				if ($civic_key || $lat && $lng) {
+					if ($lat && $lng) {
+						$politicians = $this->get_json((CIVIC_KEY_URL . 'location-search?lat=' . $lat . '&lng=' . $lng));
+						if (isset($query->query_vars['civic_key']))
+							setcookie( 'civic_key', $politicians['civic_key'], 0, '/' );
+					} else
+						$politicians = $this->get_json((CIVIC_KEY_URL . 'location-search?civic_key=' . $civic_key));
+					$politicians = $politicians['politicians'];
+					$meta_query = array ( 'relation' => 'OR' );
+					foreach($politicians as $politician) 
+						$meta_query[] = array(
+							'key' => 'indv_id',
+							'value' => $politician,
+						);
+					$query->set('meta_query', $meta_query );
+				}
 				break;
+
 			case Indv_Post::LEGISLATION:
 				$politician = $query->get( 'politician' );
 				if ($politician) {
@@ -1481,6 +1496,7 @@ class Indivisible_Plugin {
 					) ) );
 				};
 				break;
+
 			case Indv_Post::ACTION:
 				$politician = $query->get( 'politician' );
 				if ($politician) {
@@ -1645,6 +1661,8 @@ class Indivisible_Plugin {
 			$vars[] = 'politician';
 			$vars[] = 'bill';
 			$vars[] = 'by_name';
+			$vars[] = 'referrer';
+			$vars[] = 'civic_key';
 			$vars[] = 'indv-id';
 	        return $vars;
 	    } );
@@ -1845,7 +1863,7 @@ class Indivisible_Plugin {
 			'headers' => array(
 				'Content-Type'=> 'application/json',
 				'Accept'=> 'application/json',
-				'X-API-KEY' => 	"8d20b2a8-01b5-46b1-be6b-108e0fd2b852",
+				'X-API-KEY' => $keys['open_states'],
 			),
 		) );
 		$raw_body = wp_remote_retrieve_body($response);
@@ -2010,7 +2028,7 @@ class Indv_REST_Controller extends WP_REST_Posts_Controller {
 					'headers' => array(
 						'Content-Type' => 'application/json',
 						'Accept' => 'application/json',
-						'X-API-KEY' => '8d20b2a8-01b5-46b1-be6b-108e0fd2b852'
+						'X-API-KEY' => $keys['open_states'],
 					),
 					'body' => $body,
 				);
@@ -3739,8 +3757,13 @@ function indv_plugin_render_error( $error, $class ) {
 // }
 
 function indv_plugin_stock_photo ($post) {
-	if ($post->post_type == Indv_Post::POLITICIAN)
+	if ($post->post_type === Indv_Post::POLITICIAN)
 		return get_post_meta($post->ID, Indv_Field::IMAGE, true);
+	if ($post->post_type === Indv_Post::ACTION && isset($_REQUEST['referrer'])) {
+		$politcian = absint( $_REQUEST['referrer'] );
+		$photo_url = get_post_meta($politcian, Indv_Field::IMAGE, true);
+		return $photo_url;
+	}	
 	return false;
 }
 
