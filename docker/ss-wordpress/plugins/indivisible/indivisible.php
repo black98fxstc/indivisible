@@ -492,7 +492,7 @@ class Indivisible_Plugin {
 						'hide_empty' => false
 				] );
 				echo '<label for="indv_plugin_box_position">' . $legislation . '</label>';
-				echo '<select id=\'indv_plugin_box_position\' name=\'indv_legislation_position\'>';
+				echo '<select id="indv_plugin_box_position" name="' . Indv_Term::POSITION . '">';
 				foreach ($terms as $term) {
 					echo '<option value=\'' . $term->slug . '\' ' . ($term->slug == $selected ? 'selected' : '') . '>' . $term->name . '</option>';
 				};
@@ -706,6 +706,10 @@ class Indivisible_Plugin {
                     'type'        => 'object'
                 ) )
             );
+		register_rest_route( 'indv/v1', '/politicians/autocomplete', array(
+			'methods' => 'GET',
+			'callback' => array( $this, 'politician_directory' ),
+		) );
 
 // 	    register_rest_field( INDV_POLITICIAN, 'photo_url', array(
 // 	        'get_callback' => function(  $object, $field_name, $request ) {
@@ -1001,6 +1005,13 @@ class Indivisible_Plugin {
 			
 			case Indv_Post::ACTION:
 				$subtitle = array();
+				if (isset($_REQUEST['referrer'])) {
+					$politcian = absint($_REQUEST['referrer']);
+					$subtitle[] = get_the_title( $politcian );
+					$oldtitle =  get_post_meta( $politcian, Indv_Field::SUBTITLE, true );
+					foreach($oldtitle as $title)
+						$subtitle[] = $title;
+				}
 				break;
 				
 			default:
@@ -1418,6 +1429,38 @@ class Indivisible_Plugin {
 						'operator' => 'IN',
 					) );
 				};
+				$lat = $query->get('lat');
+				$lng = $query->get('lng');
+				if ($lat && $lng) {
+					$politicians = $this->get_json((CIVIC_KEY_URL . 'location-search?lat=' . $lat . '&lng=' . $lng));
+					$politicians = $politicians['politicians'];
+					$meta_query = array ( 'relation' => 'OR' );
+					foreach($politicians as $politician) 
+						$meta_query[] = array(
+							'key' => 'indv_id',
+							'value' => $politician,
+						);
+					$query->set('meta_query', $meta_query );
+				}
+				$name = $query->get('by_name');
+				if ($name) {
+					global $wpdb;
+					$sql = $wpdb->prepare( "
+						SELECT post_name
+						FROM $wpdb->posts
+						WHERE post_type = 'indv_politician'
+							AND post_status = 'publish'
+							AND post_title LIKE %s
+							", $name );
+					$politcian = $wpdb->get_row($sql);
+					if ($politcian) {
+						$post_names = $query->query_vars['post_name__in'];
+						if (!$post_names)
+							$post_names = array();
+						$post_names[] = $politcian->post_name;
+						$query->set('post_name__in', $post_names);
+					}
+				}
 				break;
 			case Indv_Post::LEGISLATION:
 				$politician = $query->get( 'politician' );
@@ -1442,22 +1485,10 @@ class Indivisible_Plugin {
 				$politician = $query->get( 'politician' );
 				if ($politician) {
 					$politician = absint($politician);
-					$chambers = get_terms( array(
-						'taxonomy' => Indv_Term::CHAMBER,
-						'object_ids' => $politician,
-						'hierarchical' => false,
-						'fields' => 'tt_ids',
-					) );
 					$subquery = new WP_Query( array(
 						'post_type' => Indv_Post::LEGISLATION,
 						'fields' => 'ids',
 						'politician' => $politician,
-						// 'tax_query' => array( array(
-						// 	'taxonomy' => Indv_Term::CHAMBER,
-						// 	'terms' => $chambers,
-						// 	'field' => 'term_taxonomy_ids',
-						// 	'include_children' => false,
-						// 	'operator' => 'IN',
 					) );
 					$legislation = $subquery->posts;
 					if (empty($legislation))
@@ -1481,12 +1512,20 @@ class Indivisible_Plugin {
 				};
 				$legislation = $query->get('bill');
 				if ($legislation) {
-					$args['meta_query'] = array( array(
+					$chambers = get_terms( array(
+						'taxonomy' => Indv_Term::CHAMBER,
+						'object_ids' => $legislation,
+						'hierarchical' => false,
+						'fields' => 'tt_ids',
+					) );
+					if (empty($chambers))
+						$legislation = 0;
+					$query->set( 'meta_query', array( array(
 						'key' => Indv_Field::LEGISLATION,
 						'value' => array( absint( $legislation ) ),
 						'type' => 'UNSIGNED',
 						'compare' => 'IN',
-					) );
+					) ) );
 				};
 				break;
 
@@ -1573,6 +1612,9 @@ class Indivisible_Plugin {
 				'show_in_admin_status_list' => true,
 				'label_count'               => _n_noop( 'Inactive (%s)', 'Inactive (%s)' ),
 			) );
+			// add_rewrite_tag( '%politician%', '([^&]+)' );
+			// add_rewrite_rule( '^politician/([^/]*)/?', 'index.php?politicians=$matches[1]','top' );
+			// add_rewrite_rule( '^politicians/?', 'index.php?post_type=indv_politician','top' );
 		} );
 	    add_action ( 'init', array( $this, 'register_post_types' ) );
 	    add_action ( 'init', array( $this, 'register_taxonomies' ) );
@@ -1602,6 +1644,8 @@ class Indivisible_Plugin {
 	        $vars[] = 'lat';
 			$vars[] = 'politician';
 			$vars[] = 'bill';
+			$vars[] = 'by_name';
+			$vars[] = 'indv-id';
 	        return $vars;
 	    } );
 		add_action ( 'pre_get_posts', array( $this, 'query_filter' ), 10, 1 );
@@ -1668,7 +1712,9 @@ class Indivisible_Plugin {
 					'rest_url'   => rest_url(),
 					'rest_nonce' => wp_create_nonce( 'wp_rest' ),
 					'user_id'    => get_current_user_id(),
-	            ) );
+				) );
+				
+				wp_enqueue_style( 'indv-admin-style', plugins_url( '/css/admin-style.css', __FILE__ ) );
     	    } );
 			
 			add_action ( 'admin_notices', array( $this, 'plugin_errors' ) );
@@ -1723,6 +1769,29 @@ class Indivisible_Plugin {
 			remove_meta_box ( 'twitter-custom', get_current_screen (), 'advanced' );
 			remove_meta_box ( 'twitter-custom', get_current_screen (), 'normal' );
 		}, 90 );
+	}
+
+	function politician_directory ($data) {
+		global $wpdb;
+		
+		$query = "
+			SELECT post_name, post_title
+			FROM $wpdb->posts
+			WHERE post_type = 'indv_politician'
+				AND post_status = 'publish' ";
+		$term = $data['term'];
+		if ($term)	
+			$query = $wpdb->prepare(
+				$query . "
+					AND post_title LIKE '%s' ",
+					'%' . $term . '%' );
+		
+		$politcians = $wpdb->get_results($query);
+		$directory = array ();
+		foreach ($politcians as $politician)
+			$directory[] = $politician->post_title;
+		
+		return $directory;
 	}
 		
 	public function getLegiscanBill($post_id) {
@@ -3678,58 +3747,37 @@ function indv_plugin_stock_photo ($post) {
 function indv_plugin_get_actions ($post) {
 	switch ($post->post_type) {
 		case Indv_Post::POLITICIAN :
-			$politician = $post->ID;
 			$query = new WP_Query( array(
-				'post_type' => Indv_Post::LEGISLATION,
-				'fields' => 'ids',
-				'politician' => $politician,
+				'fields' => 'all',
+				'post_type' => Indv_Post::ACTION,
+				'politician' => $post->ID,
 			) );
-			if ($query->found_posts) {
-				$legislation = $query->posts;
-				$query = new WP_Query( array(
-					'post_type' => Indv_Post::ACTION,
-					'fields' => 'all',
-					'meta_query' => array(
-						'relation' => 'OR',
-						array (
-							'key' => Indv_Field::LEGISLATION,
-							'value' => $legislation,
-							'type' => 'UNSIGNED',
-							'compare' => 'IN', ),
-						array (
-							'key' => Indv_Field::POLITICIANS,
-							'value' => $politician, ),
-				) ) );
-			} else {
-				$query = new WP_Query( array(
-					'post_type' => Indv_Post::ACTION,
-					'fields' => 'all',
-					'meta_query' => array(
-						array (
-							'key' => Indv_Field::POLITICIANS,
-							'value' => $politician, ),
-				) ) );
-			}
 			if ($query->found_posts)
 				return $query->posts;
 			else
 				return false;
 
 		case Indv_Post::LEGISLATION :
-			$legislation = $post->ID;
 			$query = new WP_Query( array(
 				'post_type' => Indv_Post::ACTION,
 				'fields' => 'all',
-				'meta_query' => array(
-					array (
-						'key' => Indv_Field::LEGISLATION,
-						'value' => $legislation,
-				) ) ) );
+				'bill' => $post->ID,
+				) );
 			if ($query->found_posts)
 				return $query->posts;
 			else
 				return false;
+
+		case Indv_Post::ACTION :
+			if (isset($_REQUEST['referrer'])) {
+				$politcian = absint( $_REQUEST['referrer'] );
+				$contact = get_post_meta($politcian, 'contact', true);
+				return $contact;
+			}
+			else
+				return false;
 		}
+		
 	return false;
 }
 

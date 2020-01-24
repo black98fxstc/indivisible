@@ -47,12 +47,25 @@
             {% if gantry.config.get('content.' ~ scope ~ '.actions.enabled', '1') %}
 				{% set actions = function('indv_plugin_get_actions', post) %}
                 {% if actions %}
-                <div class="subtitle title">
-                    <i class="fa-2x fa-bullhorn"></i>
-                {% for action in actions %}
-                    <a class="title indv_action" href="?action=" + action.ID >
-                    {{ action.post_title }}</a><br/>
-                {% endfor %}
+                {% if post.post_type == 'indv_action' %}
+                <div class="subtitle title indv-contacts">
+                    {% for action in actions %}
+                        {% if action.note %}
+                        <div class="indv-contact-note">{{ action.note }}</div>
+                        {% else %}
+                        <div class="indv-contact-note">{{ action.label }}</div>
+                        {% endif %}
+                        <div class="indv-contact-value">{{ action.value|replace({';': " / "}) }}</div>
+                    {% endfor %}
+                {% else %}
+                <div class="subtitle title indv-actions">
+                    <i class="fa fa-2x fa-bullhorn"></i>
+                    {% for action in actions %}
+                        <a class="title indv-action" href="?p={{ action.ID }}&referrer={{ post.ID }}" >
+                        {{ app }}
+                        {{ action.post_title }}</a><br/>
+                    {% endfor %}
+                {% endif %}
                 </div>
                 {% endif %}
             {% endif %}

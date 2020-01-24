@@ -42,6 +42,30 @@
             {% endif %}
             {# End Entry Title #}
 
+            {# Begin Actions #}
+            {% block actions %}
+            {% if gantry.config.get('content.' ~ scope ~ '.actions.enabled', '1') %}
+				{% set actions = function('indv_plugin_get_actions', post) %}
+                {% if actions %}
+                <div class="subtitle title indv-actions">
+                {% if post.post_type == 'indv_action' %}
+                    {% for action in actions %}
+                        {{ action.type }} -- {{ action.value }}<br/>
+                    {% endfor %}
+                {% else %}
+                    <i class="fa fa-2x fa-bullhorn"></i>
+                    {% for action in actions %}
+                        <a class="title indv-action" href="?p={{ action.ID }}&referrer={{ post.ID }}" >
+                        {{ app }}
+                        {{ action.post_title }}</a><br/>
+                    {% endfor %}
+                {% endif %}
+                </div>
+                {% endif %}
+            {% endif %}
+            {% endblock %}
+            {# End Actions #}
+
             {# Begin Entry Meta #}
             {% if gantry.config.get('content.' ~ scope ~ '.meta-date.enabled', '1') or gantry.config.get('content.' ~ scope ~ '.meta-author.enabled', '1') or gantry.config.get('content.' ~ scope ~ '.meta-comments.enabled', '1') or gantry.config.get('content.' ~ scope ~ '.meta-categories.enabled', '1') or gantry.config.get('content.' ~ scope ~ '.meta-tags.enabled', '0') %}
                 {% include ['partials/meta-' ~ scope ~ '.html.twig', 'partials/meta.html.twig'] %}
