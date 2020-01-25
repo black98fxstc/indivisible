@@ -57,13 +57,15 @@ function indv_update($) {
                 busy = false;
                 if (todo.length > 0)
                     setImmediate(create_politician, $);
-            }). fail( () => {
+                else {
+                    jQuery("#indv_plugin_update_status").html( '<h4>Complete, ' + done + ' considered' + (added > 0 ? ', added ' + added : '') + '</h4>');
+                    console.log(politician.name + " created");
+                }
+            })
+            .fail( () => {
                 alert('Error');
                 console.log('Error');
             });
-        // } else {
-        //     jQuery("#indv_plugin_update_status").html( '<h4>Complete, ' + done + ' considered' + (added > 0 ? ', added ' + added : '') + '</h4>');
-        //     console.log(politician.name + " created");
         }
     }
     
@@ -76,7 +78,7 @@ function indv_update($) {
         row.forEach(state => {
             let checked = $('#indv_settings_state_' + state).is(':checked');
             if (checked) {
-                $.post('http://localhost:8085/us-state-legislators?state=' + state, {},
+                $.post( indv_ajax_obj.civic_key_url + 'us-state-legislators?state=' + state, {},
                     function (data) {
                         data.politicians.forEach(politician => {
                             if (get_federal && politician.government == 'Federal' || get_state && politician.government == 'State') {
