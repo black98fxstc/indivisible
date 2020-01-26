@@ -379,6 +379,8 @@ class Indivisible_Plugin {
 	        ]
 	    ];
 	    register_taxonomy ( Indv_Term::CHAMBER, array( Indv_Post::LEGISLATION, Indv_Post::POLITICIAN ), $args );
+
+		register_taxonomy_for_object_type( 'category', 'attachment' );
 	}
 
 	function register_meta_boxes ($post_type) {
@@ -1332,6 +1334,29 @@ class Indivisible_Plugin {
 					'value_field'	  => 'slug',
 			));
 		}
+
+		global $pagenow;
+		if ( 'upload.php' == $pagenow ) {
+			$taxonomy_slug = 'catagory';
+			$taxonomy = get_taxonomy($taxonomy_slug);
+			$selected = '';
+			$request_attr = 'catagory'; //this will show up in the url
+			if ( isset($_REQUEST[$request_attr] ) ) {
+				$selected = $_REQUEST[$request_attr]; //in case the current page is already filtered
+			}
+			wp_dropdown_categories(array(
+					'show_option_all' =>  $taxonomy->labels->all_items,
+					'taxonomy'        =>  $taxonomy_slug,
+					'name'            =>  $request_attr,
+					'orderby'         =>  'name',
+					'selected'        =>  $selected,
+					'hierarchical'    =>  true,
+					'show_count'      =>  true, // Show number of post in parent term
+					'hide_empty'      =>  false, // Don't show posts w/o terms
+					'hide_if_empty'   =>  false,
+					'value_field'	  => 'slug',
+			));
+		}
 		
 		// if (in_array($post_type, array( INDV_LEGISLATION, INDV_ACTION ))) {
 		// 	$taxonomy_slug = INDV_ISSUE;
@@ -1423,7 +1448,9 @@ class Indivisible_Plugin {
 							'value' => $politician,
 						);
 					$query->set('meta_query', $meta_query );
+					break;
 				}
+				$query->set('orderby', 'rand' );
 				break;
 
 			case Indv_Post::LEGISLATION:
@@ -1474,6 +1501,7 @@ class Indivisible_Plugin {
 								'key' => Indv_Field::POLITICIANS,
 								'value' => $politician, ),
 					) );
+					break;
 				};
 				$legislation = $query->get('bill');
 				if ($legislation) {
@@ -1491,8 +1519,24 @@ class Indivisible_Plugin {
 						'type' => 'UNSIGNED',
 						'compare' => 'IN',
 					) ) );
+					break;
 				};
-				break;
+				$civic_key = $query->get('civic_key');
+				if (!$civic_key && isset($query->query_vars['civic_key']) && isset($_COOKIE['civic_key']))
+					$civic_key = $_COOKIE['civic_key'];
+				if ($civic_key) {
+					$politicians = $this->get_json((CIVIC_KEY_URL . 'location-search?civic_key=' . $civic_key));
+					$politicians = $politicians['politicians'];
+					$meta_query = array ( 'relation' => 'OR' );
+					foreach($politicians as $politician) 
+						$meta_query[] = array(
+							'key' => 'indv_id',
+							'value' => $politician,
+						);
+					$query->set('meta_query', $meta_query );
+					break;
+				}
+			break;
 
 			default:
 		}
@@ -1627,6 +1671,7 @@ class Indivisible_Plugin {
 	        add_action ( 'admin_menu', function () {
 	            add_options_page ( 'Indivisible', 'Indivisible', 'manage_options', 'indv_settings', array( $this, 'render_settings' ) );
 				remove_submenu_page( 'edit.php?post_type=indv_politician', 'post-new.php?post_type=indv_politician' );
+				remove_submenu_page( 'edit.php?post_type=indv_legislation', 'edit-tags.php?taxonomy=chamber&post_type=indv_legislation' );
 	        } );
 			add_action ( 'admin_head', function () {
 				echo '<style type="text/css">';
@@ -1680,7 +1725,8 @@ class Indivisible_Plugin {
 					'ajax_nonce' => wp_create_nonce( 'indv_action' ),
 					'rest_url'   => rest_url(),
 					'rest_nonce' => wp_create_nonce( 'wp_rest' ),
-					'civic_key_url' => CIVIC_KEY_URL,
+					// 'civic_key_url' => CIVIC_KEY_URL,
+					'civic_key_url' => 'http://127.0.0.1:8085/civic-key/', //used on client!
 				) );
     	    } );
 			
@@ -1705,6 +1751,12 @@ class Indivisible_Plugin {
 				}
 			} );
 
+			add_filter( 'default_hidden_meta_boxes', function ( $hidden, $screen ) {
+				if (!in_array('indv_plugin_box_lexicon', $hidden))
+					$hidden[] = 'indv_plugin_box_lexicon';
+				return $hidden;
+			}, 10, 2 );
+			
 			add_filter ( 'manage_indv_politician_posts_columns',  function ( $columns ) {
 				$new_columns = array_merge(array_slice( $columns, 0, 2 ), array( 'votes' => __('Votes') ), array_slice($columns, 2));
 				$new_columns['title'] = __('Name');

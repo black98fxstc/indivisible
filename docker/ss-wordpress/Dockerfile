@@ -47,7 +47,7 @@ RUN echo ${GANTRY_VERSION}; \
 	#    curl -o two-factor-authentication.zip -fSL "https://downloads.wordpress.org/plugin/two-factor-authentication.${TWOFACTOR_VERSION}.zip"; \
 	unzip two-factor-authentication.zip; \
 	mv two-factor-authentication /usr/src/wordpress/wp-content/plugins/; \
-	curl -o twitter.zip -fSL "https://downloads.wordpress.org/plugin/twitter.${TWITTER_VERSION}.zip"; \
+	curl -o twitter.zip -fSL "https://downloads.wordpress.org/plugin/twitter.zip"; \
 	unzip twitter.zip; \
 	mv twitter /usr/src/wordpress/wp-content/plugins/; \
 	curl -o mailchimp-for-wp.zip -fSL  https://downloads.wordpress.org/plugin/mailchimp-for-wp.${MAILCHIMP_VERSION}.zip; \
@@ -58,8 +58,10 @@ RUN echo ${GANTRY_VERSION}; \
 	mv google-sitemap-generator /usr/src/wordpress/wp-content/plugins/; 
 
 COPY plugins/indivisible/indivisible.php /usr/src/wordpress/wp-content/plugins/indivisible/indivisible.php
+COPY plugins/indivisible/KEYS.php /usr/src/wordpress/wp-content/plugins/indivisible/KEYS.php
 COPY plugins/indivisible/js /usr/src/wordpress/wp-content/plugins/indivisible/js/
-COPY KEYS.js /usr/src/wordpress/wp-content/plugins/indivisible/indv-react/
+COPY plugins/indivisible/css /usr/src/wordpress/wp-content/plugins/indivisible/css/
+#COPY KEYS.js /usr/src/wordpress/wp-content/plugins/indivisible/indv-react/
 #COPY plugins/indivisible/indv-react/build/static/js/main.a285be49.js /usr/src/wordpress/wp-content/plugins/indivisible/indv-react.js
 #COPY plugins/indivisible/indv-react/build/static/css/main.c17080f1.css /usr/src/wordpress/wp-content/plugins/indivisible/indv-react.css
 COPY themes /usr/src/wordpress/wp-content/themes/
