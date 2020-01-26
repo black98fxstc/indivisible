@@ -1,0 +1,17 @@
+.indv-admin { 
+    text-align: left;
+    padding-top: 10px;
+}
+
+#indv-inactivate::before { 
+    display: inline-block;
+    font: normal 20px/1 dashicons;
+    content: "\f157";
+    margin-left: -1px;
+    padding-right: 3px;
+    vertical-align: top;
+}
+
+.indv-rollcalls {
+    padding: 5px;
+}
