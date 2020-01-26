@@ -4,6 +4,8 @@
 
 const http = require('http');
 const url = require('url');
+const crypto = require('crypto');
+const pepper = Buffer.alloc( 16 );
 
 const maps = require("./GetCensusMaps.js");
 var os = require("./GetOpenStates2.js");
@@ -169,9 +171,24 @@ function doLocationSearch(req, res, q) {
 		response['q'] = q;
 
 		if (civic_key) {
-			let buff = new Buffer.from(civic_key, 'base64');
-			true_key = JSON.parse(buff.toString('utf8'));
-			
+			let buffer = Buffer.from( civic_key, 'base64' );
+			let salt = buffer.slice( 0, 16 );
+			let encrypted = buffer.slice( salt.length );
+			const decipher = crypto.createDecipheriv( 'aes-128-cbc', pepper, salt );
+			let decrypted = decipher.update(encrypted);
+			try {
+				decrypted = Buffer.concat( [ decrypted, decipher.final() ] );
+			}
+			catch (error) {
+				throw new Error( "Civic Key is stale" );
+			}
+			let true_key = new Array(decrypted.length / 2);
+			let array = new ArrayBuffer( decrypted.length );
+			decrypted.copy( Buffer.from( array ) );
+			let view = new DataView( array );
+			for (i = 0; i < true_key.length; ++i)
+				true_key[i] = view.getUint16(2 * i);
+						
 			let state = states[true_key[0]];
 			divisions.push(state.division);
 			boundaries.push(state.simplified);
@@ -232,8 +249,22 @@ function doLocationSearch(req, res, q) {
 					break;
 				}
 			}
-			let buff = new Buffer.from(JSON.stringify(true_key), 'utf8');
-			civic_key = buff.toString('base64');
+
+			let salt = Buffer.alloc( 16 );
+			crypto.randomFillSync(salt, 0, 16);
+			let array = new ArrayBuffer( 2 * true_key.length );
+			let view = new DataView( array );
+			for (i = 0; i < true_key.length; ++i)
+				view.setUint16( 2 * i, true_key[i] );
+			let sugar = Buffer.from( array );
+			const cipher = crypto.createCipheriv('aes-128-cbc', pepper, salt);
+			let encrypted = cipher.update( sugar );
+			encrypted = Buffer.concat( [ encrypted, cipher.final() ] );
+			array = new ArrayBuffer( salt.length + encrypted.length );
+			civic_key = Buffer.from( array );
+			salt.copy( civic_key, 0 );
+			encrypted.copy( civic_key, salt.length );
+			civic_key = civic_key.toString('base64');
 		}
 
 		let politicians = new Array();
@@ -324,6 +355,7 @@ function indexLegislators( states ) {
 }
 
 let startServer = function () {
+	crypto.randomFillSync(pepper, 0, 16);
 
 	linkDistrictsToBoundaries();
 
@@ -379,6 +411,73 @@ function kick_it () {
 		2000)
 	});
 }
+
+
+// let n = 4;
+// array = new ArrayBuffer( 16 + 2 * n );
+// let salt = Buffer.from( array ).slice( 0, 16);
+// let sugar = Buffer.from( array, 16 );
+// crypto.randomFillSync(salt, 0, 16);
+
+// let view = new DataView( array, 16 );
+// for (i = 0; i < n; ++i)
+// 	view.setUint16( 2 * i, i );
+
+// console.log(crypto.defaultCipherList);
+// const cipher = crypto.createCipheriv('aes-128-cbc', new Uint8Array(pepper), new Uint8Array(salt));
+// let encrypted = cipher.update( new Uint8Array(sugar) );
+// encrypted = Buffer.concat( [ encrypted, cipher.final() ] );
+// encrypted.copy( sugar, 0, 0 );
+
+// let civic_key = Buffer.from( array).toString('base64');
+// let buffer = Buffer.from( civic_key, 'base64' );
+
+// salt2 = buffer.slice( 0, 16 );
+// n = (buffer.length - 16) / 2;
+
+// encrypted2 = buffer.slice( 16 );
+// if (salt.compare(salt2))
+// 	console.log('oops');
+// if (encrypted.compare(encrypted2))
+// console.log('oops');
+// let decipher = crypto.createDecipheriv( 'aes-128-cbc', new Uint8Array(pepper), new Uint8Array(salt2) );
+// let decrypted = decipher.update(new Uint8Array(encrypted));
+// decrypted = Buffer.concat( [ decrypted, decipher.final() ] );
+// decipher = crypto.createDecipheriv( 'aes-128-cbc', new Uint8Array(pepper), new Uint8Array(salt2) );
+// decrypted = decipher.update(new Uint8Array(encrypted2));
+// decrypted = Buffer.concat( [ decrypted, decipher.final() ] );
+
+// array = new ArrayBuffer( 2 * n );
+// sugar = Buffer.from( array );
+// decrypted.copy( sugar, 0, 0 );
+// view = new DataView( array );
+// for (i = 0; i < n; ++i)
+// 	console.log(view.getUint16(2 * i));
+
+
+
+	// const salt = new Uint8Array( buffer.slice( 0, 16 ) );
+// sugar = new Uint16Array( buffer.slice( 16 ) );
+// for (index of sugar)
+// 	console.log(sugar[index]);
+
+// const buf = Buffer.alloc(16);
+// let salt = crypto.randomFillSync(buf);
+// console.log(salt.toString('hex'));
+// let pepper = crypto.randomFillSync(buf);
+// console.log(pepper.toString('hex'));
+// console.log(crypto.getCiphers());
+// const algorithm = 'aes-128-cbc';
+// const password = 'Password used to generate key';
+
+// const cipher = crypto.createCipheriv(algorithm, pepper, salt);
+// let encrypted = cipher.update('some clear text data', 'utf8', 'hex');
+// encrypted += cipher.final('hex');
+// console.log(encrypted);
+// const decipher = crypto.createDecipheriv(algorithm, pepper, salt);
+// let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+// decrypted += decipher.final('utf8');
+// console.log(decrypted);
 
 console.log("start");
 
