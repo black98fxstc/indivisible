@@ -1,20 +1,47 @@
 query posts($id: ID) {
   organization(id: $id) {
+    id
+    name
+    classification
+    links {
+      note
+      url
+    }
+    sources {
+      note
+      url
+    }
     members: currentMemberships {
-      id
       person {
         id
         name
-        sortName
-        familyName
-        givenName
         image
+        contact: contactDetails {
+          type
+          value
+          note
+          label
+        }
+        party: currentMemberships (classification: "party") {
+          organization {
+            name
+          }
+        }
+        committees: currentMemberships(classification: "committee") {
+          organization {
+            name
+            parent {
+              name
+            }
+          }
+        }
         links {
           note
           url
         }
-        otherNames {
-          name
+        sources {
+          note
+          url
         }
         identifiers {
           scheme

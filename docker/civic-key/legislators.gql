@@ -1,0 +1,46 @@
+query legislators($cursor: String) {
+  people(first: 10, after: $cursor) {
+    edges {
+      node {
+        name
+        id
+        identifiers {
+          identifier
+          scheme
+        }
+        image
+        chamber: currentMemberships(classification: ["upper", "lower", "legislature"]) {
+          post {
+            label
+            role
+            division {
+              id
+              name
+              country
+            }
+            id
+          }
+          organization {
+            name
+            id
+            identifiers {
+              identifier
+              scheme
+            }
+            classification            
+            parent {
+              name
+            }
+          }
+        }
+      }
+    }
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      endCursor
+      startCursor
+    }
+    totalCount
+  }
+}

@@ -28,6 +28,10 @@ h4 {
 	}
 }
 
+.indv-action {
+	margin-left: .5rem;
+}
+
 @include breakpoint(no-mobile) {
 	.ss-item {
 	  padding-left: 2rem;
@@ -60,3 +64,28 @@ h4 {
   }
 }
 
+.indv-actions {
+	display: inline-grid;
+	grid-template-columns: auto auto;
+	max-width: 50%;
+}
+
+.indv-action {
+    margin-left: 1rem;
+	display: inline-block;
+}
+
+
+.indv-contacts {
+	display: inline-grid;
+	grid-template-columns: auto auto;
+	max-width: 60%;
+}
+
+.indv-contact-note {
+	margin: .25rem 0;
+}
+
+.indv-contact-value {
+	margin: .25rem 1rem;
+}

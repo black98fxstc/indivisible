@@ -8,3 +8,14 @@ atoms:
       atom: assets-3499
       include:
         - attributes
+  -
+    id: assets-9585
+    type: assets
+    title: 'Custom CSS / JS'
+    attributes:
+      enabled: '1'
+      css: {  }
+      javascript:
+        - { location: 'https://unpkg.com/react@16/umd/react.development.js', inline: '', in_footer: '0', extra: {  }, priority: '0', name: React }
+        - { location: 'https://unpkg.com/react-dom@16/umd/react-dom.development.js', inline: '', in_footer: '0', extra: {  }, priority: '0', name: 'React DOM' }
+        - { location: '', inline: "class Hello extends React.Component {\n  render() {\n    return React.createElement('div', null, `Hello ${this.props.toWhat}`);\n  }\n}", in_footer: '0', extra: {  }, priority: '0', name: Hello }

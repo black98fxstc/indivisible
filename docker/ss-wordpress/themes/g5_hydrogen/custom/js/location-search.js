@@ -21,7 +21,7 @@ jQuery(document).ready(function() {
 		});
 
 	jQuery( "#indv_legislator_name" ).autocomplete({
-        source: "/wp-json/indv/v1/autocomplete/politician"
+		source: "/index.php?rest_route=/indv/v1/politicians/autocomplete"
       });
 
 	var output = document.getElementById("indv_output");
@@ -35,7 +35,7 @@ jQuery(document).ready(function() {
 		var longitude = document.getElementById("indv_longitude").value;
 		if (latitude == '' || longitude == '')  {
 			if (!navigator.geolocation)
-				output.innerHTML = "<p>Geolocation is not supported by your browser</p>";
+				output.innerHTML = "Geolocation is not supported by your browser";
 			else {
 				navigator.geolocation.getCurrentPosition(
 					function (position) { //success
@@ -46,11 +46,24 @@ jQuery(document).ready(function() {
 					    document.getElementById("indv_longitude").value = longitude;
 						output.innerHTML = "<p>Successfully determined your location</p>";
 						
-						jQuery("#indv_form").submit();
+						jQuery("#indv_search").submit();
 					},
 		
-					function () { //failure
-						output.innerHTML = "<p>Unable to retrieve your location</p>";
+					function (error) { //failure
+						switch(error.code) {
+							case error.PERMISSION_DENIED:
+							output.innerHTML = "User denied the request for Geolocation."
+							break;
+							case error.POSITION_UNAVAILABLE:
+							output.innerHTML = "Location information is unavailable."
+							break;
+							case error.TIMEOUT:
+							output.innerHTML = "The request to get user location timed out."
+							break;
+							case error.UNKNOWN_ERROR:
+							output.innerHTML = "An unknown error occurred."
+							break;
+						}
 					} );
 			}
 			event.preventDefault();

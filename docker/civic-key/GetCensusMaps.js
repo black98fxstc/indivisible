@@ -219,6 +219,8 @@ function bootstrap() {
 			}
 			let stateIndex = Number.parseInt(state.attributes['STATE']);
 			stateForIndex[stateIndex] = state;
+			stateForIndex[state.attributes["STUSAB"]] = state;
+			stateForIndex[state.attributes["NAME"]] = state;
 			state.congressional = new Array();
 			state.upperHouse = new Array();
 			state.lowerHouse = new Array();
@@ -264,6 +266,17 @@ function bootstrap() {
 		return;
 	};
 
+	censusStates.forEach( (state) => {
+		avoidDateLine(state.geometry.rings);
+		state.geometry.box = boundingBox(state.geometry.rings);
+		simple = simplifyBoundary(state.geometry.rings, 2000);
+		state.simplified = {
+			rings: simple,
+			box: boundingBox(simple),
+		}
+		let stateIndex = Number.parseInt(state.attributes['STATE']);
+	});
+	
 	censusCongress.forEach((district) => {
 		avoidDateLine(district.geometry.rings);
 		district.geometry.box = boundingBox(district.geometry.rings);
@@ -318,8 +331,13 @@ exports.fromLatLngToPoint = (geo) => {
 exports.fromPointToLatLng = (point) => {
 	return fromPointToLatLng(point);
 }
+
 exports.states = () => {
 	return censusStates;
+}
+
+exports.state4 = ( index ) => {
+	return stateForIndex[ index ];
 }
 
 exports.isInside = (point, feature) => {

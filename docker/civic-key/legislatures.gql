@@ -4,7 +4,7 @@ query legislatures {
       node {
         name
         id
-        organizations(first: 10 classification: ["legislature" "upper" "lower"]) {
+        organizations(first: 10, classification: ["legislature", "upper", "lower"]) {
           edges {
             node {
               name
